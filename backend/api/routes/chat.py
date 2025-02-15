@@ -14,7 +14,7 @@ def get_db_connection():
         database="tno"
     )
 
-# WebSocket to receive and send messages
+
 class ChatManager:
     def __init__(self):
         self.active_connections = {}
@@ -36,8 +36,8 @@ class ChatManager:
         cursor = conn.cursor(dictionary=True)
         cursor.execute("""
             SELECT * FROM chat 
-            WHERE (senderID = %s AND receiverID = %s) 
-            OR (senderID = %s AND receiverID = %s)
+            WHERE (sender_id = %s AND receiver_id = %s) 
+            OR (sender_id = %s AND receiver_id = %s)
             ORDER BY timestamp ASC
         """, (sender_id, receiver_id, receiver_id, sender_id))
         messages = cursor.fetchall()
@@ -55,7 +55,7 @@ async def websocket_chat(websocket: WebSocket, sender_id: int, receiver_id: int)
     # Send chat history on connection
     history = await chat_manager.get_chat_history(sender_id, receiver_id)
     for message in history:
-        await websocket.send_text(f"{message['senderID']}: {message['message']}")
+        await websocket.send_text(f"{message['sender_id']}: {message['message']}")
 
     try:
         while True:
@@ -64,7 +64,7 @@ async def websocket_chat(websocket: WebSocket, sender_id: int, receiver_id: int)
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO chat (senderID, receiverID, message) 
+                INSERT INTO chat (sender_id, receiver_id, message) 
                 VALUES (%s, %s, %s)
             """, (sender_id, receiver_id, message))
             conn.commit()
