@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h2>Chat with User 2</h2>
+    <div id="messages" style="border: 1px solid #ddd; padding: 10px;"></div>
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const userId = 1;  // Replace with dynamic user ID
+        const receiverId = 2;  // Replace with dynamic receiver ID
+        const socket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${userId}/${receiverId}`);
+
+        socket.onmessage = function(event) {
+            const message = event.data;
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<div>${message}</div>`;
+        };
+
+        function sendMessage() {
+            const message = document.getElementById("messageInput").value;
+            socket.send(message);
+            document.getElementById("messageInput").value = '';  // Clear the input field
+        }
+    </script>
+</body>
+</html>

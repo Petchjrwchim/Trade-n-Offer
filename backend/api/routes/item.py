@@ -5,7 +5,7 @@ from typing import List
 
 router = APIRouter()
 
-# Simulating a list of items (in memory, can be replaced with DB later)
+
 virtual_items = [
     {"name": "Item 1", "description": "Description of Item 1", "color": "#FF6347"},
     {"name": "Item 2", "description": "Description of Item 2", "color": "#4682B4"},
@@ -18,7 +18,7 @@ current_index = 0
 async def get_item():
     global current_index
     if current_index >= len(virtual_items):
-        current_index = 0  # Reset if all items have been shown
+        current_index = 0
     item = virtual_items[current_index]
-    current_index += 1  # Move to the next item
+    current_index += 1
     return item
