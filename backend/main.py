@@ -24,13 +24,14 @@ app.mount("/static", StaticFiles(directory="../Frontend/static"), name="static")
 templates = Jinja2Templates(directory="../Frontend/templates")
 
 
+
 app.include_router(auth_router)
 @app.get("/")
 async def index(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
         return RedirectResponse(url="/login")
-    return templates.TemplateResponse("mainPage.html", 
+    return templates.TemplateResponse("main_page.html", 
                                       {"request": request, "message": "Welcome to Trade’n Offer"})
 
 
@@ -44,3 +45,4 @@ async def logout():
     response = RedirectResponse(url="login")
     response.delete_cookie("session_token")
     return response
+
