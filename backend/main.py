@@ -10,6 +10,7 @@ from typing import List
 from api.routes.authentication import router as auth_router
 from api.routes.item_manage import router as item_router
 from api.routes.chat_server import router as chat_router
+from api.routes.item import router as itemlis_router
 
 app = FastAPI()
 
@@ -29,6 +30,7 @@ templates = Jinja2Templates(directory="../Frontend/templates")
 app.include_router(auth_router)
 app.include_router(item_router)
 app.include_router(chat_router)
+app.include_router(itemlis_router)
 
 
 @app.get("/")
@@ -54,7 +56,9 @@ async def logout():
 async def chat_page(request: Request):
     return templates.TemplateResponse("chat.html", {"request": request})
 
-
+@app.get("/MyItem")
+async def myItem_page(request: Request):
+    return templates.TemplateResponse("myItem_page.html", {"request": request})
 
 def check_session_cookie(request: Request):
     session_token = request.cookies.get("session_token")

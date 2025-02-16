@@ -16,10 +16,8 @@
         const chatBox = document.getElementById("chat-box");
         const messageInput = document.getElementById("message");
 
-        // Connect to WebSocket
         const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${username}`);
 
-        // When receiving a message, append it to the chat box
         ws.onmessage = function(event) {
             const message = event.data;
             const div = document.createElement("div");
