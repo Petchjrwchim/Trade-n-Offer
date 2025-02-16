@@ -9,7 +9,8 @@ from typing import List
 #authentication function
 from api.routes.authentication import router as auth_router
 from api.routes.item import router as item_router
-from api.routes.chat import router as chat_router
+# from api.routes.chat import router as chat_router
+from api.routes.chat_server import router as chat_router
 
 app = FastAPI()
 
@@ -29,6 +30,7 @@ templates = Jinja2Templates(directory="../Frontend/templates")
 app.include_router(auth_router)
 app.include_router(item_router)
 app.include_router(chat_router)
+
 
 @app.get("/")
 async def index(request: Request):
@@ -51,5 +53,5 @@ async def logout():
 
 @app.get("/chat")
 async def chat_page(request: Request):
-    return templates.TemplateResponse("chat.html", {"request": request})
+    return templates.TemplateResponse("chat2.html", {"request": request})
 
