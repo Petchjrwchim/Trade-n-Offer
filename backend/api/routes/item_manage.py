@@ -3,19 +3,16 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import mysql.connector
 
-# Create the router instance
 router = APIRouter()
 
-# Database connection function
 def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
-        user="root",  # Change if needed
-        password="",  # Change if needed
+        user="root",
+        password="",
         database="tno"
     )
 
-# Login endpoint
 def get_current_user_id(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
