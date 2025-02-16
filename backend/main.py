@@ -53,5 +53,5 @@ async def logout():
 
 @app.get("/chat")
 async def chat_page(request: Request):
-    return templates.TemplateResponse("chat2.html", {"request": request})
+    return templates.TemplateResponse("chat.html", {"request": request})
 
