@@ -2,7 +2,6 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 import mysql.connector
 
-# Create the router instance
 router = APIRouter()
 
 # WebSocket connection storage (for demonstration purposes)
@@ -12,8 +11,8 @@ active_connections = []
 def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
-        user="root",  # Change if needed
-        password="",  # Change if needed
+        user="root",
+        password="",
         database="tno"
     )
 
@@ -87,8 +86,6 @@ async def websocket_chat(websocket: WebSocket, username: str):
         # Ensure the connection is removed
         active_connections.remove(websocket)
         await websocket.close()
-
-
 
 # Chat history retrieval (optional, to fetch old messages)
 @router.get("/chat_history/{username}")
