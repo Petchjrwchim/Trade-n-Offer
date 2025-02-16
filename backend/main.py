@@ -54,6 +54,8 @@ async def logout():
 async def chat_page(request: Request):
     return templates.TemplateResponse("chat.html", {"request": request})
 
+
+
 def check_session_cookie(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
