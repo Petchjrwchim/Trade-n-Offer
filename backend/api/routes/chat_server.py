@@ -103,3 +103,4 @@ async def get_chat_history(username: str):
     conn.close()
 
     return {"messages": chat_history}
+
