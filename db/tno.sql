@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 16, 2025 at 11:02 AM
+-- Generation Time: Feb 16, 2025 at 04:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -92,16 +92,21 @@ CREATE TABLE `trade_items` (
   `image` varchar(255) NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` text NOT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `trade_items`
 --
 
-INSERT INTO `trade_items` (`ID`, `userID`, `image`, `name`, `description`, `price`, `created_at`) VALUES
-(1, 7, 'tr', 'test1', 'test1', 10.00, '2025-02-16 08:43:35');
+INSERT INTO `trade_items` (`ID`, `userID`, `image`, `name`, `description`, `price`) VALUES
+(1, 7, 'tr', 'test1', 'test1', 10.00),
+(16, 7, 't', 't', 't', 1.00),
+(17, 8, 'test', 'testItem from user2', 'test', 1234.00),
+(18, 8, 'test', 'testItem from user1', 'test', 1234.00),
+(19, 8, 'image', 'testItem from user1', 'test', 1234.00),
+(20, 8, 'image', 'testItem from user1', 'name', 1234.00),
+(21, 8, 'image', 'testItem from user1', 'name', 1234.00);
 
 -- --------------------------------------------------------
 
@@ -190,7 +195,7 @@ ALTER TABLE `chat_sessions`
 -- AUTO_INCREMENT for table `trade_items`
 --
 ALTER TABLE `trade_items`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `userpass`
