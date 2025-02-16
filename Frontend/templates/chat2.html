@@ -1,33 +1,38 @@
-<!-- chat.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time Chat</title>
+    <title>Real-Time Chat</title>
 </head>
 <body>
-    <h1>Real-time Chat</h1>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Type a message" />
+    <h2>Chat with Other Users</h2>
+    <div id="chat-box" style="height: 400px; overflow-y: scroll;"></div>
+    <input type="text" id="message" placeholder="Type a message...">
     <button onclick="sendMessage()">Send</button>
 
     <script>
-        const socket = new WebSocket("ws://127.0.0.1:8000/ws");
+        const username = localStorage.getItem("username");
+        const chatBox = document.getElementById("chat-box");
+        const messageInput = document.getElementById("message");
 
-        socket.onopen = () => {
-            console.log("Connected to WebSocket");
-        };
+        // Connect to WebSocket
+        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${username}`);
 
-        socket.onmessage = (event) => {
-            const messagesDiv = document.getElementById("messages");
-            messagesDiv.innerHTML += `<p>${event.data}</p>`;  // Display received message
+        ws.onmessage = function(event) {
+            const message = event.data;
+            const div = document.createElement("div");
+            div.textContent = message;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the latest message
         };
 
         function sendMessage() {
-            const messageInput = document.getElementById("messageInput");
-            socket.send(messageInput.value);  // Send message to WebSocket server
-            messageInput.value = '';  // Clear the input field
+            const message = messageInput.value;
+            if (message.trim()) {
+                ws.send(message);  // Send message via WebSocket
+                messageInput.value = "";  // Clear input
+            }
         }
     </script>
 </body>
