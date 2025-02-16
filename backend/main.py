@@ -56,7 +56,9 @@ async def logout():
 async def chat_page(request: Request):
     return templates.TemplateResponse("chat.html", {"request": request})
 
-
+@app.get("/MyItem")
+async def myItem_page(request: Request):
+    return templates.TemplateResponse("myItem_page.html", {"request": request})
 
 def check_session_cookie(request: Request):
     session_token = request.cookies.get("session_token")
