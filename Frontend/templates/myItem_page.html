@@ -1,0 +1,71 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Items</title>
+    <script>
+        async function fetchItems() {
+            const response = await fetch("/my-items");
+            if (response.ok) {
+                const data = await response.json();
+                const itemList = document.getElementById("item-list");
+                itemList.innerHTML = "";
+                data.items.forEach(item => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${item.itemName} - ${item.description}`;
+                    itemList.appendChild(listItem);
+                });
+            } else {
+                alert("Failed to load items");
+            }
+        }
+
+        async function addItem(event) {
+            event.preventDefault();
+
+            const itemName = document.getElementById("item-name").value;
+            const description = document.getElementById("description").value;
+            const itemImage = document.getElementById("item-image").value; // Optional image URL
+            const itemPrice = document.getElementById("item-price").value; // Optional image URL
+
+            const itemData = {
+                item_name: itemName,
+                item_description: description,
+                item_image: itemImage,
+                item_price: itemPrice
+            };
+
+            const response = await fetch("/add-item", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(itemData)
+            });
+
+            if (response.ok) {
+                alert("Item added successfully");
+                fetchItems();
+            } else {
+                alert("Failed to add item");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchItems);
+    </script>
+</head>
+
+<body>
+    <h1>My Items</h1>
+    <ul id="item-list"></ul>
+
+    <h2>Add New Item</h2>
+    <form onsubmit="addItem(event)">
+        <input type="text" id="item-name" placeholder="Item Name" required>
+        <input type="text" id="description" placeholder="Description" required>
+        <input type="text" id="item-image" placeholder="Image URL (Optional)">
+        <input type="text" id="item-price" placeholder="xxx">
+        <button type="submit">Add Item</button>
+    </form>
+</body>
+
+</html>

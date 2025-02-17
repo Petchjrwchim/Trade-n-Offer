@@ -1,6 +1,6 @@
 Trade'n offer
 Main feature
- Process...*-Login (Basic (user,pass)) -> improve later
+ Process...*-Login (Basic (user,pass)) -> improve later /
  *-Add, remove, edit items
  *-swipe (offer, buy, like, ignore, not interest)
  *-Chat, Notification (real time)
