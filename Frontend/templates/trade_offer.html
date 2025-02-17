@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade’n Offer</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
+  <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+</head>
+<body>
+  {% include 'component/sidenav.html' %}
+
+  <div class="content">
+    <div class="header">
+      <h1>Trade’n Offer</h1>
+    </div>
+    <div class="card-container" id="swipeCard">
+      <img id="productImage" src="/static/image_test/camera.jpg" alt="Product Image" draggable="true">
+    </div>
+    <div class="button-container">
+      <button id="btn-up" class="control-btn">⬆ Up</button>
+      <div class="horizontal-buttons">
+        <button id="btn-left" class="control-btn">❌ Left</button>
+        <button id="btn-save" class="control-btn">💾 Save</button>
+        <button id="btn-right" class="control-btn">✅ Right</button>
+      </div>
+      <button id="btn-down" class="control-btn">🛒 Down</button>
+    </div>
+  </div>
+
+<py-script>
+  from js import document, window
+  from pyodide.ffi import create_proxy
+  
+  images = ["/static/image_test/camera.jpg", "/static/image_test/guitar.jpg", "/static/image_test/piano.jpg"]
+  current_index = 0
+  start_x = 0
+  start_y = 0
+  
+  def show_next_image():
+      global current_index
+      current_index = (current_index + 1) % len(images)
+      document.getElementById("productImage").src = images[current_index]
+  
+  def drag_start(event):
+      global start_x, start_y
+      start_x = event.clientX
+      start_y = event.clientY
+  
+  def drag_end(event):
+      end_x = event.clientX
+      end_y = event.clientY
+      dx = end_x - start_x
+      dy = end_y - start_y
+  
+      if abs(dx) > abs(dy):
+          if dx > 50:
+              handle_swipe("right")
+          elif dx < -50:
+              handle_swipe("left")
+      else:
+          if dy > 50:
+              handle_swipe("down")
+          elif dy < -50:
+              handle_swipe("up")
+  
+  def handle_swipe(direction):
+      print(f"Swiped: {direction}")
+      card = document.getElementById("swipeCard")
+      transforms = {
+          "left": "translateX(-300px) rotate(-20deg)",
+          "right": "translateX(300px) rotate(20deg)",
+          "up": "translateY(-300px)",
+          "down": "translateY(300px)"
+      }
+      card.style.transform = transforms.get(direction, "")
+      window.setTimeout(create_proxy(lambda: reset_card()), 500)
+  
+  def reset_card():
+      document.getElementById("swipeCard").style.transform = "translateX(0) translateY(0) rotate(0)"
+      show_next_image()
+  
+  image = document.getElementById("productImage")
+  image.addEventListener("dragstart", create_proxy(drag_start))
+  image.addEventListener("dragend", create_proxy(drag_end))
+  </py-script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+body {
+    background-color: #cde7e6;
+    display: flex;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    width: 180px;
+    height: 100vh;
+    background: #000;
+    color: white;
+    padding-top: 20px;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    color: white;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.sidebar a:hover {
+    background: #333;
+}
+
+.icon {
+    min-width: 40px;
+    text-align: center;
+}
+
+.text {
+    white-space: nowrap;
+}
+
+.nav-links {
+    flex-grow: 1;
+}
+
+.profile-link {
+    margin-top: auto;
+}
+
+.content {
+    margin-left: 180px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.header {
+    color: orange;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.card-container {
+    width: 320px;
+    height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.card-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+    cursor: grab; 
+}
+
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.horizontal-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.control-btn {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+}
