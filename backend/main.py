@@ -73,7 +73,9 @@ async def check_session(request: Request):
     print("i'm heasdre")
     return {"message": "Session token exists", "session_token": session_token}
 
-# Route ใหม่สำหรับ Trade’n Offer
 @app.get("/trade_offer")
 async def trade_offer_page(request: Request):
-    return templates.TemplateResponse("trade_offer.html", {"request": request})
+    return templates.TemplateResponse("trade_offer.html", {
+        "request": request,
+        "image_url": "/static/image_test/camera.jpg"  # Pass the image URL here
+    })

@@ -1,0 +1,60 @@
+<div class="card-container" id="swipeCard">
+    <img id="productImage" src="{{ image_url }}" alt="Product Image" draggable="true">
+</div>
+
+<py-script>
+  from js import document, window
+  from pyodide.ffi import create_proxy
+  
+  images = ["/static/image_test/camera.jpg", "/static/image_test/guitar.jpg", "/static/image_test/piano.jpg"]
+  current_index = 0
+  offset_x = 0
+  offset_y = 0
+  start_x = 0
+  start_y = 0
+  
+  def show_next_image():
+      global current_index
+      current_index = (current_index + 1) % len(images)
+      document.getElementById("productImage").src = images[current_index]
+  
+  def reset_card():
+      document.getElementById("swipeCard").style.transform = "translate(0px, 0px) rotate(0deg)"
+      show_next_image()
+  
+  def on_drag_start(event):
+      global start_x, start_y
+      start_x = event.clientX
+      start_y = event.clientY
+  
+  def on_drag_end(event):
+      global start_x, start_y
+      offset_x = event.clientX - start_x
+      offset_y = event.clientY - start_y
+  
+      if offset_x > 100:
+          handle_swipe("right")
+      elif offset_x < -100:
+          handle_swipe("left")
+      elif offset_y > 100:
+          handle_swipe("down")
+      elif offset_y < -100:
+          handle_swipe("up")
+      else:
+          reset_card()
+  
+  def handle_swipe(direction):
+      card = document.getElementById("swipeCard")
+      transforms = {
+          "left": "translateX(-300px) rotate(-20deg)",
+          "right": "translateX(300px) rotate(20deg)",
+          "up": "translateY(-300px)",
+          "down": "translateY(300px)"
+      }
+      card.style.transform = transforms[direction]
+      window.setTimeout(create_proxy(reset_card), 500)
+  
+  image = document.getElementById("productImage")
+  image.addEventListener("dragstart", create_proxy(on_drag_start))
+  image.addEventListener("dragend", create_proxy(on_drag_end))
+</py-script>
