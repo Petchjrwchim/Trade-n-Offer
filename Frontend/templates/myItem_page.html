@@ -1,71 +1,282 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Items</title>
-    <script>
-        async function fetchItems() {
-            const response = await fetch("/my-items");
-            if (response.ok) {
-                const data = await response.json();
-                const itemList = document.getElementById("item-list");
-                itemList.innerHTML = "";
-                data.items.forEach(item => {
-                    const listItem = document.createElement("li");
-                    listItem.textContent = `${item.itemName} - ${item.description}`;
-                    itemList.appendChild(listItem);
-                });
-            } else {
-                alert("Failed to load items");
-            }
-        }
-
-        async function addItem(event) {
-            event.preventDefault();
-
-            const itemName = document.getElementById("item-name").value;
-            const description = document.getElementById("description").value;
-            const itemImage = document.getElementById("item-image").value; // Optional image URL
-            const itemPrice = document.getElementById("item-price").value; // Optional image URL
-
-            const itemData = {
-                item_name: itemName,
-                item_description: description,
-                item_image: itemImage,
-                item_price: itemPrice
-            };
-
-            const response = await fetch("/add-item", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(itemData)
-            });
-
-            if (response.ok) {
-                alert("Item added successfully");
-                fetchItems();
-            } else {
-                alert("Failed to add item");
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", fetchItems);
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Items - Trade’n Offer</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
+  <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
 </head>
-
 <body>
+
+  <!-- ✅ Include Side Navigation -->
+  {% include 'component/sidenav.html' %}
+
+  <!-- ✅ Main Content -->
+  <div class="content">
     <h1>My Items</h1>
-    <ul id="item-list"></ul>
 
-    <h2>Add New Item</h2>
-    <form onsubmit="addItem(event)">
-        <input type="text" id="item-name" placeholder="Item Name" required>
-        <input type="text" id="description" placeholder="Description" required>
-        <input type="text" id="item-image" placeholder="Image URL (Optional)">
-        <input type="text" id="item-price" placeholder="xxx">
-        <button type="submit">Add Item</button>
-    </form>
+    <!-- ✅ Right-Top Add Item Button -->
+    <button type="button" class="button" py-click="add_product">
+      <span class="button__text">Add Item</span>
+      <span class="button__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
+          <line y2="19" y1="5" x2="12" x1="12"></line>
+          <line y2="12" y1="12" x2="19" x1="5"></line>
+        </svg>
+      </span>
+    </button>
+
+    <!-- ✅ Product Grid -->
+    <div id="productGrid" class="product-grid"></div>
+  </div>
+
+  <!-- ✅ Edit Product Popup -->
+  <div id="editProductPopup" class="popup">
+    <div class="popup-content">
+      <span class="close-btn" py-click="close_edit_popup">&times;</span>
+      <h2>Edit Product</h2>
+      <img id="editProductImage" class="edit-product-image" src="" alt="Product Image">
+      <input type="text" id="editProductName" placeholder="Enter product name">
+      <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
+    </div>
+  </div>
+
+  <!-- ✅ Styles -->
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          background-color: #f4f4f4;
+      }
+
+      .content {
+          padding: 20px;
+          max-width: 1200px;
+          margin-left: 200px;
+      }
+
+      /* ✅ Right-Top Add Item Button */
+      .button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          width: 150px;
+          height: 40px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          border: 2px solid #dedede;
+          background-color: #323232;
+          border-radius: 10px;
+          overflow: hidden;
+          transition: all 0.3s;
+      }
+
+      .button__text {
+          transform: translateX(25px);
+          color: #dedede;
+          font-weight: 600;
+          transition: all 0.3s;
+      }
+
+      .button__icon {
+          position: absolute;
+          transform: translateX(109px);
+          height: 100%;
+          width: 39px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s;
+      }
+
+      .button .svg {
+          width: 20px;
+          stroke: #dedede;
+      }
+
+      .button:hover .button__text {
+          color: transparent;
+      }
+
+      .button:hover .button__icon {
+          width: 148px;
+          transform: translateX(0);
+      }
+
+      .product-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          width: 100%;
+          padding: 20px;
+          justify-items: center;
+      }
+
+      .product-item {
+          width: 200px;
+          height: 280px;
+          background-color: #d9d9d9;
+          border-radius: 10px;
+          text-align: center;
+          padding: 10px;
+      }
+
+      .product-image {
+          width: 100%;
+          height: 70%;
+          border-radius: 10px;
+          object-fit: cover;
+          cursor: pointer;
+      }
+
+      .product-buttons {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          padding: 5px;
+      }
+
+      .edit-btn, .remove-btn {
+          cursor: pointer;
+          padding: 5px 10px;
+          border-radius: 5px;
+          font-size: 14px;
+          font-weight: bold;
+          width: 45%;
+          text-align: center;
+      }
+
+      .edit-btn {
+          background-color: #007bff;
+          color: white;
+      }
+
+      .remove-btn {
+          background-color: #dc3545;
+          color: white;
+      }
+
+      .popup {
+          display: none;
+          position: fixed;
+          z-index: 10;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .popup-content {
+          background-color: white;
+          margin: 5% auto;
+          padding: 20px;
+          border-radius: 10px;
+          width: 50%;
+          text-align: center;
+      }
+
+      .edit-product-image {
+          width: 200px;
+          height: 200px;
+          border-radius: 10px;
+          object-fit: cover;
+          margin-bottom: 10px;
+      }
+
+      .save-btn {
+          padding: 10px 20px;
+          background-color: green;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 16px;
+      }
+  </style>
+
+  <!-- ✅ PyScript -->
+  <py-script>
+    from js import document
+    from pyodide.ffi import create_proxy
+
+    product_data = [
+        {"id": 1, "name": "Camera", "image": "/static/image_test/camera.jpg"},
+        {"id": 2, "name": "Guitar", "image": "/static/image_test/guitar.jpg"},
+        {"id": 3, "name": "Piano", "image": "/static/image_test/piano.jpg"},
+        {"id": 4, "name": "Laptop", "image": "/static/image_test/laptop.jpg"},
+        {"id": 5, "name": "Phone", "image": "/static/image_test/phone.jpg"}
+    ]
+
+    selected_product = None
+
+    def update_product_grid():
+        """Updates the product grid dynamically"""
+        productGrid = document.querySelector("#productGrid")
+        productGrid.innerHTML = ""
+
+        for product in product_data:
+            productDiv = document.createElement("div")
+            productDiv.classList.add("product-item")
+
+            img = document.createElement("img")
+            img.src = product["image"]
+            img.classList.add("product-image")
+            img.onclick = create_proxy(lambda event, pid=product["id"]: open_edit_popup(pid))
+
+            name = document.createElement("div")
+            name.classList.add("product-name")
+            name.textContent = product["name"]
+
+            buttonContainer = document.createElement("div")
+            buttonContainer.classList.add("product-buttons")
+
+            editBtn = document.createElement("div")
+            editBtn.classList.add("edit-btn")
+            editBtn.textContent = "Edit"
+            editBtn.onclick = create_proxy(lambda event, pid=product["id"]: open_edit_popup(pid))
+
+            removeBtn = document.createElement("div")
+            removeBtn.classList.add("remove-btn")
+            removeBtn.textContent = "Remove"
+
+            buttonContainer.appendChild(editBtn)
+            buttonContainer.appendChild(removeBtn)
+            productDiv.appendChild(img)
+            productDiv.appendChild(name)
+            productDiv.appendChild(buttonContainer)
+            productGrid.appendChild(productDiv)
+
+    def open_edit_popup(product_id):
+        """Opens the edit popup and fills product details"""
+        global selected_product
+        selected_product = next((p for p in product_data if p["id"] == product_id), None)
+
+        if selected_product:
+            document.querySelector("#editProductImage").src = selected_product["image"]
+            document.querySelector("#editProductName").value = selected_product["name"]
+            document.querySelector("#editProductPopup").style.display = "block"
+
+    def close_edit_popup(event=None):
+        """Closes the edit popup"""
+        document.querySelector("#editProductPopup").style.display = "none"
+
+    def save_product_changes(event=None):
+        """Saves the product changes"""
+        if selected_product:
+            selected_product["name"] = document.querySelector("#editProductName").value
+            update_product_grid()
+            close_edit_popup()
+
+    
+    def add_product(event=None):
+        product_data.append({"id": len(product_data) + 1, "name": "New Item", "image": "/static/image_test/default.jpg"})
+        update_product_grid()
+
+    update_product_grid()
+  </py-script>
+
 </body>
-
 </html>
