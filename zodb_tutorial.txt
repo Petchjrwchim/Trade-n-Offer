@@ -3,6 +3,9 @@ ALTER TABLE trade_items DROP COLUMN image, DROP COLUMN name, DROP COLUMN descrip
 ALTER TABLE trade_items ADD COLUMN zodb_id INT UNIQUE DEFAULT NULL;
 
 
+ZODB → Stores item details (name, description, price, image, category).
+MySQL → Stores user accounts and links each item to zodb_id.
+
 How it Works:
 A user adds an item through /add-item.
 The item is stored in ZODB with a unique ID.
