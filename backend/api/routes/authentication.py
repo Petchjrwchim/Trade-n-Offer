@@ -1,17 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from app.db_config import get_db_connection
 import mysql.connector
 
 router = APIRouter()
-
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",  
-        database="tno"
-    )
 
 @router.post("/login")
 async def login(user: dict):

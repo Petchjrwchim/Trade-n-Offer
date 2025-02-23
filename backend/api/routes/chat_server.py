@@ -1,20 +1,10 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 import mysql.connector
-
+from app.db_config import get_db_connection
 router = APIRouter()
 
-# WebSocket connection storage (for demonstration purposes)
 active_connections = []
-
-# Database connection function
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="tno"
-    )
 
 # WebSocket endpoint for chat
 @router.websocket("/ws/chat/{username}")
