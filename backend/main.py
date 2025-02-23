@@ -33,13 +33,13 @@ app.include_router(chat_router)
 app.include_router(itemlis_router)
 
 
-@app.get("/")
-async def index(request: Request):
-    session_token = request.cookies.get("session_token")
-    if not session_token:
-        return RedirectResponse(url="/login")
-    return templates.TemplateResponse("main_page.html", 
-                                      {"request": request})
+# @app.get("/")
+# async def index(request: Request):
+#     session_token = request.cookies.get("session_token")
+#     if not session_token:
+#         return RedirectResponse(url="/login")
+#     return templates.TemplateResponse("main_page.html", 
+#                                       {"request": request})
 
 @app.get("/login")
 async def loginPage(request: Request):
@@ -73,7 +73,7 @@ async def check_session(request: Request):
     print("i'm heasdre")
     return {"message": "Session token exists", "session_token": session_token}
 
-@app.get("/trade_offer")
+@app.get("/")
 async def trade_offer_page(request: Request):
     return templates.TemplateResponse("trade_offer.html", {
         "request": request,

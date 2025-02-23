@@ -8,15 +8,13 @@
   <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
 </head>
 <body>
-
-  <!-- ✅ Include Side Navigation -->
+  <!-- Side Navigation -->
   {% include 'component/sidenav.html' %}
 
-  <!-- ✅ Main Content -->
+  <!-- Main Content -->
   <div class="content">
     <h1>My Items</h1>
-
-    <!-- ✅ Right-Top Add Item Button -->
+    <div id="productGrid" class="product-grid"></div>
     <button type="button" class="button" py-click="add_product">
       <span class="button__text">Add Item</span>
       <span class="button__icon">
@@ -26,56 +24,73 @@
         </svg>
       </span>
     </button>
-
-    <!-- ✅ Product Grid -->
-    <div id="productGrid" class="product-grid"></div>
   </div>
 
-  <!-- ✅ Edit Product Popup -->
+  <!-- Edit Product Popup -->
   <div id="editProductPopup" class="popup">
     <div class="popup-content">
-      <span class="close-btn" py-click="close_edit_popup">&times;</span>
+      <span class="close-btn" py-click="close_edit_popup">×</span>
       <h2>Edit Product</h2>
       <img id="editProductImage" class="edit-product-image" src="" alt="Product Image">
-      <input type="text" id="editProductName" placeholder="Enter product name">
+      <input type="text" id="editProductName" placeholder="Enter product name" style="color: #000; background-color: #FFFFFF;">
       <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
     </div>
   </div>
 
-  <!-- ✅ Styles -->
+  <!-- Styles -->
   <style>
       body {
           font-family: Arial, sans-serif;
           margin: 0;
-          background-color: #f4f4f4;
+          background-color: #161616;
       }
 
       .content {
           padding: 20px;
           max-width: 1200px;
           margin-left: 200px;
+          overflow: hidden;
+          min-height: calc(100vh - 40px);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          background-color: #161616;
+          color: #FFFFFF;
       }
 
-      /* ✅ Right-Top Add Item Button */
       .button {
-          position: absolute;
-          top: 10px;
-          right: 10px;
+          --main-focus: #2d8cf0;
+          --font-color: #dedede;
+          --bg-color: #323232;
+          --main-color: #dedede;
+          position: fixed;
+          top: 20px;
+          right: 20px;
           width: 150px;
           height: 40px;
           cursor: pointer;
           display: flex;
           align-items: center;
-          border: 2px solid #dedede;
+          justify-content: center;
+          border: 2px solid #FFFFFF;
           background-color: #323232;
           border-radius: 10px;
           overflow: hidden;
           transition: all 0.3s;
+          z-index: 1000;
+      }
+
+      @media (max-width: 768px) {
+          .button {
+              width: 120px;
+              height: 35px;
+              font-size: 14px;
+          }
       }
 
       .button__text {
           transform: translateX(25px);
-          color: #dedede;
+          color: #FFFFFF;
           font-weight: 600;
           transition: all 0.3s;
       }
@@ -93,7 +108,7 @@
 
       .button .svg {
           width: 20px;
-          stroke: #dedede;
+          stroke: #FFFFFF;
       }
 
       .button:hover .button__text {
@@ -107,28 +122,55 @@
 
       .product-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 50px;
           width: 100%;
+          max-width: 1500px;
+          margin: 0 auto;
           padding: 20px;
-          justify-items: center;
+          padding-right: 0;
+          justify-content: center;
+          align-items: start;
+          flex-grow: 1;
+          overflow-y: auto;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+
+      .product-grid::-webkit-scrollbar {
+          display: none;
       }
 
       .product-item {
-          width: 200px;
-          height: 280px;
-          background-color: #d9d9d9;
+          max-width: 250px;
+          height: 500px;
+          background-color: #2D2D2D;
           border-radius: 10px;
+          box-shadow: 4px 8px 15px rgba(0, 0, 0, 0.3);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          padding: 15px;
           text-align: center;
-          padding: 10px;
       }
 
       .product-image {
           width: 100%;
-          height: 70%;
+          height: 65%;
           border-radius: 10px;
           object-fit: cover;
           cursor: pointer;
+          border: 2px solid #444444;
+      }
+
+      .product-name {
+          font-size: 18px;
+          font-weight: bold;
+          text-align: center;
+          margin: 10px 0;
+          color: #FFFFFF;
       }
 
       .product-buttons {
@@ -140,22 +182,44 @@
 
       .edit-btn, .remove-btn {
           cursor: pointer;
-          padding: 5px 10px;
-          border-radius: 5px;
+          padding: 8px 16px;
+          border-radius: 20px;
           font-size: 14px;
           font-weight: bold;
-          width: 45%;
+          width: 48%;
           text-align: center;
+          transition: all 0.3s ease-in-out;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          text-transform: uppercase;
+          letter-spacing: 1px;
       }
 
       .edit-btn {
-          background-color: #007bff;
-          color: white;
+          background-color: #FFD700;
+          color: black;
       }
 
       .remove-btn {
-          background-color: #dc3545;
-          color: white;
+          background-color: white;
+          color: black;
+      }
+
+      .edit-btn:hover {
+          background-color: #E6C200;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .remove-btn:hover {
+          background-color: #F0F0F0;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .edit-btn:active, .remove-btn:active {
+          transform: translateY(0);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       }
 
       .popup {
@@ -166,16 +230,17 @@
           top: 0;
           width: 100%;
           height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.7);
       }
 
       .popup-content {
-          background-color: white;
+          background-color: #2D2D2D;
           margin: 5% auto;
           padding: 20px;
           border-radius: 10px;
           width: 50%;
           text-align: center;
+          color: #FFFFFF;
       }
 
       .edit-product-image {
@@ -184,24 +249,37 @@
           border-radius: 10px;
           object-fit: cover;
           margin-bottom: 10px;
+          border: 2px solid #444444;
       }
 
       .save-btn {
           padding: 10px 20px;
-          background-color: green;
-          color: white;
+          background-color: #FFD700;
+          color: black;
           border: none;
           border-radius: 5px;
           cursor: pointer;
           font-size: 16px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: all 0.3s ease-in-out;
+      }
+
+      .save-btn:hover {
+          background-color: #E6C200;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .save-btn:active {
+          transform: translateY(0);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       }
   </style>
 
-  <!-- ✅ PyScript -->
   <py-script>
     from js import document
     from pyodide.ffi import create_proxy
-
+    
     product_data = [
         {"id": 1, "name": "Camera", "image": "/static/image_test/camera.jpg"},
         {"id": 2, "name": "Guitar", "image": "/static/image_test/guitar.jpg"},
@@ -209,74 +287,74 @@
         {"id": 4, "name": "Laptop", "image": "/static/image_test/laptop.jpg"},
         {"id": 5, "name": "Phone", "image": "/static/image_test/phone.jpg"}
     ]
-
+    
     selected_product = None
-
+    
     def update_product_grid():
-        """Updates the product grid dynamically"""
         productGrid = document.querySelector("#productGrid")
         productGrid.innerHTML = ""
-
-        for product in product_data:
-            productDiv = document.createElement("div")
-            productDiv.classList.add("product-item")
-
-            img = document.createElement("img")
-            img.src = product["image"]
-            img.classList.add("product-image")
-            img.onclick = create_proxy(lambda event, pid=product["id"]: open_edit_popup(pid))
-
-            name = document.createElement("div")
-            name.classList.add("product-name")
-            name.textContent = product["name"]
-
-            buttonContainer = document.createElement("div")
-            buttonContainer.classList.add("product-buttons")
-
-            editBtn = document.createElement("div")
-            editBtn.classList.add("edit-btn")
-            editBtn.textContent = "Edit"
-            editBtn.onclick = create_proxy(lambda event, pid=product["id"]: open_edit_popup(pid))
-
-            removeBtn = document.createElement("div")
-            removeBtn.classList.add("remove-btn")
-            removeBtn.textContent = "Remove"
-
-            buttonContainer.appendChild(editBtn)
-            buttonContainer.appendChild(removeBtn)
-            productDiv.appendChild(img)
-            productDiv.appendChild(name)
-            productDiv.appendChild(buttonContainer)
-            productGrid.appendChild(productDiv)
-
+        for product in product_data[:5]:
+            add_product_element(product, False)
+        for product in product_data[5:]:
+            add_product_element(product, True)
+    
+    def add_product_element(product, is_new):
+        productGrid = document.querySelector("#productGrid")
+        productDiv = document.createElement("div")
+        productDiv.classList.add("product-item")
+        if is_new:
+            productDiv.classList.add("new-product")
+    
+        img = document.createElement("img")
+        img.src = product["image"]
+        img.alt = product["name"]
+        img.classList.add("product-image")
+    
+        name = document.createElement("div")
+        name.classList.add("product-name")
+        name.textContent = product["name"]
+    
+        buttonContainer = document.createElement("div")
+        buttonContainer.classList.add("product-buttons")
+    
+        editBtn = document.createElement("div")
+        editBtn.classList.add("edit-btn")
+        editBtn.textContent = "Edit"
+    
+        removeBtn = document.createElement("div")
+        removeBtn.classList.add("remove-btn")
+        removeBtn.textContent = "Remove"
+    
+        buttonContainer.appendChild(editBtn)
+        buttonContainer.appendChild(removeBtn)
+    
+        productDiv.appendChild(img)
+        productDiv.appendChild(name)
+        productDiv.appendChild(buttonContainer)
+        productGrid.appendChild(productDiv)
+    
     def open_edit_popup(product_id):
-        """Opens the edit popup and fills product details"""
         global selected_product
         selected_product = next((p for p in product_data if p["id"] == product_id), None)
-
         if selected_product:
             document.querySelector("#editProductImage").src = selected_product["image"]
             document.querySelector("#editProductName").value = selected_product["name"]
             document.querySelector("#editProductPopup").style.display = "block"
-
+    
     def close_edit_popup(event=None):
-        """Closes the edit popup"""
         document.querySelector("#editProductPopup").style.display = "none"
-
+    
     def save_product_changes(event=None):
-        """Saves the product changes"""
         if selected_product:
             selected_product["name"] = document.querySelector("#editProductName").value
             update_product_grid()
             close_edit_popup()
-
     
     def add_product(event=None):
         product_data.append({"id": len(product_data) + 1, "name": "New Item", "image": "/static/image_test/default.jpg"})
         update_product_grid()
-
+    
     update_product_grid()
   </py-script>
-
 </body>
 </html>

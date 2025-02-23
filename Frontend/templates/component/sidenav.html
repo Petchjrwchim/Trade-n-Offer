@@ -4,47 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimal Sidebar</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif; /* Use Roboto for a modern, clean font */
             display: flex;
+            background-color: #161616; /* Dark background for contrast, matching your previous theme */
+            color: #FFFFFF; /* White text for readability */
         }
         
-        /* ✅ Sidebar จะอยู่ชิดซ้าย */
+        /* Sidebar */
         .sidebar {
-            width: 180px;
+            width: 200px; /* Slightly wider for better readability */
             height: 100vh;
-            background: #333;
-            color: white;
-            padding-top: 20px;
+            background: #2D2D2D; /* Slightly lighter dark gray for better contrast */
+            color: #FFFFFF;
+            padding: 20px 0;
             position: fixed;
-            left: 0;  /* ✅ ตรึง sidebar ให้อยู่ซ้าย */
+            left: 0;
             top: 0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+            transition: transform 0.3s ease; /* Smooth transition for potential collapse animation (optional, can remove if not needed) */
         }
         
         .sidebar a {
             display: flex;
             align-items: center;
-            padding: 15px;
-            color: white;
+            padding: 12px 20px; /* Consistent and balanced padding */
+            color: #FFFFFF;
             text-decoration: none;
-            transition: background 0.3s;
+            font-size: 14px; /* Slightly smaller, clean font size */
+            transition: background 0.3s, color 0.3s; /* Smooth transitions for hover */
         }
         
-        .sidebar a:hover {
-            background: #555;
+        .sidebar a:hover, .sidebar a.active {
+            background: #444444; /* Lighter gray for hover/active state */
+            color: #FFD700; /* Yellow accent for hover/active, matching your button theme */
         }
         
-        .icon {
-            min-width: 40px;
+        .sidebar .icon {
+            min-width: 24px; /* Smaller, cleaner icon size */
             text-align: center;
+            font-size: 16px; /* Font Awesome icon size */
         }
         
-        .text {
+        .sidebar .text {
+            margin-left: 12px; /* More spacing between icon and text */
             white-space: nowrap;
         }
         
@@ -54,29 +64,43 @@
         
         .profile-link {
             margin-top: auto;
+            border-top: 1px solid #444444; /* Subtle divider for profile link */
+            padding-top: 15px;
         }
         
-        /* ✅ Content จะไม่ถูกซ้อนกับ sidebar */
+        /* Content */
         .content {
-            margin-left: 180px; /* ✅ เว้นที่สำหรับ sidebar */
+            margin-left: 200px; /* Match sidebar width */
             padding: 20px;
             flex: 1;
+            background-color: #161616; /* Match body background for consistency */
+            color: #FFFFFF;
+            transition: margin-left 0.3s ease; /* Smooth transition for potential sidebar collapse (optional, can remove if not needed) */
+        }
+
+        /* Responsive Design (Removed toggle button logic, keep sidebar fixed) */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px; /* Keep sidebar width fixed on mobile */
+                transform: none; /* Remove any transform (no collapse) */
+            }
+
+            .content {
+                margin-left: 200px; /* Keep content margin fixed on mobile */
+            }
         }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div class="nav-links">
-            <a href="#"><span class="icon"></span> <span class="text">Home</span></a>
-            <a href="#"><span class="icon"></span> <span class="text">Explore</span></a>
-            <a href="#"><span class="icon"></span> <span class="text">Wish List</span></a>
-            <a href="/chat"><span class="icon"></span> <span class="text">Messages</span></a>
-            <a href="/MyItem"><span class="icon"></span> <span class="text">My items</span></a>
+            <a href="/"><span class="icon"><i class="fas fa-home"></i></span> <span class="text">Home</span></a>
+            <a href="#"><span class="icon"><i class="fas fa-compass"></i></span> <span class="text">Explore</span></a>
+            <a href="#"><span class="icon"><i class="fas fa-heart"></i></span> <span class="text">Wish List</span></a>
+            <a href="/chat"><span class="icon"><i class="fas fa-envelope"></i></span> <span class="text">Messages</span></a>
+            <a href="/MyItem"><span class="icon"><i class="fas fa-box"></i></span> <span class="text">My Items</span></a>
         </div>
-        <a href="#" class="profile-link"><span class="icon">👤</span> <span class="text">Profile</span></a>
+        <a href="#" class="profile-link"><span class="icon"><i class="fas fa-user"></i></span> <span class="text">Profile</span></a>
     </div>
-
-
 </body>
 </html>
