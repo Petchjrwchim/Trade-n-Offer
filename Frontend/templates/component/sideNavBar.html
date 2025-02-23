@@ -10,6 +10,8 @@
             font-family: Arial, sans-serif;
             display: flex;
         }
+        
+        /* ✅ Sidebar จะอยู่ชิดซ้าย */
         .sidebar {
             width: 180px;
             height: 100vh;
@@ -17,10 +19,13 @@
             color: white;
             padding-top: 20px;
             position: fixed;
+            left: 0;  /* ✅ ตรึง sidebar ให้อยู่ซ้าย */
+            top: 0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
+        
         .sidebar a {
             display: flex;
             align-items: center;
@@ -29,38 +34,49 @@
             text-decoration: none;
             transition: background 0.3s;
         }
+        
         .sidebar a:hover {
             background: #555;
         }
+        
         .icon {
             min-width: 40px;
             text-align: center;
         }
+        
         .text {
             white-space: nowrap;
         }
+        
         .nav-links {
             flex-grow: 1;
         }
+        
         .profile-link {
             margin-top: auto;
         }
+        
+        /* ✅ Content จะไม่ถูกซ้อนกับ sidebar */
         .content {
-            margin-left: 180px;
+            margin-left: 180px; /* ✅ เว้นที่สำหรับ sidebar */
             padding: 20px;
+            flex: 1;
         }
     </style>
 </head>
 <body>
+
     <div class="sidebar">
         <div class="nav-links">
-            <a href="#"><span class="icon">🏠</span> <span class="text">Home</span></a>
-            <a href="#"><span class="icon">🌍</span> <span class="text">Explore</span></a>
-            <a href="#"><span class="icon">💖</span> <span class="text">Wish List</span></a>
-            <a href="/chat"><span class="icon">📩</span> <span class="text">Messages</span></a>
-            <a href="/MyItem"><span class="icon">📩</span> <span class="text">My items</span></a>
+            <a href="#"><span class="icon"></span> <span class="text">Home</span></a>
+            <a href="#"><span class="icon"></span> <span class="text">Explore</span></a>
+            <a href="#"><span class="icon"></span> <span class="text">Wish List</span></a>
+            <a href="/chat"><span class="icon"></span> <span class="text">Messages</span></a>
+            <a href="/MyItem"><span class="icon"></span> <span class="text">My items</span></a>
         </div>
         <a href="#" class="profile-link"><span class="icon">👤</span> <span class="text">Profile</span></a>
     </div>
+
+
 </body>
 </html>

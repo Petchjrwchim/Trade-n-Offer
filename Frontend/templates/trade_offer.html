@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade’n Offer</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
+  <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+</head>
+<body>
+  {% include 'component/sidenav.html' %}
+
+  <div class="content">
+    <!-- Include card container with dynamic image URL -->
+    {% include 'component/card_container.html' %}
+    
+    <!-- Include main page profile -->
+    {% include 'component/main_page_profile.html' %}
+  </div>
+
+</body>
+</html>

@@ -72,3 +72,10 @@ async def check_session(request: Request):
     print(f"Session Token from request: {session_token}")  # Print session token
     print("i'm heasdre")
     return {"message": "Session token exists", "session_token": session_token}
+
+@app.get("/trade_offer")
+async def trade_offer_page(request: Request):
+    return templates.TemplateResponse("trade_offer.html", {
+        "request": request,
+        "image_url": "/static/image_test/camera.jpg"  # Pass the image URL here
+    })

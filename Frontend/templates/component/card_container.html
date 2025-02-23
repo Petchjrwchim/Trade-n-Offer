@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipe to Match - Flip Card</title>
+    <style>
+        body {
+            background-color: #161616;
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .myCard {
+            background-color: transparent;
+            width: 320px;
+            height: 480px;
+            perspective: 1000px;
+            margin: auto;
+        }
+
+        .innerCard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .innerCard[data-flipped="true"] {
+            transform: rotateY(180deg);
+        }
+
+        .frontSide, .backSide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .frontSide {
+            background: white;
+        }
+
+        .backSide {
+            background: #f5f5f5;
+            transform: rotateY(180deg);
+            pointer-events: auto;
+        }
+
+        .frontSide img, .backSide p {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: cover;
+            border-radius: 15px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .backSide p {
+            font-size: 1.2rem;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            cursor: grab;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="myCard" id="swipeCard">
+        <div class="innerCard" id="innerCard">
+            <div class="frontSide">
+                <img id="productImage" src="/static/image_test/camera.jpg" alt="Product Image" draggable="true">
+            </div>
+            <div class="backSide" id="backContent" draggable="true">
+                <p class="title">Product Details</p>
+                <p id="productDescription">More details about the product.</p>
+            </div>
+        </div>
+    </div>
+
+    <py-script>
+        from js import document, window
+        from pyodide.ffi import create_proxy
+
+        images = ["/static/image_test/camera.jpg", "/static/image_test/guitar.jpg", "/static/image_test/piano.jpg"]
+        current_index = 0
+        start_x = 0
+        start_y = 0
+
+        def show_next_image():
+            global current_index
+            current_index = (current_index + 1) % len(images)
+            document.getElementById("productImage").src = images[current_index]
+            document.getElementById("innerCard").setAttribute("data-flipped", "false")  # ✅ รีเซ็ตกลับหน้าหลักทุกครั้งที่เปลี่ยนรูป
+
+        def reset_card():
+            document.getElementById("swipeCard").style.transform = "translate(0px, 0px) rotate(0deg)"
+            show_next_image()
+
+        def on_drag_start(event):
+            global start_x, start_y
+            start_x = event.clientX
+            start_y = event.clientY
+
+        def on_drag_end(event):
+            offset_x = event.clientX - start_x
+            offset_y = event.clientY - start_y
+
+            if offset_x > 100:
+                handle_swipe("right")
+            elif offset_x < -100:
+                handle_swipe("left")
+            elif offset_y > 100:
+                handle_swipe("down")
+            elif offset_y < -100:
+                handle_swipe("up")
+            else:
+                reset_card()
+
+        def handle_swipe(direction):
+            card = document.getElementById("swipeCard")
+            transforms = {
+                "left": "translateX(-300px) rotate(-20deg)",
+                "right": "translateX(300px) rotate(20deg)",
+                "up": "translateY(-300px)",
+                "down": "translateY(300px)"
+            }
+            card.style.transform = transforms[direction]
+            window.setTimeout(create_proxy(reset_card), 500)
+
+        def toggle_flip(event):
+            inner_card = document.getElementById("innerCard")
+            is_flipped = inner_card.getAttribute("data-flipped") == "true"
+            inner_card.setAttribute("data-flipped", "false" if is_flipped else "true")  # ✅ กดเม้าซ้ายสองครั้งเพื่อ flip
+
+        image = document.getElementById("productImage")
+        back_content = document.getElementById("backContent")
+        inner_card = document.getElementById("innerCard")
+
+        image.addEventListener("dragstart", create_proxy(on_drag_start))
+        image.addEventListener("dragend", create_proxy(on_drag_end))
+        back_content.addEventListener("dragstart", create_proxy(on_drag_start))
+        back_content.addEventListener("dragend", create_proxy(on_drag_end))
+
+        inner_card.addEventListener("dblclick", create_proxy(toggle_flip))  # ✅ เปลี่ยนเป็น double-click เพื่อ flip
+    </py-script>
+
+</body>
+</html>
