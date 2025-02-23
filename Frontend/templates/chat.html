@@ -3,36 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Chat</title>
+    <title>Trade'n'offer Chat (Frontend Only with Colors)</title>
+    <!-- Load PyScript using the specified core.js file for local simulation -->
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        #header {
+            background-color: #666666;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #header a {
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        #header a:hover {
+            text-decoration: underline;
+        }
+
+        h2 {
+            text-align: center;
+            color: #b0b0b0;
+            margin-bottom: 20px;
+        }
+
+        #chat-container {
+            display: flex;
+            height: 500px;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        #user-list {
+            width: 200px;
+            background-color: #3a3a3a;
+            padding: 10px;
+            border-right: 2px solid #444444;
+            overflow-y: auto;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .user:hover {
+            background-color: #444444;
+        }
+
+        .user-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user.selected {
+            background-color: #555555; /* Highlight selected user */
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            height: 400px;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+
+        .sent {
+            background-color: #e6b800;
+            color: #000000;
+            margin-left: auto;
+        }
+
+        .received {
+            background-color: #4a4a4a;
+            color: #ffffff;
+            margin-right: auto;
+        }
+
+        #input-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #3a3a3a;
+            color: #ffffff;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #e6b800;
+            color: #000000;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d4a600;
+        }
+    </style>
 </head>
 <body>
+    <div id="header">
+        <span>Trade'n'offer</span>
+        <div>
+            <a href="#">Home</a>
+            <a href="#">Inventory Management</a>
+        </div>
+    </div>
+
     <h2>Chat with Other Users</h2>
-    <div id="chat-box" style="height: 400px; overflow-y: scroll;"></div>
-    <input type="text" id="message" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
+    <div id="chat-container">
+        <div id="user-list"></div>
+        <div id="chat-box"></div>
+    </div>
+    <div id="input-container">
+        <input type="text" id="message" placeholder="Type a message..." py-bind="value='message_input'">
+        <button py-click="send_message">Send</button>
+    </div>
 
-    <script>
-        const username = localStorage.getItem("username");
-        const chatBox = document.getElementById("chat-box");
-        const messageInput = document.getElementById("message");
+    <script type="py">
+        from js import document, console
+        from pyscript import window
 
-        const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${username}`);
+        # Simulated username (no backend, only Frontend simulation)
+        username = "Jordan"
 
-        ws.onmessage = function(event) {
-            const message = event.data;
-            const div = document.createElement("div");
-            div.textContent = message;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the latest message
-        };
+        # Simulated list of users (with colors instead of images)
+        users = [
+            {"name": "Alex", "color": "#007bff"},    # Blue
+            {"name": "Jordan", "color": "#28a745"},  # Green
+            {"name": "Taylor", "color": "#dc3545"}   # Red
+        ]
 
-        function sendMessage() {
-            const message = messageInput.value;
-            if (message.trim()) {
-                ws.send(message);  // Send message via WebSocket
-                messageInput.value = "";  // Clear input
-            }
-        }
+        # Store chat messages locally (no backend requests)
+        messages = [
+            {"user": "Alex", "text": "Hey, are you interested in trading that rare card?"},
+            {"user": "Jordan", "text": "Yes, I am. What do you have to offer?"},
+            {"user": "Taylor", "text": "I have a limited edition sneaker. Want to see a picture?"}
+        ]
+
+        # DOM elements
+        chat_box = document.querySelector("#chat-box")
+        user_list = document.querySelector("#user-list")
+        message_input = document.querySelector("#message")
+
+        def initialize_users():
+            """ Populate the user list on the left side for selection with colors """
+            console.log("Initializing users...")  # Debug: Log initialization start
+            if not user_list:
+                console.error("User list element (#user-list) not found!")
+                return
+            for user in users:
+                console.log(f"Adding user: {user['name']} with color: {user['color']}")  # Debug: Log each user
+                div = document.createElement("div")
+                div.classList.add("user")
+                div.setAttribute("data-user", user["name"])
+                div.innerHTML = f'<div class="user-color" style="background-color: {user["color"]}"></div> {user["name"]}'
+                div.addEventListener("click", lambda e, u=user["name"]: select_user(u))
+                user_list.appendChild(div)
+            console.log("Users initialized successfully")  # Debug: Log initialization complete
+
+        def select_user(selected_user):
+            """ Handle user selection to display their messages locally """
+            console.log(f"Selected user: {selected_user}")  # Debug: Log selected user
+            # Remove 'selected' class from all users
+            for user_div in user_list.querySelectorAll(".user"):
+                user_div.classList.remove("selected")
+            
+            # Add 'selected' class to the clicked user
+            selected_div = user_list.querySelector(f'.user[data-user="{selected_user}"]')
+            if selected_div:
+                selected_div.classList.add("selected")
+                console.log(f"Highlighted user: {selected_user}")  # Debug: Log highlight
+
+            chat_box.innerHTML = ""  # Clear current messages
+            # Display messages for the selected user from local simulation
+            for msg in messages:
+                if msg["user"] == selected_user or msg["user"] == username:
+                    display_message(msg["user"], msg["text"])
+
+        def display_message(user, text):
+            """ Display a message in the chat box with appropriate styling """
+            console.log(f"Displaying message: {user}: {text}")  # Debug: Log message display
+            div = document.createElement("div")
+            div.classList.add("message")
+            if user == username:
+                div.classList.add("sent")
+            else:
+                div.classList.add("received")
+            div.textContent = f"{user}: {text}"
+            chat_box.appendChild(div)
+            chat_box.scrollTop = chat_box.scrollHeight  # Scroll to the latest message
+
+        def send_message(*args, **kwargs):
+            """ Send a message locally and simulate a response """
+            message = message_input.value.strip()
+            if message:
+                console.log(f"Sending message: {username}: {message}")  # Debug: Log sent message
+                # Add sent message to local messages
+                messages.append({"user": username, "text": message})
+                display_message(username, message)
+                # Simulate a response from another user (e.g., Alex)
+                if username != "Alex":
+                    response = f"Hey, {username}! {message}" if "rare card" in message.lower() else "I have a limited edition sneaker. Want to see a picture?"
+                    messages.append({"user": "Alex", "text": response})
+                    console.log(f"Simulating response: Alex: {response}")  # Debug: Log response
+                    display_message("Alex", response)
+                else:
+                    response = "Yes, I am. What do you have to offer?"
+                    messages.append({"user": "Jordan", "text": response})
+                    console.log(f"Simulating response: Jordan: {response}")  # Debug: Log response
+                    display_message("Jordan", response)
+                message_input.value = ""  # Clear input
+
+        # Ensure PyScript is loaded before initializing
+        console.log("Setting up page load event listener...")  # Debug: Log setup
+        window.addEventListener("load", initialize_users)
+
+        # Handle Enter key press for sending messages
+        console.log("Setting up keypress event listener...")  # Debug: Log setup
+        message_input.addEventListener("keypress", lambda e: send_message() if e.key == "Enter" else None)
     </script>
 </body>
 </html>

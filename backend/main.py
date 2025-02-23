@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Depends, Request, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
 from typing import List
-#authentication function
+# authentication function
 from api.routes.authentication import router as auth_router
 from api.routes.item_manage import router as item_router
 from api.routes.chat_server import router as chat_router
@@ -32,7 +32,6 @@ app.include_router(item_router)
 app.include_router(chat_router)
 app.include_router(itemlis_router)
 
-
 # @app.get("/")
 # async def index(request: Request):
 #     session_token = request.cookies.get("session_token")
@@ -48,13 +47,20 @@ async def loginPage(request: Request):
 
 @app.get("/logout")
 async def logout():
-    response = RedirectResponse(url="login")
+    response = RedirectResponse(url="/login")
     response.delete_cookie("session_token")
     return response
 
 @app.get("/chat")
 async def chat_page(request: Request):
-    return templates.TemplateResponse("chat.html", {"request": request})
+    # Read the chat.html file content
+    with open("../Frontend/templates/chat.html", "r", encoding="utf-8") as file:
+        content = file.read()
+    # Return HTML response with Cross-Origin headers
+    response = HTMLResponse(content=content, status_code=200)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    return response
 
 @app.get("/MyItem")
 async def myItem_page(request: Request):
@@ -70,7 +76,7 @@ def check_session_cookie(request: Request):
 async def check_session(request: Request):
     session_token = check_session_cookie(request)
     print(f"Session Token from request: {session_token}")  # Print session token
-    print("i'm heasdre")
+    print("I'm header")
     return {"message": "Session token exists", "session_token": session_token}
 
 @app.get("/")
