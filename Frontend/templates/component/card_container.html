@@ -92,7 +92,7 @@
         </div>
     </div>
 
-    <py-script>
+    <script type="py">
         from js import document, window
         from pyodide.ffi import create_proxy
 
@@ -157,7 +157,7 @@
         back_content.addEventListener("dragend", create_proxy(on_drag_end))
 
         inner_card.addEventListener("dblclick", create_proxy(toggle_flip))  # ✅ เปลี่ยนเป็น double-click เพื่อ flip
-    </py-script>
+    </script>
 
 </body>
 </html>
