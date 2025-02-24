@@ -3,23 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Sidebar</title>
+    <title>Minimal Sidebar with Animation</title>
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             margin: 0;
-            font-family: 'Roboto', Arial, sans-serif; /* Use Roboto for a modern, clean font */
+            font-family: 'Roboto', Arial, sans-serif;
             display: flex;
-            background-color: #161616; /* Dark background for contrast, matching your previous theme */
-            color: #FFFFFF; /* White text for readability */
+            background: linear-gradient(45deg, #000000, #1a1a1a, #000033, #000000);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+            color: #FFFFFF;
         }
-        
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         /* Sidebar */
         .sidebar {
-            width: 200px; /* Slightly wider for better readability */
+            width: 200px;
             height: 100vh;
-            background: #2D2D2D; /* Slightly lighter dark gray for better contrast */
+            background: #2D2D2D;
             color: #FFFFFF;
             padding: 20px 0;
             position: fixed;
@@ -28,65 +42,56 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
-            transition: transform 0.3s ease; /* Smooth transition for potential collapse animation (optional, can remove if not needed) */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
         }
-        
+
         .sidebar a {
             display: flex;
             align-items: center;
-            padding: 12px 20px; /* Consistent and balanced padding */
+            padding: 12px 20px;
             color: #FFFFFF;
             text-decoration: none;
-            font-size: 14px; /* Slightly smaller, clean font size */
-            transition: background 0.3s, color 0.3s; /* Smooth transitions for hover */
+            font-size: 14px;
+            transition: background 0.3s, color 0.3s;
         }
-        
+
         .sidebar a:hover, .sidebar a.active {
-            background: #444444; /* Lighter gray for hover/active state */
-            color: #FFD700; /* Yellow accent for hover/active, matching your button theme */
+            background: #444444;
+            color: #FFD700;
         }
-        
+
         .sidebar .icon {
-            min-width: 24px; /* Smaller, cleaner icon size */
+            min-width: 24px;
             text-align: center;
-            font-size: 16px; /* Font Awesome icon size */
+            font-size: 16px;
         }
-        
+
         .sidebar .text {
-            margin-left: 12px; /* More spacing between icon and text */
+            margin-left: 12px;
             white-space: nowrap;
         }
-        
+
         .nav-links {
             flex-grow: 1;
         }
-        
+
         .profile-link {
             margin-top: auto;
-            border-top: 1px solid #444444; /* Subtle divider for profile link */
+            border-top: 1px solid #444444;
             padding-top: 15px;
         }
-        
-        /* Content */
-        .content {
-            margin-left: 200px; /* Match sidebar width */
-            padding: 20px;
-            flex: 1;
-            background-color: #161616; /* Match body background for consistency */
-            color: #FFFFFF;
-            transition: margin-left 0.3s ease; /* Smooth transition for potential sidebar collapse (optional, can remove if not needed) */
-        }
 
-        /* Responsive Design (Removed toggle button logic, keep sidebar fixed) */
+
+        /* Responsive Design (keep sidebar fixed on mobile) */
         @media (max-width: 768px) {
             .sidebar {
-                width: 200px; /* Keep sidebar width fixed on mobile */
-                transform: none; /* Remove any transform (no collapse) */
+                width: 200px;
+                transform: none;
             }
 
             .content {
-                margin-left: 200px; /* Keep content margin fixed on mobile */
+                margin-left: 200px;
             }
         }
     </style>
