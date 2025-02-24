@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
     <style>
-        /* ใช้สไตล์เดิมที่คุณมีในโค้ดก่อนหน้าเพื่อความสวยงามและการทำงานที่สมบูรณ์ */
+        /* Existing CSS remains the same, with additions for scrollbars */
         body {
             font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
@@ -106,7 +106,7 @@
 
         .product-item {
             max-width: 280px;
-            height: 480px;
+            height: 580px;
             background-color: #2D2D2D;
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
@@ -127,7 +127,7 @@
 
         .product-image {
             width: 100%;
-            height: 70%;
+            height: 50%;
             border-radius: 10px;
             object-fit: cover;
             cursor: pointer;
@@ -142,9 +142,35 @@
         .product-name {
             font-size: 20px;
             font-weight: 600;
-            margin: 15px 0;
+            margin: 10px 0;
             color: #FFFFFF;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: #CCCCCC;
+            margin: 5px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 500;
+            color: #FFD700;
+            margin: 5px 0;
+        }
+
+        .product-category {
+            font-size: 14px;
+            font-weight: 400;
+            color: #4CAF50;
+            margin: 5px 0;
+            text-transform: uppercase;
         }
 
         .product-buttons {
@@ -210,15 +236,38 @@
 
         .popup-content {
             background-color: #2D2D2D;
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 25px;
             border-radius: 20px;
             width: 400px;
-            max-width: 90%;
+            max-width: 100%;
+            max-height: 80vh; /* Limit height for scrolling */
             text-align: center;
             color: #FFFFFF;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             animation: slideIn 0.3s ease-out;
+            overflow-y: auto; /* Enable vertical scrolling */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            position: relative; /* ช่วยรักษาตำแหน่งในกริด */ 
+            top: -70px; /* ขยับขึ้น 50px (ปรับตามความเหมาะสม) */
+        }
+
+        .popup-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .popup-content::-webkit-scrollbar-track {
+            background: #2D2D2D;
+            border-radius: 10px;
+        }
+
+        .popup-content::-webkit-scrollbar-thumb {
+            background: #FFD700;
+            border-radius: 10px;
+        }
+
+        .popup-content::-webkit-scrollbar-thumb:hover {
+            background: #FFD700;
         }
 
         @keyframes slideIn {
@@ -260,8 +309,14 @@
             transform: scale(1.05);
         }
 
-        input[type="text"], input[type="file"] {
-            width: 100%;
+        .input-container {
+            width: 80%; /* Fixed width for the input container to create equal margins */
+            margin: 0 auto; /* Center the container horizontally within .popup-content */
+            max-width: 320px; /* Ensure it doesn’t exceed a reasonable width on small screens */
+        }
+
+        input[type="text"], input[type="file"], input[type="number"], textarea {
+            width: 100%; /* Full width within the .input-container */
             padding: 12px;
             margin: 10px 0;
             border: 1px solid #444444;
@@ -272,7 +327,7 @@
             transition: border-color 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="file"]:focus {
+        input[type="text"]:focus, input[type="file"]:focus, input[type="number"]:focus, textarea:focus {
             border-color: #4CAF50;
             outline: none;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
@@ -323,12 +378,14 @@
 
             .product-item {
                 max-width: 220px;
-                height: 400px;
+                height: 480px;
             }
 
             .popup-content {
                 width: 80%;
                 margin: 20% auto;
+                max-height: 70vh; /* Adjusted for mobile */
+                top: -30px; /* ขยับขึ้นน้อยกว่าในมือถือ */
             }
 
             .edit-product-image, #addProductImagePreview {
@@ -378,17 +435,28 @@
             <span class="close-btn" py-click="close_edit_popup">×</span>
             <h2>Edit Product</h2>
             <img id="editProductImage" class="edit-product-image" src="" alt="Product Image">
-            <input type="text" id="editProductName" placeholder="Enter product name">
+            <div class="input-container">
+                <input type="text" id="editProductName" placeholder="Enter product name">
+                <textarea id="editProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
+                <input type="number" id="editProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
+                <input type="text" id="editProductCategory" placeholder="Enter category (e.g., Electronics)">
+            </div>
             <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
         </div>
     </div>
 
+    <!-- Add New Product Popup -->
     <div id="addProductPopup" class="popup">
         <div class="popup-content">
             <span class="close-btn" py-click="close_add_popup">×</span>
             <h2>Add New Product</h2>
-            <input type="text" id="addProductName" placeholder="Enter product name">
-            <input type="file" id="addProductImage" accept="image/*">
+            <div class="input-container">
+                <input type="text" id="addProductName" placeholder="Enter product name">
+                <textarea id="addProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
+                <input type="number" id="addProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
+                <input type="text" id="addProductCategory" placeholder="Enter category (e.g., Electronics)">
+                <input type="file" id="addProductImage" accept="image/*">
+            </div>
             <img id="addProductImagePreview" class="edit-product-image" src="" alt="Preview Image" style="display: none;">
             <button type="button" class="save-btn" py-click="save_new_product">Add</button>
         </div>
@@ -417,19 +485,22 @@
         from js import document, console, window
         from pyodide.ffi import create_proxy
 
-        # Simulated product data
+        # Simulated product data with new fields
         product_data = [
-            {"id": 1, "name": "Camera", "image": "/static/image_test/camera.jpg"},
-            {"id": 2, "name": "Guitar", "image": "/static/image_test/guitar.jpg"},
-            {"id": 3, "name": "Piano", "image": "/static/image_test/piano.jpg"},
-            {"id": 4, "name": "Laptop", "image": "/static/image_test/laptop.jpg"},
-            {"id": 5, "name": "Phone", "image": "/static/image_test/phone.jpg"}
+            {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg", "category": "Electronics"},
+            {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg", "category": "Instruments"},
+            {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg", "category": "Instruments"},
+            {"id": 4, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/laptop.jpg", "category": "Electronics"},
+            {"id": 5, "name": "Phone", "description": "Latest smartphone with 5G and 128GB storage", "price": "699.99", "image": "/static/image_test/phone.jpg", "category": "Electronics"}
         ]
         
         selected_product = None
 
         def open_add_popup(event=None):
             document.querySelector("#addProductName").value = ""
+            document.querySelector("#addProductDescription").value = ""
+            document.querySelector("#addProductPrice").value = ""
+            document.querySelector("#addProductCategory").value = ""
             document.querySelector("#addProductImage").value = ""
             document.querySelector("#addProductImagePreview").style.display = "none"
             document.querySelector("#addProductImagePreview").src = ""
@@ -439,16 +510,36 @@
             document.querySelector("#addProductPopup").style.display = "none"
 
         def save_new_product(event=None):
-            name = document.querySelector("#addProductName").value.strip()
-            image_url = document.querySelector("#addProductImagePreview").src
-            if name and image_url:
-                new_product = {"id": len(product_data) + 1, "name": name, "image": image_url}
-                product_data.append(new_product)
-                update_product_grid()
-                close_add_popup()
-            else:
-                console.error("Please enter a product name and select an image")
-        
+            try:
+                name = document.querySelector("#addProductName").value.strip()
+                description = document.querySelector("#addProductDescription").value.strip()
+                price = document.querySelector("#addProductPrice").value.strip()
+                category = document.querySelector("#addProductCategory").value.strip()
+                image_url = document.querySelector("#addProductImagePreview").src
+                
+                console.log(f"Attempting to save: name={name}, description={description}, price={price}, category={category}, image_url={image_url}")
+                
+                if name and description and price and category and image_url:
+                    if not image_url.startswith("data:image/"):  # Check if image_url is a valid data URL
+                        console.error("Invalid image URL detected")
+                        return
+                    
+                    new_product = {
+                        "id": len(product_data) + 1,
+                        "name": name,
+                        "description": description,
+                        "price": price,
+                        "image": image_url,
+                        "category": category
+                    }
+                    product_data.append(new_product)
+                    update_product_grid()
+                    close_add_popup()
+                else:
+                    console.error("Please fill in all fields and select an image")
+            except Exception as e:
+                console.error(f"Error in save_new_product: {e}")
+
         def update_product_grid():
             productGrid = document.querySelector("#productGrid")
             if not productGrid:
@@ -475,6 +566,18 @@
             name.classList.add("product-name")
             name.textContent = product["name"]
         
+            description = document.createElement("div")
+            description.classList.add("product-description")
+            description.textContent = product["description"]
+        
+            price = document.createElement("div")
+            price.classList.add("product-price")
+            price.textContent = f"${product['price']}"
+        
+            category = document.createElement("div")
+            category.classList.add("product-category")
+            category.textContent = product["category"]
+        
             buttonContainer = document.createElement("div")
             buttonContainer.classList.add("product-buttons")
         
@@ -492,6 +595,9 @@
         
             productDiv.appendChild(img)
             productDiv.appendChild(name)
+            productDiv.appendChild(description)
+            productDiv.appendChild(price)
+            productDiv.appendChild(category)
             productDiv.appendChild(buttonContainer)
             productGrid.appendChild(productDiv)
 
@@ -501,6 +607,9 @@
             if selected_product:
                 document.querySelector("#editProductImage").src = selected_product["image"]
                 document.querySelector("#editProductName").value = selected_product["name"]
+                document.querySelector("#editProductDescription").value = selected_product["description"]
+                document.querySelector("#editProductPrice").value = selected_product["price"]
+                document.querySelector("#editProductCategory").value = selected_product["category"]
                 document.querySelector("#editProductPopup").style.display = "block"
             else:
                 console.error(f"Product with ID {product_id} not found")
@@ -511,6 +620,9 @@
         def save_product_changes(event=None):
             if selected_product:
                 selected_product["name"] = document.querySelector("#editProductName").value
+                selected_product["description"] = document.querySelector("#editProductDescription").value
+                selected_product["price"] = document.querySelector("#editProductPrice").value
+                selected_product["category"] = document.querySelector("#editProductCategory").value
                 update_product_grid()
                 close_edit_popup()
             else:
