@@ -1,360 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Items - Trade’n Offer</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
-  <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Items - Trade’n Offer</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+    <style>
+        /* ใช้สไตล์เดิมที่คุณมีในโค้ดก่อนหน้าเพื่อความสวยงามและการทำงานที่สมบูรณ์ */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: 250px;
+            overflow: hidden;
+            min-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: #1a1a1a;
+        }
+
+        .button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 160px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #FFD700;
+            background-color: #2c2c2c;
+            border-radius: 25px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+        }
+
+        .button:hover {
+            background-color: #FFD700;
+            border-color: #FFD700;
+            transform: scale(1.05);
+        }
+
+        .button__text {
+            color: #FFFFFF;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .button__icon {
+            position: absolute;
+            transform: translateX(110px);
+            height: 100%;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .button .svg {
+            width: 20px;
+            stroke: #FFFFFF;
+        }
+
+        .button:hover .button__text {
+            color: transparent;
+        }
+
+        .button:hover .button__icon {
+            width: 160px;
+            transform: translateX(0);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            width: 100%;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 20px 0;
+            justify-content: center;
+            align-items: start;
+            flex-grow: 1;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .product-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .product-item {
+            max-width: 280px;
+            height: 480px;
+            background-color: #2D2D2D;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 70%;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #444444;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-image:hover {
+            opacity: 0.8;
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 15px 0;
+            color: #FFFFFF;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px 0;
+        }
+
+        .edit-btn, .remove-btn {
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            width: 48%;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            border: none;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .edit-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .remove-btn:hover {
+            background-color: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-btn:active, .remove-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .popup-content {
+            background-color: #2D2D2D;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 20px;
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #FFFFFF;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #f44336;
+        }
+
+        .edit-product-image, #addProductImagePreview {
+            width: 250px;
+            height: 250px;
+            border-radius: 15px;
+            object-fit: cover;
+            margin: 15px auto;
+            border: 2px solid #444444;
+            transition: transform 0.3s ease;
+        }
+
+        .edit-product-image:hover, #addProductImagePreview:hover {
+            transform: scale(1.05);
+        }
+
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #444444;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            color: #000000;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="file"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+
+        .save-btn {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            margin-top: 15px;
+        }
+
+        .save-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .button {
+                width: 120px;
+                height: 40px;
+                top: 10px;
+                right: 10px;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                padding: 10px;
+            }
+
+            .product-item {
+                max-width: 220px;
+                height: 400px;
+            }
+
+            .popup-content {
+                width: 80%;
+                margin: 20% auto;
+            }
+
+            .edit-product-image, #addProductImagePreview {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        .new-product {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Side Navigation -->
-  {% include 'component/sidenav.html' %}
+    <!-- Side Navigation -->
+    {% include 'component/sidenav.html' %}
 
-  <!-- Main Content -->
-  <div class="content">
-    <h1>My Items</h1>
-    <div id="productGrid" class="product-grid"></div>
-    <button type="button" class="button" py-click="add_product">
-      <span class="button__text">Add Item</span>
-      <span class="button__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
-          <line y2="19" y1="5" x2="12" x1="12"></line>
-          <line y2="12" y1="12" x2="19" x1="5"></line>
-        </svg>
-      </span>
-    </button>
-  </div>
-
-  <!-- Edit Product Popup -->
-  <div id="editProductPopup" class="popup">
-    <div class="popup-content">
-      <span class="close-btn" py-click="close_edit_popup">×</span>
-      <h2>Edit Product</h2>
-      <img id="editProductImage" class="edit-product-image" src="" alt="Product Image">
-      <input type="text" id="editProductName" placeholder="Enter product name" style="color: #000; background-color: #FFFFFF;">
-      <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
+    <!-- Main Content -->
+    <div class="content">
+        <h1>My Items</h1>
+        <div id="productGrid" class="product-grid"></div>
+        <button type="button" class="button" py-click="open_add_popup">
+            <span class="button__text">Add Item</span>
+            <span class="button__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
+                    <line y2="19" y1="5" x2="12" x1="12"></line>
+                    <line y2="12" y1="12" x2="19" x1="5"></line>
+                </svg>
+            </span>
+        </button>
     </div>
-  </div>
 
-  <!-- Styles -->
-  <style>
-      body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          background-color: #161616;
-      }
+    <!-- Edit Product Popup -->
+    <div id="editProductPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" py-click="close_edit_popup">×</span>
+            <h2>Edit Product</h2>
+            <img id="editProductImage" class="edit-product-image" src="" alt="Product Image">
+            <input type="text" id="editProductName" placeholder="Enter product name">
+            <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
+        </div>
+    </div>
 
-      .content {
-          padding: 20px;
-          max-width: 1200px;
-          margin-left: 200px;
-          overflow: hidden;
-          min-height: calc(100vh - 40px);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          background-color: #161616;
-          color: #FFFFFF;
-      }
+    <div id="addProductPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" py-click="close_add_popup">×</span>
+            <h2>Add New Product</h2>
+            <input type="text" id="addProductName" placeholder="Enter product name">
+            <input type="file" id="addProductImage" accept="image/*">
+            <img id="addProductImagePreview" class="edit-product-image" src="" alt="Preview Image" style="display: none;">
+            <button type="button" class="save-btn" py-click="save_new_product">Add</button>
+        </div>
+    </div>
 
-      .button {
-          --main-focus: #2d8cf0;
-          --font-color: #dedede;
-          --bg-color: #323232;
-          --main-color: #dedede;
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          width: 150px;
-          height: 40px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 2px solid #FFFFFF;
-          background-color: #323232;
-          border-radius: 10px;
-          overflow: hidden;
-          transition: all 0.3s;
-          z-index: 1000;
-      }
+    <script>
+        // JavaScript for image preview
+        document.querySelector("#addProductImage").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            const preview = document.querySelector("#addProductImagePreview");
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = "none";
+                preview.src = "";
+            }
+        });
+    </script>
 
-      @media (max-width: 768px) {
-          .button {
-              width: 120px;
-              height: 35px;
-              font-size: 14px;
-          }
-      }
+    <script type="py">
+        from js import document, console, window
+        from pyodide.ffi import create_proxy
 
-      .button__text {
-          transform: translateX(25px);
-          color: #FFFFFF;
-          font-weight: 600;
-          transition: all 0.3s;
-      }
+        # Simulated product data
+        product_data = [
+            {"id": 1, "name": "Camera", "image": "/static/image_test/camera.jpg"},
+            {"id": 2, "name": "Guitar", "image": "/static/image_test/guitar.jpg"},
+            {"id": 3, "name": "Piano", "image": "/static/image_test/piano.jpg"},
+            {"id": 4, "name": "Laptop", "image": "/static/image_test/laptop.jpg"},
+            {"id": 5, "name": "Phone", "image": "/static/image_test/phone.jpg"}
+        ]
+        
+        selected_product = None
 
-      .button__icon {
-          position: absolute;
-          transform: translateX(109px);
-          height: 100%;
-          width: 39px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s;
-      }
+        def open_add_popup(event=None):
+            document.querySelector("#addProductName").value = ""
+            document.querySelector("#addProductImage").value = ""
+            document.querySelector("#addProductImagePreview").style.display = "none"
+            document.querySelector("#addProductImagePreview").src = ""
+            document.querySelector("#addProductPopup").style.display = "block"
 
-      .button .svg {
-          width: 20px;
-          stroke: #FFFFFF;
-      }
+        def close_add_popup(event=None):
+            document.querySelector("#addProductPopup").style.display = "none"
 
-      .button:hover .button__text {
-          color: transparent;
-      }
+        def save_new_product(event=None):
+            name = document.querySelector("#addProductName").value.strip()
+            image_url = document.querySelector("#addProductImagePreview").src
+            if name and image_url:
+                new_product = {"id": len(product_data) + 1, "name": name, "image": image_url}
+                product_data.append(new_product)
+                update_product_grid()
+                close_add_popup()
+            else:
+                console.error("Please enter a product name and select an image")
+        
+        def update_product_grid():
+            productGrid = document.querySelector("#productGrid")
+            if not productGrid:
+                console.error("Product grid element (#productGrid) not found!")
+                return
+            productGrid.innerHTML = ""
+            for product in product_data:
+                add_product_element(product, False)  # แสดงสินค้าทั้งหมดเป็นสินค้าเดิม
+            console.log("Product grid updated successfully")
 
-      .button:hover .button__icon {
-          width: 148px;
-          transform: translateX(0);
-      }
+        def add_product_element(product, is_new):
+            productGrid = document.querySelector("#productGrid")
+            productDiv = document.createElement("div")
+            productDiv.classList.add("product-item")
+            if is_new:
+                productDiv.classList.add("new-product")
+        
+            img = document.createElement("img")
+            img.src = product["image"]
+            img.alt = product["name"]
+            img.classList.add("product-image")
+        
+            name = document.createElement("div")
+            name.classList.add("product-name")
+            name.textContent = product["name"]
+        
+            buttonContainer = document.createElement("div")
+            buttonContainer.classList.add("product-buttons")
+        
+            editBtn = document.createElement("div")
+            editBtn.classList.add("edit-btn")
+            editBtn.textContent = "Edit"
+            editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(product["id"])))
+        
+            removeBtn = document.createElement("div")
+            removeBtn.classList.add("remove-btn")
+            removeBtn.textContent = "Remove"
+        
+            buttonContainer.appendChild(editBtn)
+            buttonContainer.appendChild(removeBtn)
+        
+            productDiv.appendChild(img)
+            productDiv.appendChild(name)
+            productDiv.appendChild(buttonContainer)
+            productGrid.appendChild(productDiv)
 
-      .product-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 50px;
-          width: 100%;
-          max-width: 1500px;
-          margin: 0 auto;
-          padding: 20px;
-          padding-right: 0;
-          justify-content: center;
-          align-items: start;
-          flex-grow: 1;
-          overflow-y: auto;
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-      }
+        def open_edit_popup(product_id):
+            global selected_product
+            selected_product = next((p for p in product_data if p["id"] == product_id), None)
+            if selected_product:
+                document.querySelector("#editProductImage").src = selected_product["image"]
+                document.querySelector("#editProductName").value = selected_product["name"]
+                document.querySelector("#editProductPopup").style.display = "block"
+            else:
+                console.error(f"Product with ID {product_id} not found")
 
-      .product-grid::-webkit-scrollbar {
-          display: none;
-      }
+        def close_edit_popup(event=None):
+            document.querySelector("#editProductPopup").style.display = "none"
 
-      .product-item {
-          max-width: 250px;
-          height: 500px;
-          background-color: #2D2D2D;
-          border-radius: 10px;
-          box-shadow: 4px 8px 15px rgba(0, 0, 0, 0.3);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: space-between;
-          position: relative;
-          padding: 15px;
-          text-align: center;
-      }
+        def save_product_changes(event=None):
+            if selected_product:
+                selected_product["name"] = document.querySelector("#editProductName").value
+                update_product_grid()
+                close_edit_popup()
+            else:
+                console.error("No product selected for editing")
 
-      .product-image {
-          width: 100%;
-          height: 65%;
-          border-radius: 10px;
-          object-fit: cover;
-          cursor: pointer;
-          border: 2px solid #444444;
-      }
+        # เรียกใช้ update_product_grid ทันทีเมื่อโหลดหน้า
+        console.log("Initializing product grid...")
+        update_product_grid()  # เรียกใช้ฟังก์ชันนี้ทันทีเพื่อแสดงสินค้าทั้งหมด
 
-      .product-name {
-          font-size: 18px;
-          font-weight: bold;
-          text-align: center;
-          margin: 10px 0;
-          color: #FFFFFF;
-      }
-
-      .product-buttons {
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-          padding: 5px;
-      }
-
-      .edit-btn, .remove-btn {
-          cursor: pointer;
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: bold;
-          width: 48%;
-          text-align: center;
-          transition: all 0.3s ease-in-out;
-          border: none;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-      }
-
-      .edit-btn {
-          background-color: #FFD700;
-          color: black;
-      }
-
-      .remove-btn {
-          background-color: white;
-          color: black;
-      }
-
-      .edit-btn:hover {
-          background-color: #E6C200;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-
-      .remove-btn:hover {
-          background-color: #F0F0F0;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-
-      .edit-btn:active, .remove-btn:active {
-          transform: translateY(0);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-      }
-
-      .popup {
-          display: none;
-          position: fixed;
-          z-index: 10;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.7);
-      }
-
-      .popup-content {
-          background-color: #2D2D2D;
-          margin: 5% auto;
-          padding: 20px;
-          border-radius: 10px;
-          width: 50%;
-          text-align: center;
-          color: #FFFFFF;
-      }
-
-      .edit-product-image {
-          width: 200px;
-          height: 200px;
-          border-radius: 10px;
-          object-fit: cover;
-          margin-bottom: 10px;
-          border: 2px solid #444444;
-      }
-
-      .save-btn {
-          padding: 10px 20px;
-          background-color: #FFD700;
-          color: black;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 16px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          transition: all 0.3s ease-in-out;
-      }
-
-      .save-btn:hover {
-          background-color: #E6C200;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-
-      .save-btn:active {
-          transform: translateY(0);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-      }
-  </style>
-
-  <py-script>
-    from js import document
-    from pyodide.ffi import create_proxy
-    
-    product_data = [
-        {"id": 1, "name": "Camera", "image": "/static/image_test/camera.jpg"},
-        {"id": 2, "name": "Guitar", "image": "/static/image_test/guitar.jpg"},
-        {"id": 3, "name": "Piano", "image": "/static/image_test/piano.jpg"},
-        {"id": 4, "name": "Laptop", "image": "/static/image_test/laptop.jpg"},
-        {"id": 5, "name": "Phone", "image": "/static/image_test/phone.jpg"}
-    ]
-    
-    selected_product = None
-    
-    def update_product_grid():
-        productGrid = document.querySelector("#productGrid")
-        productGrid.innerHTML = ""
-        for product in product_data[:5]:
-            add_product_element(product, False)
-        for product in product_data[5:]:
-            add_product_element(product, True)
-    
-    def add_product_element(product, is_new):
-        productGrid = document.querySelector("#productGrid")
-        productDiv = document.createElement("div")
-        productDiv.classList.add("product-item")
-        if is_new:
-            productDiv.classList.add("new-product")
-    
-        img = document.createElement("img")
-        img.src = product["image"]
-        img.alt = product["name"]
-        img.classList.add("product-image")
-    
-        name = document.createElement("div")
-        name.classList.add("product-name")
-        name.textContent = product["name"]
-    
-        buttonContainer = document.createElement("div")
-        buttonContainer.classList.add("product-buttons")
-    
-        editBtn = document.createElement("div")
-        editBtn.classList.add("edit-btn")
-        editBtn.textContent = "Edit"
-    
-        removeBtn = document.createElement("div")
-        removeBtn.classList.add("remove-btn")
-        removeBtn.textContent = "Remove"
-    
-        buttonContainer.appendChild(editBtn)
-        buttonContainer.appendChild(removeBtn)
-    
-        productDiv.appendChild(img)
-        productDiv.appendChild(name)
-        productDiv.appendChild(buttonContainer)
-        productGrid.appendChild(productDiv)
-    
-    def open_edit_popup(product_id):
-        global selected_product
-        selected_product = next((p for p in product_data if p["id"] == product_id), None)
-        if selected_product:
-            document.querySelector("#editProductImage").src = selected_product["image"]
-            document.querySelector("#editProductName").value = selected_product["name"]
-            document.querySelector("#editProductPopup").style.display = "block"
-    
-    def close_edit_popup(event=None):
-        document.querySelector("#editProductPopup").style.display = "none"
-    
-    def save_product_changes(event=None):
-        if selected_product:
-            selected_product["name"] = document.querySelector("#editProductName").value
-            update_product_grid()
-            close_edit_popup()
-    
-    def add_product(event=None):
-        product_data.append({"id": len(product_data) + 1, "name": "New Item", "image": "/static/image_test/default.jpg"})
-        update_product_grid()
-    
-    update_product_grid()
-  </py-script>
+        # เพิ่ม event listener สำหรับโหลดหน้า (optional, เพื่อความมั่นใจ)
+        window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
+    </script>
 </body>
 </html>
