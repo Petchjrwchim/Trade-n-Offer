@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
     <style>
-        /* Existing CSS remains the same, with additions for scrollbars */
+        /* Existing CSS remains the same, with additions for search and filter */
         body {
             font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
@@ -84,6 +84,46 @@
             transform: translateX(0);
         }
 
+        .search-filter-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #444444;
+            border-radius: 8px;
+            background-color: #2D2D2D;
+            color: #FFFFFF;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #FFD700;
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+
+        .filter-select {
+            padding: 10px;
+            border: 1px solid #444444;
+            border-radius: 8px;
+            background-color: #2D2D2D;
+            color: #FFFFFF;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: #FFD700;
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -106,7 +146,7 @@
 
         .product-item {
             max-width: 280px;
-            height: 580px;
+            height: 520px; /* Reduced height since category is removed */
             background-color: #2D2D2D;
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
@@ -163,14 +203,6 @@
             font-weight: 500;
             color: #FFD700;
             margin: 5px 0;
-        }
-
-        .product-category {
-            font-size: 14px;
-            font-weight: 400;
-            color: #4CAF50;
-            margin: 5px 0;
-            text-transform: uppercase;
         }
 
         .product-buttons {
@@ -378,7 +410,17 @@
 
             .product-item {
                 max-width: 220px;
-                height: 480px;
+                height: 420px; /* Reduced height for mobile, reflecting removed category */
+            }
+
+            .search-filter-container {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .search-input, .filter-select {
+                width: 100%;
             }
 
             .popup-content {
@@ -386,6 +428,11 @@
                 margin: 20% auto;
                 max-height: 70vh; /* Adjusted for mobile */
                 top: -30px; /* ขยับขึ้นน้อยกว่าในมือถือ */
+            }
+
+            .input-container {
+                width: 90%; /* Slightly wider on mobile for better usability */
+                max-width: 280px; /* Adjusted for smaller screens */
             }
 
             .edit-product-image, #addProductImagePreview {
@@ -417,6 +464,16 @@
     <!-- Main Content -->
     <div class="content">
         <h1>My Items</h1>
+        <div class="search-filter-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name or price...">
+            <select id="filterSelect" class="filter-select">
+                <option value="none">No Filter</option>
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="price_asc">Price (Low to High)</option>
+                <option value="price_desc">Price (High to Low)</option>
+            </select>
+        </div>
         <div id="productGrid" class="product-grid"></div>
         <button type="button" class="button" py-click="open_add_popup">
             <span class="button__text">Add Item</span>
@@ -439,7 +496,6 @@
                 <input type="text" id="editProductName" placeholder="Enter product name">
                 <textarea id="editProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
                 <input type="number" id="editProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
-                <input type="text" id="editProductCategory" placeholder="Enter category (e.g., Electronics)">
             </div>
             <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
         </div>
@@ -454,7 +510,6 @@
                 <input type="text" id="addProductName" placeholder="Enter product name">
                 <textarea id="addProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
                 <input type="number" id="addProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
-                <input type="text" id="addProductCategory" placeholder="Enter category (e.g., Electronics)">
                 <input type="file" id="addProductImage" accept="image/*">
             </div>
             <img id="addProductImagePreview" class="edit-product-image" src="" alt="Preview Image" style="display: none;">
@@ -479,19 +534,28 @@
                 preview.src = "";
             }
         });
+
+        // JavaScript for search and filter
+        document.querySelector("#searchInput").addEventListener("input", function() {
+            PyScript.runPython("update_product_grid_with_search()");
+        });
+
+        document.querySelector("#filterSelect").addEventListener("change", function() {
+            PyScript.runPython("update_product_grid_with_filter()");
+        });
     </script>
 
     <script type="py">
         from js import document, console, window
         from pyodide.ffi import create_proxy
 
-        # Simulated product data with new fields
+        # Simulated product data without the category field
         product_data = [
-            {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg", "category": "Electronics"},
-            {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg", "category": "Instruments"},
-            {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg", "category": "Instruments"},
-            {"id": 4, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/laptop.jpg", "category": "Electronics"},
-            {"id": 5, "name": "Phone", "description": "Latest smartphone with 5G and 128GB storage", "price": "699.99", "image": "/static/image_test/phone.jpg", "category": "Electronics"}
+            {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
+            {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
+            {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"},
+            {"id": 4, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/laptop.jpg"},
+            {"id": 5, "name": "Phone", "description": "Latest smartphone with 5G and 128GB storage", "price": "699.99", "image": "/static/image_test/phone.jpg"}
         ]
         
         selected_product = None
@@ -500,7 +564,6 @@
             document.querySelector("#addProductName").value = ""
             document.querySelector("#addProductDescription").value = ""
             document.querySelector("#addProductPrice").value = ""
-            document.querySelector("#addProductCategory").value = ""
             document.querySelector("#addProductImage").value = ""
             document.querySelector("#addProductImagePreview").style.display = "none"
             document.querySelector("#addProductImagePreview").src = ""
@@ -514,12 +577,11 @@
                 name = document.querySelector("#addProductName").value.strip()
                 description = document.querySelector("#addProductDescription").value.strip()
                 price = document.querySelector("#addProductPrice").value.strip()
-                category = document.querySelector("#addProductCategory").value.strip()
                 image_url = document.querySelector("#addProductImagePreview").src
                 
-                console.log(f"Attempting to save: name={name}, description={description}, price={price}, category={category}, image_url={image_url}")
+                console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}")
                 
-                if name and description and price and category and image_url:
+                if name and description and price and image_url:
                     if not image_url.startswith("data:image/"):  # Check if image_url is a valid data URL
                         console.error("Invalid image URL detected")
                         return
@@ -529,11 +591,10 @@
                         "name": name,
                         "description": description,
                         "price": price,
-                        "image": image_url,
-                        "category": category
+                        "image": image_url
                     }
                     product_data.append(new_product)
-                    update_product_grid()
+                    update_product_grid_with_search()  # Update with current search and filter
                     close_add_popup()
                 else:
                     console.error("Please fill in all fields and select an image")
@@ -541,14 +602,35 @@
                 console.error(f"Error in save_new_product: {e}")
 
         def update_product_grid():
+            update_product_grid_with_search()
+
+        def update_product_grid_with_search():
+            search_query = document.querySelector("#searchInput").value.strip().lower()
+            filter_option = document.querySelector("#filterSelect").value
+
+            # Filter products based on search query (name or price)
+            filtered_data = [product for product in product_data if 
+                            (search_query in product["name"].lower() or 
+                             search_query in product["price"].lower())]
+
+            # Apply sorting based on filter option
+            if filter_option == "name_asc":
+                filtered_data.sort(key=lambda x: x["name"].lower())
+            elif filter_option == "name_desc":
+                filtered_data.sort(key=lambda x: x["name"].lower(), reverse=True)
+            elif filter_option == "price_asc":
+                filtered_data.sort(key=lambda x: float(x["price"]))
+            elif filter_option == "price_desc":
+                filtered_data.sort(key=lambda x: float(x["price"]), reverse=True)
+
             productGrid = document.querySelector("#productGrid")
             if not productGrid:
                 console.error("Product grid element (#productGrid) not found!")
                 return
             productGrid.innerHTML = ""
-            for product in product_data:
+            for product in filtered_data:
                 add_product_element(product, False)  # แสดงสินค้าทั้งหมดเป็นสินค้าเดิม
-            console.log("Product grid updated successfully")
+            console.log("Product grid updated with search and filter")
 
         def add_product_element(product, is_new):
             productGrid = document.querySelector("#productGrid")
@@ -574,10 +656,6 @@
             price.classList.add("product-price")
             price.textContent = f"${product['price']}"
         
-            category = document.createElement("div")
-            category.classList.add("product-category")
-            category.textContent = product["category"]
-        
             buttonContainer = document.createElement("div")
             buttonContainer.classList.add("product-buttons")
         
@@ -597,7 +675,6 @@
             productDiv.appendChild(name)
             productDiv.appendChild(description)
             productDiv.appendChild(price)
-            productDiv.appendChild(category)
             productDiv.appendChild(buttonContainer)
             productGrid.appendChild(productDiv)
 
@@ -609,7 +686,6 @@
                 document.querySelector("#editProductName").value = selected_product["name"]
                 document.querySelector("#editProductDescription").value = selected_product["description"]
                 document.querySelector("#editProductPrice").value = selected_product["price"]
-                document.querySelector("#editProductCategory").value = selected_product["category"]
                 document.querySelector("#editProductPopup").style.display = "block"
             else:
                 console.error(f"Product with ID {product_id} not found")
@@ -622,8 +698,7 @@
                 selected_product["name"] = document.querySelector("#editProductName").value
                 selected_product["description"] = document.querySelector("#editProductDescription").value
                 selected_product["price"] = document.querySelector("#editProductPrice").value
-                selected_product["category"] = document.querySelector("#editProductCategory").value
-                update_product_grid()
+                update_product_grid_with_search()  # Update with current search and filter
                 close_edit_popup()
             else:
                 console.error("No product selected for editing")
