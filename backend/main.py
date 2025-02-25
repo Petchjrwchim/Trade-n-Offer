@@ -66,6 +66,10 @@ async def chat_page(request: Request):
 async def myItem_page(request: Request):
     return templates.TemplateResponse("myItem_page.html", {"request": request})
 
+@app.get("/explore")
+async def explore_page(request: Request):
+    return templates.TemplateResponse("Explore.html", {"request": request})
+
 def check_session_cookie(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
