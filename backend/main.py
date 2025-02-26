@@ -42,7 +42,12 @@ app.include_router(itemlis_router)
 
 @app.get("/login")
 async def loginPage(request: Request):
-    return templates.TemplateResponse("authentication.html", 
+    return templates.TemplateResponse("login.html", 
+                                      {"request": request, "message": "Welcome to Trade’n Offer"})
+
+@app.get("/signup")
+async def signupPage(request: Request):
+    return templates.TemplateResponse("signUp.html", 
                                       {"request": request, "message": "Welcome to Trade’n Offer"})
 
 @app.get("/logout")

@@ -1,14 +1,14 @@
-<div class="profile-container">
-    <!-- Product Name -->
-    <div class="product-name">
-        <span>Test</span>
+<div class="profile-card" py-click="show_profile_popup">
+    <div class="profile-content">
+        <div class="profile-image">
+            <img id="profileImage" src="/static/image_test/camera.jpg" alt="Profile Image">
+        </div>
+        <div class="profile-details">
+            <span class="profile-name">Test</span>
+            <span class="profile-title">User</span>
+        </div>
     </div>
-  
-    <!-- Profile image -->
-    <div class="profile-image-container" py-click="show_profile_popup">
-        <img id="profileImage" src="/static/image_test/camera.jpg" alt="Profile Image" class="profile-image">
-    </div>
-  
+
     <div id="profilePopup" class="profile-popup">
         <div class="popup-content">
             <span class="close-btn" py-click="close_profile_popup">×</span>
@@ -32,62 +32,75 @@
         body {
             font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
-            background-color: #161616;
+            background-color: #1a263a; /* Dark blue background to match the screenshot */
             color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .profile-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
+        .profile-card {
             position: absolute;
             top: 32px;
             right: 10px;
-            width: 450px; /* Slightly wider to accommodate larger image */
-            height: 70px; /* Increased height to fit larger image */
-            background-color: #B22222;
-            border-radius: 30px;
-            padding: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, background-color 0.3s ease;
-        }
-
-        .profile-container:hover {
-            background-color: #A52A2A;
-            transform: translateY(-2px);
-        }
-
-        .product-name {
-            font-weight: 500;
-            font-size: 18px;
-            color: #FFFFFF;
-            margin-right: 20px; /* Increased margin for spacing with larger image */
-            flex-shrink: 0;
-        }
-
-        .profile-image-container {
-            width: 120px; /* Increased from 40px to make it larger */
-            height: 120px; /* Increased from 40px to match width for a circle */
-            border-radius: 50%;
-            overflow: hidden;
+            background-color: #ffffff;
+            width: 300px; /* Slightly wider to accommodate a larger image */
+            height: 80px; /* Increased height to fit the larger image */
+            border-radius: 15px; /* Rounded corners to match the screenshot */
+            border: 2px solid #FFD700; /* Light pink border to match the screenshot */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Subtle shadow */
             display: flex;
-            justify-content: center;
             align-items: center;
+            padding: 10px;
             cursor: pointer;
-            border: 2px solid #FFFFFF;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .profile-image-container:hover {
-            transform: scale(1.1);
+        .profile-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .profile-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
         }
 
         .profile-image {
+            width: 130px; /* Increased from 50px to make the image larger and clearer */
+            height: 130px; /* Increased to match width for a perfect circle */
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            border: 2px solid #ffffff; /* Light pink border to match the screenshot */
+        }
+
+        .profile-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a263a; /* Dark text for contrast on white background */
+            margin-bottom: 4px;
+        }
+
+        .profile-title {
+            font-size: 14px;
+            color: #666666; /* Gray text for the title */
+        }
+
+        /* Profile Popup Styles (Unchanged, but included for completeness) */
         .profile-popup {
             display: none;
             position: fixed;
@@ -195,6 +208,7 @@
             display: flex; /* Ensure the text can be centered */
             align-items: center; /* Center vertically within itself (if needed) */
         }
+
         .button__icon {
             position: absolute;
             transform: translateX(89px);
@@ -295,20 +309,24 @@
         }
 
         @media (max-width: 768px) {
-            .profile-container {
-                width: 350px; /* Adjusted for mobile to fit larger image */
-                height: 60px; /* Adjusted for mobile to fit larger image */
+            .profile-card {
+                width: 280px; /* Adjusted for mobile */
+                height: 70px; /* Adjusted for mobile to fit the larger image */
                 top: 20px;
                 right: 10px;
             }
 
-            .product-name {
+            .profile-image {
+                width: 60px; /* Slightly smaller on mobile but still larger */
+                height: 60px;
+            }
+
+            .profile-name {
                 font-size: 16px;
             }
 
-            .profile-image-container {
-                width: 50px; /* Slightly smaller on mobile but still larger than original */
-                height: 50px;
+            .profile-title {
+                font-size: 12px;
             }
 
             .profile-popup {

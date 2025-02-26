@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Sidebar with Animation</title>
-    <!-- Add Font Awesome for icons -->
+    <title>Minimal Sidebar with Animation using PyScript</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <style>
         body {
             margin: 0;
@@ -15,21 +16,15 @@
             background-size: 200% 200%;
             animation: gradientBG 15s ease infinite;
             color: #FFFFFF;
+            overflow-x: hidden;
         }
 
         @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        /* Sidebar */
         .sidebar {
             width: 200px;
             height: 100vh;
@@ -37,13 +32,18 @@
             color: #FFFFFF;
             padding: 20px 0;
             position: fixed;
-            left: 0;
+            left: -200px;
             top: 0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            left: 0;
         }
 
         .sidebar a {
@@ -82,22 +82,35 @@
             padding-top: 15px;
         }
 
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            color: #FFFFFF;
+            background: #2D2D2D;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            z-index: 1001;
+            border-radius: 4px;
+            transition: left 0.3s ease;
+        }
 
-        /* Responsive Design (keep sidebar fixed on mobile) */
+        .menu-toggle.active {
+            left: 215px;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 200px;
-                transform: none;
-            }
-
-            .content {
-                margin-left: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar" id="sidebar">
         <div class="nav-links">
             <a href="/"><span class="icon"><i class="fas fa-home"></i></span> <span class="text">Home</span></a>
             <a href="/explore"><span class="icon"><i class="fas fa-compass"></i></span> <span class="text">Explore</span></a>
@@ -107,5 +120,41 @@
         </div>
         <a href="#" class="profile-link"><span class="icon"><i class="fas fa-user"></i></span> <span class="text">Profile</span></a>
     </div>
+
+    <script type="py">
+        from js import document
+        from pyodide.ffi import create_proxy
+        
+        menu_toggle = document.getElementById('menu-toggle')
+        sidebar = document.getElementById('sidebar')
+        is_open = False
+        
+        def toggle_sidebar(*args):
+            global is_open
+            if is_open:
+                sidebar.classList.remove('active')
+                menu_toggle.classList.remove('active')
+                is_open = False
+            else:
+                sidebar.classList.add('active')
+                menu_toggle.classList.add('active')
+                is_open = True
+
+        def check_outside_click(event):
+            global is_open
+            if is_open:
+                if not (sidebar.contains(event.target) or menu_toggle.contains(event.target)):
+                    sidebar.classList.remove('active')
+                    menu_toggle.classList.remove('active')
+                    is_open = False
+
+        # Create persistent proxies for the event handlers
+        toggle_proxy = create_proxy(toggle_sidebar)
+        outside_proxy = create_proxy(check_outside_click)
+        
+        # Add event listeners using the proxies
+        menu_toggle.addEventListener('click', toggle_proxy)
+        document.addEventListener('click', outside_proxy)
+    </script>
 </body>
 </html>
