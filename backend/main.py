@@ -50,6 +50,11 @@ async def signupPage(request: Request):
     return templates.TemplateResponse("signUp.html", 
                                       {"request": request, "message": "Welcome to Trade’n Offer"})
 
+@app.get("/profile")
+async def signupPage(request: Request):
+    return templates.TemplateResponse("Profile.html", 
+                                      {"request": request, "message": "Welcome to Trade’n Offer"})
+
 @app.get("/logout")
 async def logout():
     response = RedirectResponse(url="/login")
