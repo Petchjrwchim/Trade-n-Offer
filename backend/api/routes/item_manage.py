@@ -5,9 +5,6 @@ from app.zodb_setup import get_root, commit_changes
 from api.routes.item_class import TradeItem  
 import mysql.connector
 
-
-
-
 router = APIRouter()
 
 # Function to Get Current User ID from MySQL
