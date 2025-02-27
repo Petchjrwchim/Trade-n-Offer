@@ -554,8 +554,9 @@
     </script>
 
     <script type="py">
-        from js import document, console, window
+        from js import document, console, window, fetch
         from pyodide.ffi import create_proxy
+        import json
 
         # Simulated product data without the category field
         product_data = [
@@ -580,8 +581,9 @@
         def close_add_popup(event=None):
             document.querySelector("#addProductPopup").style.display = "none"
 
-        def save_new_product(event=None):
+        async def save_new_product(event=None):
             try:
+                # Get product details from the input fields
                 name = document.querySelector("#addProductName").value.strip()
                 description = document.querySelector("#addProductDescription").value.strip()
                 price = document.querySelector("#addProductPrice").value.strip()
@@ -590,25 +592,38 @@
                 console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}")
                 
                 if name and description and price and image_url:
-                    if not image_url.startswith("data:image/"):  # Check if image_url is a valid data URL
+                    if not image_url.startswith("data:image/"):
                         console.error("Invalid image URL detected")
                         return
-                    
+            
                     new_product = {
-                        "id": len(product_data) + 1,
-                        "name": name,
-                        "description": description,
-                        "price": price,
-                        "image": image_url
+                        "item_name": name,
+                        "item_description": description,
+                        "item_price": price,
+                        "item_image": image_url
                     }
-                    product_data.append(new_product)
-                    update_product_grid_with_search()  # Update with current search and filter
+                    
+                    # Instead of a dictionary, pass headers as an array of key-value pairs.
+                    headers = [["Content-Type", "application/json"]]
+                
+                    # Send data to the backend via POST request with credentials included
+                    response = await fetch("http://127.0.0.1:8000/add-item", 
+                                           method="POST", 
+                                           body=json.dumps(new_product), 
+                                           headers=headers, 
+                                           credentials="include")
+                
+                    data = await response.json()
+                    console.log("Product added:", data)
+                    
+                    # Assuming close_add_popup is defined elsewhere
                     close_add_popup()
+                    console.log('******************saved************************')
                 else:
                     console.error("Please fill in all fields and select an image")
             except Exception as e:
                 console.error(f"Error in save_new_product: {e}")
-
+                
         def update_product_grid():
             update_product_grid_with_search()
 

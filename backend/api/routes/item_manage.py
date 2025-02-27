@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from app.db_config import get_db_connection  
 from app.zodb_setup import get_root, commit_changes  
-from api.routes.item_class import TradeItem  
+from api.routes.item_class import TradeItem 
+from app.getUserID import check_session_cookie
+from fastapi.middleware.cors import CORSMiddleware
 import mysql.connector
 
 router = APIRouter()
@@ -51,12 +53,12 @@ async def get_items_for_user(request: Request):
                 "image": item_obj.image,
                 "category": item_obj.category
             })
-
     return {"items": user_items}
 
 @router.post("/add-item")
 async def add_item(request: Request, item: dict):
-    user_id = get_current_user_id(request)
+    print("here at add-item")
+    user_id = check_session_cookie(request)
     item_name = item.get("item_name")
     item_description = item.get("item_description")
     item_image = item.get("item_image")
@@ -65,13 +67,12 @@ async def add_item(request: Request, item: dict):
     if not item_name:
         raise HTTPException(status_code=400, detail="Item name must be provided")
 
-    # ✅ Store item in ZODB first
     root = get_root()
 
     if "trade_items" not in root:
         root["trade_items"] = {}
 
-    new_item_id = len(root["trade_items"]) + 1  # Generate unique ZODB ID
+    new_item_id = len(root["trade_items"]) + 1
     root["trade_items"][new_item_id] = TradeItem(
         name=item_name,
         description=item_description,
@@ -79,9 +80,8 @@ async def add_item(request: Request, item: dict):
         image=item_image,
         category="General"
     )
-    commit_changes()  # Save to ZODB
+    commit_changes()
 
-    # ✅ Store `zodb_id` in MySQL
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -99,17 +99,6 @@ async def add_item(request: Request, item: dict):
     conn.close()
 
     return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id}, status_code=201)
-
-
-from fastapi import APIRouter
-from app.zodb_setup import get_root
-
-router = APIRouter()
-
-from fastapi import APIRouter
-from app.zodb_setup import get_root
-
-router = APIRouter()
 
 @router.get("/debug-zodb")
 async def debug_zodb():
