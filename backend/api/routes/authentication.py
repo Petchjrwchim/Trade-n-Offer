@@ -17,7 +17,7 @@ async def login(user: dict):
 
     cursor.close()
     conn.close()
-
+    print("call")
     if result:
         user_id = result['ID']
         response = JSONResponse(content={"message": f"Welcome, {user['username']}!"})
