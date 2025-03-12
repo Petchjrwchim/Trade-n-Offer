@@ -73,3 +73,7 @@ async def trade_offer_page(request: Request):
         "request": request,
         "image_url": "/static/image_test/camera.jpg"  # Pass the image URL here
     })
+
+@app.get("/profile")
+async def myItem_page(request: Request):
+    return templates.TemplateResponse("Profile.html", {"request": request})
