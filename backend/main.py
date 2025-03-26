@@ -11,7 +11,7 @@ from api.routes.authentication import router as auth_router
 from api.routes.item_manage import router as item_manage_router
 from api.routes.chat_server import router as chat_router
 from api.routes.item import router as itemlis_router
-
+from api.routes.offers import router as offers_management
 app = FastAPI()
 
 # CORS configuration
@@ -31,6 +31,7 @@ app.include_router(auth_router)
 app.include_router(item_manage_router)
 app.include_router(chat_router)
 app.include_router(itemlis_router)
+app.include_router(offers_management)
 
 
 @app.get("/")
