@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Enum, TIMESTAMP
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db_setup import Base
+from sqlalchemy import Boolean
 
 class TradeOffer(Base):
     __tablename__ = "trade_offers"
@@ -48,10 +49,12 @@ class Item(Base):
     ID = Column(Integer, primary_key=True, index=True)
     userID = Column(Integer, ForeignKey("users.ID"), nullable=False)
     zodb_id = Column(Integer, nullable=False)
+    is_purchasable = Column(Boolean, default=False)  # New Flag
 
     owner = relationship("User", back_populates="items")
     sent_offers = relationship("TradeOffer", foreign_keys="[TradeOffer.sender_item_id]", back_populates="sender_item")
     received_offers = relationship("TradeOffer", foreign_keys="[TradeOffer.receiver_item_id]", back_populates="receiver_item")
+
 
 class Wishlist(Base):
     __tablename__ = "wishlist"
