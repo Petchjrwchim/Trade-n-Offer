@@ -55,12 +55,13 @@ async def get_items_for_user(request: Request):
 
 @router.post("/add-item")
 async def add_item(request: Request, item: dict):
-    print("here at add-item")
     user_id = check_session_cookie(request)
+    
     item_name = item.get("item_name")
     item_description = item.get("item_description")
     item_image = item.get("item_image")
     item_price = item.get("item_price")
+    is_purchasable = item.get("is_purchasable", False)
 
     if not item_name:
         raise HTTPException(status_code=400, detail="Item name must be provided")
@@ -85,8 +86,8 @@ async def add_item(request: Request, item: dict):
 
     try:
         cursor.execute(
-            "INSERT INTO trade_items (userID, zodb_id) VALUES (%s, %s)",
-            (user_id, new_item_id)
+            "INSERT INTO trade_items (userID, zodb_id, is_purchasable) VALUES (%s, %s, %s)",
+            (user_id, new_item_id, is_purchasable)
         )
         conn.commit()
     except mysql.connector.Error as err:
@@ -96,7 +97,8 @@ async def add_item(request: Request, item: dict):
     cursor.close()
     conn.close()
 
-    return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id}, status_code=201)
+    return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id, "is_purchasable": is_purchasable}, status_code=201)
+
 
 @router.get("/debug-zodb")
 async def debug_zodb():

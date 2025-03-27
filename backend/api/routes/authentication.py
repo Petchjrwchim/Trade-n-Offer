@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.db_config import get_db_connection
-import mysql.connector
 
 router = APIRouter(tags=["Authentication"])
 
@@ -11,7 +10,7 @@ async def login(user: dict):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    cursor.execute("SELECT * FROM userpass WHERE UserName = %s AND UserPass = %s", 
+    cursor.execute("SELECT * FROM users WHERE UserName = %s AND UserPass = %s", 
                    (user["username"], user["password"]))
     result = cursor.fetchone()
 
