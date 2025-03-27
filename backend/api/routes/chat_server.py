@@ -1,93 +1,78 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 import mysql.connector
-from app.db_config import get_db_connection
+from app.db_config import get_db_connection  # Import MySQL connection
+from app.firebase_config import chat_db  # Import Firebase database
+
 router = APIRouter()
 
-active_connections = []
+active_connections = {}
 
-# WebSocket endpoint for chat
-@router.websocket("/ws/chat/{username}")
-async def websocket_chat(websocket: WebSocket, username: str):
-    await websocket.accept()
-
-    # Get the user ID based on the username
+def user_exists(username: str):
+    """ Check if a user exists in MySQL """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id FROM userpass WHERE UserName = %s", (username,))
     user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return user  # Returns user ID if exists, otherwise None
 
-    if user is None:
-        await websocket.close(code=1003)  # Close the connection if user doesn't exist
+@router.websocket("/ws/chat/{sender}/{receiver}")
+async def websocket_chat(websocket: WebSocket, sender: str, receiver: str):
+    await websocket.accept()
+
+    # ✅ 1. Check if both sender & receiver exist in MySQL
+    sender_data = user_exists(sender)
+    receiver_data = user_exists(receiver)
+
+    if not sender_data or not receiver_data:
+        await websocket.close(code=1008)  # Close connection if users don't exist
         return
 
-    user_id = user['id']
-    cursor.close()
-    conn.close()
+    # ✅ 2. Create a unique chat room ID for the conversation
+    chat_id = f"{sender}_{receiver}" if sender < receiver else f"{receiver}_{sender}"
 
-    # Fetch chat history from the database
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    
-    cursor.execute("SELECT * FROM chat_messages ORDER BY timestamp ASC")
-    chat_history = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    # ✅ 3. Store active connections
+    if chat_id not in active_connections:
+        active_connections[chat_id] = []
+    active_connections[chat_id].append(websocket)
 
-    # Send chat history to the user upon connection
-    for message in chat_history:
-        # Get the sender's username
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT UserName FROM userpass WHERE id = %s", (message['user_id'],))
-        sender = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        
-        if sender:
-            await websocket.send_text(f"{sender['UserName']}: {message['message']}")
+    # ✅ 4. Fetch chat history from Firebase
+    chat_ref = chat_db.child(chat_id).child("messages")
+    messages = chat_ref.get()
 
-    # Add the connection to the active connections list
-    active_connections.append(websocket)
+    if messages:
+        for msg in messages.values():
+            await websocket.send_text(f"{msg['sender']}: {msg['message']}")
 
     try:
         while True:
-            # Receive message from client
             message = await websocket.receive_text()
-            print(f"Message from {username}: {message}")  # Check the message and username
 
-            # Save message to the database with the user_id
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO chat_messages (user_id, message) VALUES (%s, %s)", (user_id, message))
-            conn.commit()
-            cursor.close()
-            conn.close()
+            # ✅ 5. Store message in Firebase
+            chat_db.child(chat_id).child("messages").push({
+                "sender": sender,
+                "message": message
+            })
 
-            # Broadcast the message to all connected clients
-            for connection in active_connections:
-                await connection.send_text(f"{username}: {message}")
+            # ✅ 6. Send message only to sender & receiver
+            for connection in active_connections.get(chat_id, []):
+                await connection.send_text(f"{sender}: {message}")
 
     except WebSocketDisconnect:
-        print(f"User {username} disconnected")
-        active_connections.remove(websocket)  # Remove the connection from active connections list
+        print(f"{sender} disconnected")
+        active_connections[chat_id].remove(websocket)
 
-    finally:
-        # Ensure the connection is removed
-        active_connections.remove(websocket)
-        await websocket.close()
+    @router.get("/chat_history/{sender}/{receiver}")
+    async def get_chat_history(sender: str, receiver: str):
+        chat_id = f"{sender}_{receiver}" if sender < receiver else f"{receiver}_{sender}"
+        
+        # Fetch messages from Firebase
+        chat_ref = chat_db.child(chat_id).child("messages")
+        messages = chat_ref.get()
 
-# Chat history retrieval (optional, to fetch old messages)
-@router.get("/chat_history/{username}")
-async def get_chat_history(username: str):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    
-    cursor.execute("SELECT * FROM chat ORDER BY timestamp ASC")
-    chat_history = cursor.fetchall()
+        if not messages:
+            return {"messages": []}
 
-    cursor.close()
-    conn.close()
-
-    return {"messages": chat_history}
+        return {"messages": [{"sender": msg["sender"], "message": msg["message"]} for msg in messages.values()]}
 

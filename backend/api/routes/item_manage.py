@@ -53,6 +53,19 @@ async def get_items_for_user(request: Request):
             })
     return {"items": user_items}
 
+def get_next_zodb_id():
+    """Find the next available zodb_id in MySQL."""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT MAX(zodb_id) AS max_id FROM trade_items")
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    return (result["max_id"] or 0) + 1  # If no data, start from 1
+
+
 @router.post("/add-item")
 async def add_item(request: Request, item: dict):
     user_id = check_session_cookie(request)
@@ -71,7 +84,8 @@ async def add_item(request: Request, item: dict):
     if "trade_items" not in root:
         root["trade_items"] = {}
 
-    new_item_id = len(root["trade_items"]) + 1
+    new_item_id = get_next_zodb_id()
+
     root["trade_items"][new_item_id] = TradeItem(
         name=item_name,
         description=item_description,
@@ -100,15 +114,15 @@ async def add_item(request: Request, item: dict):
     return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id, "is_purchasable": is_purchasable}, status_code=201)
 
 
+
 @router.get("/debug-zodb")
 async def debug_zodb():
     """Retrieve all items from ZODB and check if they exist in MySQL."""
     root = get_root()
 
     if "trade_items" not in root or not root["trade_items"]:
-        return {"message": "❌ No trade items found in ZODB."}
+        return {"message": "No trade items found in ZODB."}
 
-    # ✅ Fetch all ZODB items
     zodb_items = {
         item_id: {
             "name": item.name,
@@ -120,7 +134,6 @@ async def debug_zodb():
         for item_id, item in root["trade_items"].items()
     }
 
-    # ✅ Fetch MySQL trade_items
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM trade_items")
@@ -134,7 +147,3 @@ async def debug_zodb():
         "mysql_items_count": len(mysql_items),
         "mysql_items": mysql_items
     }
-
-
-
-

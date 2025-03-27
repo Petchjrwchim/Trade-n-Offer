@@ -1,6 +1,6 @@
-from js import document, console, window, FileReader, fetch
+
+from js import document, console, window, FileReader
 from pyodide.ffi import create_proxy
-import json
 
 # Simulated product data without the category field
 product_data = [
@@ -26,47 +26,47 @@ def close_add_popup(event=None):
     document.querySelector("#addProductPopup").style.display = "none"
 
 async def save_new_product(event=None):
-    try:
-        # Get product details from the input fields
-        name = document.querySelector("#addProductName").value.strip()
-        description = document.querySelector("#addProductDescription").value.strip()
-        price = document.querySelector("#addProductPrice").value.strip()
-        image_url = document.querySelector("#addProductImagePreview").src
-        
-        console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}")
-        
-        if name and description and price and image_url:
-            if not image_url.startswith("data:image/"):
-                console.error("Invalid image URL detected")
-                return
-    
-            new_product = {
-                "item_name": name,
-                "item_description": description,
-                "item_price": price,
-                "item_image": image_url
-            }
+            try:
+                # Get product details from the input fields
+                name = document.querySelector("#addProductName").value.strip()
+                description = document.querySelector("#addProductDescription").value.strip()
+                price = document.querySelector("#addProductPrice").value.strip()
+                image_url = document.querySelector("#addProductImagePreview").src
+                
+                console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}")
+                
+                if name and description and price and image_url:
+                    if not image_url.startswith("data:image/"):
+                        console.error("Invalid image URL detected")
+                        return
             
-            # Instead of a dictionary, pass headers as an array of key-value pairs.
-            headers = [["Content-Type", "application/json"]]
-        
-            # Send data to the backend via POST request with credentials included
-            response = await fetch("http://127.0.0.1:8000/add-item", 
-                                   method="POST", 
-                                   body=json.dumps(new_product), 
-                                   headers=headers, 
-                                   credentials="include")
-        
-            data = await response.json()
-            console.log("Product added:", data)
-            
-            # Assuming close_add_popup is defined elsewhere
-            close_add_popup()
-            console.log('******************saved************************')
-        else:
-            console.error("Please fill in all fields and select an image")
-    except Exception as e:
-        console.error(f"Error in save_new_product: {e}")
+                    new_product = {
+                        "item_name": name,
+                        "item_description": description,
+                        "item_price": price,
+                        "item_image": image_url
+                    }
+                    
+                    # Instead of a dictionary, pass headers as an array of key-value pairs.
+                    headers = [["Content-Type", "application/json"]]
+                
+                    # Send data to the backend via POST request with credentials included
+                    response = await fetch("http://127.0.0.1:8000/add-item", 
+                                           method="POST", 
+                                           body=json.dumps(new_product), 
+                                           headers=headers, 
+                                           credentials="include")
+                
+                    data = await response.json()
+                    console.log("Product added:", data)
+                    
+                    # Assuming close_add_popup is defined elsewhere
+                    close_add_popup()
+                    console.log('******************saved************************')
+                else:
+                    console.error("Please fill in all fields and select an image")
+            except Exception as e:
+                console.error(f"Error in save_new_product: {e}")
 
 def update_product_grid():
     update_product_grid_with_search()
@@ -173,26 +173,26 @@ update_product_grid()
 
 window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
 
-# def handle_image_preview(event):
-#     files = event.target.files  # Get the FileList object
-#     if files.length > 0:  # Use .length to check if there are files
-#         file = files.item(0)  # Use .item() to access the first file
-#         if file:
-#             preview = document.querySelector("#addProductImagePreview")
-#             reader = FileReader.new()
+def handle_image_preview(event):
+    files = event.target.files  # Get the FileList object
+    if files.length > 0:  # Use .length to check if there are files
+        file = files.item(0)  # Use .item() to access the first file
+        if file:
+            preview = document.querySelector("#addProductImagePreview")
+            reader = FileReader.new()
             
-#             def on_load(e):
-#                 preview.src = e.target.result
-#                 preview.style.display = "block"
+            def on_load(e):
+                preview.src = e.target.result
+                preview.style.display = "block"
             
-#             reader.onload = create_proxy(on_load)
-#             reader.readAsDataURL(file)
-#     else:
-#         preview = document.querySelector("#addProductImagePreview")
-#         preview.style.display = "none"
-#         preview.src = ""
+            reader.onload = create_proxy(on_load)
+            reader.readAsDataURL(file)
+    else:
+        preview = document.querySelector("#addProductImagePreview")
+        preview.style.display = "none"
+        preview.src = ""
 
-# document.querySelector("#addProductImage").addEventListener("change", create_proxy(handle_image_preview))
+document.querySelector("#addProductImage").addEventListener("change", create_proxy(handle_image_preview))
 
 document.querySelector("#searchInput").addEventListener("input", create_proxy(lambda e: update_product_grid_with_search()))
 document.querySelector("#filterSelect").addEventListener("change", create_proxy(lambda e: update_product_grid_with_search()))
