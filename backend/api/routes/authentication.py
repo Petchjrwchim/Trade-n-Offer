@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db_config import get_db_connection
 import mysql.connector
 
-router = APIRouter()
+router = APIRouter(tags=["Authentication"])
 
 @router.post("/login")
 async def login(user: dict):

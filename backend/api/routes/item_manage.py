@@ -7,9 +7,8 @@ from app.getUserID import check_session_cookie
 from fastapi.middleware.cors import CORSMiddleware
 import mysql.connector
 
-router = APIRouter()
+router = APIRouter(tags=["Items_management"])
 
-# Function to Get Current User ID from MySQL
 def get_current_user_id(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
@@ -27,7 +26,6 @@ def get_current_user_id(request: Request):
     else:
         raise HTTPException(status_code=401, detail="Invalid session token")
 
-# GET Items for Current User (Retrieving from ZODB)
 @router.get("/my-items")
 async def get_items_for_user(request: Request):
     user_id = get_current_user_id(request)

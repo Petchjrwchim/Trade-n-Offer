@@ -52,3 +52,16 @@ class Item(Base):
     owner = relationship("User", back_populates="items")
     sent_offers = relationship("TradeOffer", foreign_keys="[TradeOffer.sender_item_id]", back_populates="sender_item")
     received_offers = relationship("TradeOffer", foreign_keys="[TradeOffer.receiver_item_id]", back_populates="receiver_item")
+
+class Wishlist(Base):
+    __tablename__ = "wishlist"
+
+    ID = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.ID", ondelete="CASCADE"))
+    item_id = Column(Integer, ForeignKey("items.ID", ondelete="CASCADE"))
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+
+    user = relationship("User")
+    item = relationship("Item")
+
+    
