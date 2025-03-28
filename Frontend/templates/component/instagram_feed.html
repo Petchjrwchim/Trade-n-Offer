@@ -1,0 +1,25 @@
+<!-- Container for the Instagram-style feed with scrolling -->
+<div class="instagram-feed" id="instagram-feed-container">
+    <!-- Posts will be loaded dynamically via PyScript -->
+    <div class="loading-indicator">
+        <i class="fas fa-spinner fa-pulse"></i>
+        <span>Loading posts...</span>
+    </div>
+</div>
+
+<style>
+    /* Inline loading indicator styles */
+    .loading-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        color: #8e8e8e;
+    }
+    
+    .loading-indicator i {
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+</style>
