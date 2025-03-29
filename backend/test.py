@@ -1,5 +1,5 @@
 from app.zodb_setup import get_root, commit_changes
-from api.routes.item_class import TradeItem  # Ensure this matches your import path
+from backend.api.models.item_class import TradeItem  # Ensure this matches your import path
 
 # Get the root ZODB storage
 root = get_root()

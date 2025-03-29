@@ -1,7 +1,7 @@
 from app.zodb_setup import get_root, commit_changes
 from app.db_config import get_db_connection
 import mysql.connector
-from api.routes.item_class import TradeItem
+from backend.api.models.item_class import TradeItem
 
 # Get ZODB root
 root = get_root()

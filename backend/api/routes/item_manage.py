@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from app.db_config import get_db_connection  
 from app.zodb_setup import get_root, commit_changes  
-from api.routes.item_class import TradeItem 
+from api.models.item_class import TradeItem 
 from app.getUserID import check_session_cookie
 from fastapi.middleware.cors import CORSMiddleware
 import mysql.connector

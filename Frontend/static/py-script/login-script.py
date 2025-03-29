@@ -43,7 +43,8 @@ async def login(event=None):
             error_message.textContent = data.get('detail', 'Login failed')
     except Exception as e:
         console.error(f"Login error: {e}")
-        error_message.textContent = "An error occurred during login. Please try again."
+        error_message.textContent = "I'm here"
+        # error_message.textContent = "An error occurred during login. Please try again."
 
 # Event listeners
 document.querySelector('#loginBtn').addEventListener('click', create_proxy(login))
