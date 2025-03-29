@@ -330,7 +330,7 @@
         </div>
     </div>
 
-    <py-script>
+    <script type="py">
         from pyodide.ffi import create_proxy
         from pyscript import document, window  # Updated imports
         
@@ -392,6 +392,6 @@
         
         # Initialize notifications when the page loads
         window.addEventListener("load", create_proxy(lambda e: update_notifications()))
-    </py-script>
+    </script>
 </body>
 </html>
