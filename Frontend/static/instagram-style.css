@@ -43,10 +43,49 @@
     max-width: 100%; /* For responsiveness */
 }
 
+/* Post header with profile picture and username */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #efefef;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.profile-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-header .username {
+    font-weight: 600;
+    font-size: 14px;
+    color: #262626;
+}
+
+.post-options {
+    cursor: pointer;
+    color: #262626;
+}
+
 /* Post image container - fixed size */
 .post-image {
     width: 470px; /* Fixed width */
-    height: 470px; /* Fixed height for square */
+    height: 400px; /* Fixed height for square */
     position: relative;
     overflow: hidden; /* Hide overflow if image is larger */
     max-width: 100%; /* For responsiveness */
@@ -180,6 +219,16 @@
         left: 0;
         width: 100%;
         height: 100%;
+    }
+    
+    .profile-pic {
+        width: 28px;
+        height: 28px;
+        margin-right: 8px;
+    }
+    
+    .post-header {
+        padding: 8px 12px;
     }
 }
 

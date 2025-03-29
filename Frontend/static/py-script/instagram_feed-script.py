@@ -7,6 +7,7 @@ SAMPLE_POSTS = [
     {
         "id": 1,
         "username": "camera_lover",
+        "profile_pic_url": "/static/image_test/profile_default.jpg",  # เพิ่ม URL รูปโปรไฟล์
         "image_url": "/static/image_test/camera.jpg",
         "caption": "Vintage camera in excellent condition. Looking to trade for audio equipment.",
         "price": "$120 or trade",
@@ -16,6 +17,7 @@ SAMPLE_POSTS = [
     {
         "id": 2,
         "username": "music_shop",
+        "profile_pic_url": "/static/image_test/profile_hover.jpg",  # เพิ่ม URL รูปโปรไฟล์
         "image_url": "/static/image_test/guitar.jpg",
         "caption": "Acoustic guitar with case. Great sound, barely used. Open to trades for other instruments.",
         "price": "$250 or trade",
@@ -25,6 +27,7 @@ SAMPLE_POSTS = [
     {
         "id": 3,
         "username": "instrument_trader",
+        "profile_pic_url": "/static/image_test/profile_default.jpg",  # เพิ่ม URL รูปโปรไฟล์
         "image_url": "/static/image_test/piano.jpg",
         "caption": "Digital piano with weighted keys. Perfect condition. Would trade for guitar equipment.",
         "price": "$350 or trade",
@@ -53,7 +56,43 @@ def create_post_element(post):
         post_div.className = 'instagram-post'
         post_div.id = f"post-{post['id']}"
         
-        # 1. Post image
+        # 1. Header with user profile
+        header = document.createElement('div')
+        header.className = 'post-header'
+        
+        # User info container
+        user_info = document.createElement('div')
+        user_info.className = 'user-info'
+        
+        # Profile picture
+        profile_pic = document.createElement('div')
+        profile_pic.className = 'profile-pic'
+        profile_img = document.createElement('img')
+        profile_img.src = post.get('profile_pic_url', '/static/image_test/profile_default.jpg')
+        profile_img.alt = 'Profile Picture'
+        profile_pic.appendChild(profile_img)
+        
+        # Username in header
+        username_element = document.createElement('div')
+        username_element.className = 'username'
+        username_element.textContent = post['username']
+        
+        # Add profile pic and username to user info container
+        user_info.appendChild(profile_pic)
+        user_info.appendChild(username_element)
+        
+        # Post options (three dots)
+        post_options = document.createElement('div')
+        post_options.className = 'post-options'
+        options_icon = document.createElement('i')
+        options_icon.className = 'fas fa-ellipsis-h'
+        post_options.appendChild(options_icon)
+        
+        # Add user info and options to header
+        header.appendChild(user_info)
+        header.appendChild(post_options)
+        
+        # 2. Post image
         post_image = document.createElement('div')
         post_image.className = 'post-image'
         image = document.createElement('img')
@@ -61,7 +100,7 @@ def create_post_element(post):
         image.alt = 'Item for trade'
         post_image.appendChild(image)
         
-        # 2. Action buttons container - heart and bookmark icons
+        # 3. Action buttons container - heart and bookmark icons
         actions_container = document.createElement('div')
         actions_container.className = 'post-actions-container'
         
@@ -92,7 +131,7 @@ def create_post_element(post):
         actions_container.appendChild(action_buttons)
         actions_container.appendChild(bookmark)
         
-        # 3. Content section
+        # 4. Content section
         content_div = document.createElement('div')
         content_div.className = 'post-content'
         
@@ -132,6 +171,7 @@ def create_post_element(post):
         content_div.appendChild(time)
         
         # Add all sections to post
+        post_div.appendChild(header)
         post_div.appendChild(post_image)
         post_div.appendChild(actions_container)
         post_div.appendChild(content_div)

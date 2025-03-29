@@ -1,146 +1,227 @@
-from js import document, setTimeout, window, localStorage
+from js import document, console, window, localStorage
+from pyodide.ffi import create_proxy
 
-total_items = 5
-
-# ข้อมูลโปรไฟล์ตัวอย่าง (ในแอปจริงอาจดึงจากฐานข้อมูล)
+# Profile data
 PROFILES = [
-    {"id": 1, "name": "Profile 1", "image": "/static/image_test/camera.jpg"},
-    {"id": 2, "name": "Profile 2", "image": "/static/image_test/guitar.jpg"},
-    {"id": 3, "name": "Profile 3", "image": "/static/image_test/piano.jpg"},
-    {"id": 4, "name": "Profile 4", "image": "/static/image_test/camera.jpg"},
-    {"id": 5, "name": "Profile 5", "image": "/static/image_test/guitar.jpg"}
+    {
+        "id": "1", 
+        "name": "Profile 1", 
+        "image": "/static/image_test/profile_hover.jpg",
+        "title": "First Profile"
+    },
+    {
+        "id": "2", 
+        "name": "Profile 2", 
+        "image": "/static/image_test/profile_default.jpg",
+        "title": "Second Profile"
+    },
+    {
+        "id": "3", 
+        "name": "Profile 3", 
+        "image": "/static/image_test/profile_default.jpg",
+        "title": "Third Profile"
+    },
+    {
+        "id": "4", 
+        "name": "Profile 4", 
+        "image": "/static/image_test/profile_default.jpg",
+        "title": "Fourth Profile"
+    },
+    {
+        "id": "5", 
+        "name": "Profile 5", 
+        "image": "/static/image_test/profile_default.jpg",
+        "title": "Fifth Profile"
+    }
 ]
 
+# Store event handler proxies
+proxies = {}
+
+def log(message):
+    """Log message to console"""
+    print(message)
+    try:
+        console.log(message)
+    except:
+        pass
+
 def show_profile_popup(event=None):
-    """ Show popup and load product list """
-    popup = document.querySelector("#profilePopup")
+    """Show profile popup"""
+    log("Attempting to show profile popup")
+    popup = document.getElementById("profilePopup")
     if popup:
         popup.style.display = "block"
-        popup.classList.add("visible")
+        # Use timeout to ensure display change takes effect before adding class
+        window.setTimeout(lambda: popup.classList.add("visible"), 10)
         update_product_grid()
+        log("Profile popup displayed")
     else:
-        print("Error: Profile popup not found")
-
-def hide_popup():
-    """ Helper function to hide popup and reset overlay completely """
-    popup = document.querySelector("#profilePopup")
-    if popup:
-        popup.style.display = "none"
-        popup.classList.remove("visible")
-        popup.style.opacity = "0"
-        popup.style.pointerEvents = "none"
-        popup.style.backgroundColor = "transparent"
-        
-        # Ensure the body or other elements regain focus/interactivity
-        document.body.style.pointerEvents = "auto"
-    else:
-        print("Error: Profile popup not found")
+        log("Error: Profile popup element not found")
 
 def close_profile_popup(event=None):
-    """ Close popup """
-    try:
-        popup = document.querySelector("#profilePopup")
-        if popup:
-            popup.style.display = "none"
-            popup.classList.remove("visible")
-        else:
-            print("Error: Profile popup not found")
-    except Exception as e:
-        print(f"Error closing popup: {e}")
+    """Close profile popup"""
+    log("Attempting to close profile popup")
+    popup = document.getElementById("profilePopup")
+    if popup:
+        popup.classList.remove("visible")
+        # Use timeout to allow animation to complete before hiding
+        window.setTimeout(lambda: setattr(popup.style, "display", "none"), 300)
+        log("Profile popup closed")
+    else:
+        log("Error: Profile popup element not found")
 
 def update_product_grid():
-    """Update product list in Grid"""
-    productGrid = document.querySelector("#productGrid")
-    productGrid.innerHTML = ""
-
-    for i, profile in enumerate(PROFILES, 1):
-        productDiv = document.createElement("div")
-        productDiv.classList.add("product-item")
+    """Update product grid with profiles"""
+    log("Updating product grid")
+    product_grid = document.getElementById("productGrid")
+    if not product_grid:
+        log("Error: Product grid element not found")
+        return
         
-        # ใช้รูปที่แตกต่างกันตามข้อมูลในอาร์เรย์ PROFILES
+    product_grid.innerHTML = ""
+    
+    for profile in PROFILES:
+        # Create product item
+        product_div = document.createElement("div")
+        product_div.className = "product-item"
+        product_div.setAttribute("data-profile-id", profile["id"])
+        
+        # Create image
         img = document.createElement("img")
         img.src = profile["image"]
         img.alt = profile["name"]
-        img.classList.add("product-image")
+        img.className = "product-image"
         
-        name = document.createElement("div")
-        name.classList.add("product-name")
-        name.textContent = profile["name"]
+        # Create name
+        name_div = document.createElement("div")
+        name_div.className = "product-name"
+        name_div.textContent = profile["name"]
         
-        # สร้าง JavaScript onclick โดยตรง
-        onclick_js = f"""
-        (function() {{
-            localStorage.setItem('selectedProfileId', '{profile["id"]}');
-            localStorage.setItem('selectedProfileName', '{profile["name"]}');
-            localStorage.setItem('selectedProfileImage', '{profile["image"]}');
-            
-            // อัปเดตชื่อและรูปโปรไฟล์
-            document.querySelector('.profile-name').textContent = '{profile["name"]}';
-            document.getElementById('profileImage').src = '{profile["image"]}';
-            
-            // ปิดป๊อปอัป
-            document.querySelector('#profilePopup').style.display = 'none';
-            document.querySelector('#profilePopup').classList.remove('visible');
-            
-            console.log('Selected profile: {profile["name"]}');
-        }})();
-        """
-        productDiv.setAttribute("onclick", onclick_js)
+        # Create title
+        title_div = document.createElement("div")
+        title_div.className = "product-status"
+        title_div.textContent = profile["title"]
         
-        productDiv.appendChild(img)
-        productDiv.appendChild(name)
-        productGrid.appendChild(productDiv)
+        # Add hover effect
+        def create_hover_handler(profile_id):
+            def hover_in(event):
+                event.currentTarget.querySelector("img").src = "/static/image_test/profile_hover.jpg"
+            
+            def hover_out(event):
+                if profile_id != "1":  # Keep first profile with hover image
+                    event.currentTarget.querySelector("img").src = "/static/image_test/profile_default.jpg"
+            
+            return hover_in, hover_out
+        
+        hover_in, hover_out = create_hover_handler(profile["id"])
+        proxies[f"hover_in_{profile['id']}"] = create_proxy(hover_in)
+        proxies[f"hover_out_{profile['id']}"] = create_proxy(hover_out)
+        
+        product_div.addEventListener("mouseenter", proxies[f"hover_in_{profile['id']}"])
+        product_div.addEventListener("mouseleave", proxies[f"hover_out_{profile['id']}"])
+        
+        # Handle click
+        proxies[f"click_{profile['id']}"] = create_proxy(lambda e, pid=profile["id"]: select_profile(pid))
+        product_div.addEventListener("click", proxies[f"click_{profile['id']}"])
+        
+        # Append elements
+        product_div.appendChild(img)
+        product_div.appendChild(name_div)
+        product_div.appendChild(title_div)
+        product_grid.appendChild(product_div)
+    
+    log(f"Added {len(PROFILES)} profiles to grid")
 
-def select_profile(profile_id, profile_name, profile_image):
-    """ เลือกโปรไฟล์และอัปเดตไอคอนหน้าหลัก """
+def select_profile(profile_id):
+    """Select profile by ID"""
+    log(f"Selecting profile: {profile_id}")
+    
+    # Find selected profile
+    selected_profile = next((p for p in PROFILES if p["id"] == profile_id), None)
+    if not selected_profile:
+        log(f"Profile with ID {profile_id} not found")
+        return
+    
+    # Update main profile display
+    profile_img = document.getElementById("profileImage")
+    if profile_img:
+        profile_img.src = selected_profile["image"]
+    
+    profile_name = document.querySelector(".profile-name")
+    if profile_name:
+        profile_name.textContent = selected_profile["name"]
+    
+    profile_title = document.querySelector(".profile-title")
+    if profile_title:
+        profile_title.textContent = selected_profile["title"]
+    
+    # Save to localStorage
     try:
-        # บันทึกข้อมูลใน localStorage เพื่อใช้ในครั้งต่อไปหรือหน้าอื่น
         localStorage.setItem("selectedProfileId", profile_id)
-        localStorage.setItem("selectedProfileName", profile_name)
-        localStorage.setItem("selectedProfileImage", profile_image)
-        
-        # อัปเดตรูปภาพและชื่อในการ์ดโปรไฟล์
-        update_profile_card(profile_id, profile_name, profile_image)
-        
-        # ปิดป๊อปอัป
-        close_profile_popup()
-        
-        # เพิ่มการ debug
-        print(f"Profile selected: ID={profile_id}, Name={profile_name}, Image={profile_image}")
+        localStorage.setItem("selectedProfileName", selected_profile["name"])
+        localStorage.setItem("selectedProfileTitle", selected_profile["title"])
     except Exception as e:
-        print(f"Error selecting profile: {e}")
+        log(f"Error saving to localStorage: {e}")
+    
+    # Close popup
+    close_profile_popup()
+    
+    log(f"Profile {profile_id} selected successfully")
 
-def update_profile_card(profile_id, profile_name, profile_image):
-    """ อัปเดตการ์ดโปรไฟล์หลัก """
-    try:
-        # อัปเดตชื่อโปรไฟล์
-        name_element = document.querySelector(".profile-name")
-        if name_element:
-            name_element.textContent = profile_name
-            
-        # อัปเดตรูปภาพโปรไฟล์
-        image_element = document.getElementById("profileImage")
-        if image_element:
-            image_element.src = profile_image
-    except Exception as e:
-        print(f"Error updating profile card: {e}")
+def go_to_my_items(event=None):
+    """Navigate to My Items page"""
+    window.location.href = "/MyItem"
+
+def setup_handlers():
+    """Set up event handlers"""
+    log("Setting up event handlers")
+    
+    # Profile icon click to open popup
+    profile_icon = document.querySelector(".profile-content")
+    if profile_icon:
+        proxies["show_popup"] = create_proxy(show_profile_popup)
+        profile_icon.addEventListener("click", proxies["show_popup"])
+        log("Profile icon click handler attached")
+    else:
+        log("Error: Profile icon element not found")
+    
+    # Close button click
+    close_btn = document.querySelector(".close-btn")
+    if close_btn:
+        proxies["close_popup"] = create_proxy(close_profile_popup)
+        close_btn.addEventListener("click", proxies["close_popup"])
+        log("Close button click handler attached")
+    else:
+        log("Error: Close button element not found")
+    
+    # Add item button click
+    add_btn = document.querySelector(".button")
+    if add_btn:
+        proxies["go_to_items"] = create_proxy(go_to_my_items)
+        add_btn.addEventListener("click", proxies["go_to_items"])
+        log("Add item button click handler attached")
+    else:
+        log("Error: Add item button element not found")
 
 def load_saved_profile():
-    """ โหลดโปรไฟล์ที่บันทึกไว้เมื่อเริ่มต้น """
+    """Load saved profile from localStorage"""
     try:
         profile_id = localStorage.getItem("selectedProfileId")
         if profile_id:
-            profile_name = localStorage.getItem("selectedProfileName")
-            profile_image = localStorage.getItem("selectedProfileImage")
-            
-            if profile_name and profile_image:
-                update_profile_card(profile_id, profile_name, profile_image)
+            select_profile(profile_id)
+            log("Loaded saved profile from localStorage")
+        else:
+            log("No saved profile found in localStorage")
     except Exception as e:
-        print(f"Error loading saved profile: {e}")
+        log(f"Error loading profile from localStorage: {e}")
 
-def go_to_my_items(event=None):
-    """ Redirect to /MyItem """
-    window.location.href = "/MyItem"
+def initialize():
+    """Initialize on page load"""
+    log("Initializing profile component")
+    setup_handlers()
+    load_saved_profile()
+    log("Initialization complete")
 
-# โหลดโปรไฟล์ที่บันทึกไว้เมื่อเริ่มต้นหน้า
-load_saved_profile()
+# Run initialization when page loads
+window.addEventListener("load", create_proxy(initialize))
