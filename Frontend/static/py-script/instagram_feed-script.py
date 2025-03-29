@@ -1,3 +1,4 @@
+# instagram_feed-script.py (modified version)
 import json
 from pyodide.ffi import create_proxy
 from js import document, console, fetch, window
@@ -7,34 +8,40 @@ SAMPLE_POSTS = [
     {
         "id": 1,
         "username": "camera_lover",
-        "profile_pic_url": "/static/image_test/profile_default.jpg",  # เพิ่ม URL รูปโปรไฟล์
         "image_url": "/static/image_test/camera.jpg",
         "caption": "Vintage camera in excellent condition. Looking to trade for audio equipment.",
         "price": "$120 or trade",
         "location": "Bangkok",
-        "posted_time": "2d"
+        "posted_time": "2d",
+        "liked": False,
+        "bookmarked": False
     },
     {
         "id": 2,
         "username": "music_shop",
-        "profile_pic_url": "/static/image_test/profile_hover.jpg",  # เพิ่ม URL รูปโปรไฟล์
         "image_url": "/static/image_test/guitar.jpg",
         "caption": "Acoustic guitar with case. Great sound, barely used. Open to trades for other instruments.",
         "price": "$250 or trade",
         "location": "Chiang Mai",
-        "posted_time": "5h"
+        "posted_time": "5h",
+        "liked": False,
+        "bookmarked": False
     },
     {
         "id": 3,
         "username": "instrument_trader",
-        "profile_pic_url": "/static/image_test/profile_default.jpg",  # เพิ่ม URL รูปโปรไฟล์
         "image_url": "/static/image_test/piano.jpg",
         "caption": "Digital piano with weighted keys. Perfect condition. Would trade for guitar equipment.",
         "price": "$350 or trade",
         "location": "Phuket",
-        "posted_time": "1d"
+        "posted_time": "1d",
+        "liked": False,
+        "bookmarked": False
     }
 ]
+
+# Dictionary to store proxies
+proxies = {}
 
 async def fetch_posts():
     """
@@ -48,6 +55,92 @@ async def fetch_posts():
         console.error(f"Error fetching posts: {e}")
         return []
 
+def toggle_like(event):
+    """Toggle heart icon between outline and solid"""
+    try:
+        icon = event.target
+        post_id = int(icon.getAttribute("data-post-id"))
+        
+        # Find the post and toggle its liked status
+        post = next((p for p in SAMPLE_POSTS if p["id"] == post_id), None)
+        if post:
+            post["liked"] = not post["liked"]
+            
+            if post["liked"]:
+                # Like - switch to solid red heart
+                icon.className = "fas fa-heart"
+                icon.style.color = "#ed4956"  # Instagram red
+            else:
+                # Unlike - switch to outline heart
+                icon.className = "far fa-heart"
+                icon.style.color = "#000"  # Black color
+    except Exception as e:
+        console.error(f"Error toggling like: {e}")
+
+def toggle_bookmark(event):
+    """Toggle bookmark icon between outline and solid"""
+    try:
+        icon = event.target
+        post_id = int(icon.getAttribute("data-post-id"))
+        
+        # Find the post and toggle its bookmarked status
+        post = next((p for p in SAMPLE_POSTS if p["id"] == post_id), None)
+        if post:
+            post["bookmarked"] = not post["bookmarked"]
+            
+            if post["bookmarked"]:
+                # Save - switch to solid yellow bookmark
+                icon.className = "fas fa-bookmark"
+                icon.style.color = "#ffcc00"  # Bright yellow
+            else:
+                # Unsave - switch to outline bookmark
+                icon.className = "far fa-bookmark"
+                icon.style.color = "#000"  # Black color
+    except Exception as e:
+        console.error(f"Error toggling bookmark: {e}")
+
+def handle_double_click(event):
+    """Handle double-click on post image to toggle like/unlike"""
+    try:
+        # Get the post-image container
+        post_image = event.currentTarget
+        post_id = int(post_image.getAttribute("data-post-id"))
+        
+        # Find the post
+        post = next((p for p in SAMPLE_POSTS if p["id"] == post_id), None)
+        if not post:
+            return
+        
+        # Find the heart icon in the actions
+        heart_icon = document.querySelector(f'.action-buttons i[data-post-id="{post_id}"]')
+        if not heart_icon:
+            return
+        
+        # TOGGLE the liked status (unlike if already liked)
+        post["liked"] = not post["liked"]
+        
+        # Show heart animation only when liking (not when unliking)
+        if post["liked"]:
+            # Update UI to liked state
+            heart_icon.className = "fas fa-heart"
+            heart_icon.style.color = "#ed4956"  # Instagram red
+            
+            # Show heart animation
+            heart_animation = post_image.querySelector(".heart-animation")
+            if heart_animation:
+                # Reset animation by removing and adding the class
+                heart_animation.classList.remove("animate")
+                # Force reflow
+                void(heart_animation.offsetWidth)
+                # Start animation again
+                heart_animation.classList.add("animate")
+        else:
+            # Update UI to unliked state
+            heart_icon.className = "far fa-heart"
+            heart_icon.style.color = "#000"  # Black color
+    except Exception as e:
+        console.error(f"Error handling double click: {e}")
+
 def create_post_element(post):
     """Create a DOM element for a post with improved layout"""
     try:
@@ -56,51 +149,28 @@ def create_post_element(post):
         post_div.className = 'instagram-post'
         post_div.id = f"post-{post['id']}"
         
-        # 1. Header with user profile
-        header = document.createElement('div')
-        header.className = 'post-header'
-        
-        # User info container
-        user_info = document.createElement('div')
-        user_info.className = 'user-info'
-        
-        # Profile picture
-        profile_pic = document.createElement('div')
-        profile_pic.className = 'profile-pic'
-        profile_img = document.createElement('img')
-        profile_img.src = post.get('profile_pic_url', '/static/image_test/profile_default.jpg')
-        profile_img.alt = 'Profile Picture'
-        profile_pic.appendChild(profile_img)
-        
-        # Username in header
-        username_element = document.createElement('div')
-        username_element.className = 'username'
-        username_element.textContent = post['username']
-        
-        # Add profile pic and username to user info container
-        user_info.appendChild(profile_pic)
-        user_info.appendChild(username_element)
-        
-        # Post options (three dots)
-        post_options = document.createElement('div')
-        post_options.className = 'post-options'
-        options_icon = document.createElement('i')
-        options_icon.className = 'fas fa-ellipsis-h'
-        post_options.appendChild(options_icon)
-        
-        # Add user info and options to header
-        header.appendChild(user_info)
-        header.appendChild(post_options)
-        
-        # 2. Post image
+        # 1. Post image
         post_image = document.createElement('div')
         post_image.className = 'post-image'
+        post_image.setAttribute("data-post-id", str(post["id"]))
+        
         image = document.createElement('img')
         image.src = post['image_url']
         image.alt = 'Item for trade'
-        post_image.appendChild(image)
         
-        # 3. Action buttons container - heart and bookmark icons
+        # Add heart animation element for double-click
+        heart_animation = document.createElement('i')
+        heart_animation.className = 'fas fa-heart heart-animation'
+        
+        post_image.appendChild(image)
+        post_image.appendChild(heart_animation)
+        
+        # Add double-click handler
+        dbl_click_proxy = create_proxy(handle_double_click)
+        proxies[f"dbl_click_{post['id']}"] = dbl_click_proxy
+        post_image.addEventListener("dblclick", dbl_click_proxy)
+        
+        # 2. Action buttons container - heart and bookmark icons
         actions_container = document.createElement('div')
         actions_container.className = 'post-actions-container'
         
@@ -110,10 +180,16 @@ def create_post_element(post):
         
         # Heart icon
         heart_icon = document.createElement('i')
-        heart_icon.className = 'far fa-heart'
+        heart_icon.className = 'far fa-heart' if not post.get('liked') else 'fas fa-heart'
+        heart_icon.style.color = '#ed4956' if post.get('liked') else '#000'
         heart_icon.title = 'Interested in trading'
         heart_icon.setAttribute('data-post-id', str(post['id']))
-        heart_icon.onclick = create_proxy(lambda event: toggle_like(event))
+        
+        # Add click handler for heart icon
+        toggle_like_proxy = create_proxy(toggle_like)
+        proxies[f"toggle_like_{post['id']}"] = toggle_like_proxy
+        heart_icon.addEventListener("click", toggle_like_proxy)
+        
         action_buttons.appendChild(heart_icon)
         
         # Bookmark container
@@ -122,16 +198,23 @@ def create_post_element(post):
         
         # Bookmark icon
         bookmark_icon = document.createElement('i')
-        bookmark_icon.className = 'far fa-bookmark'
+        bookmark_icon.className = 'fas fa-bookmark' if post.get('bookmarked') else 'far fa-bookmark'
+        bookmark_icon.style.color = '#ffcc00' if post.get('bookmarked') else '#000'
         bookmark_icon.title = 'Save for later'
-        bookmark_icon.onclick = create_proxy(lambda event: toggle_bookmark(event))
+        bookmark_icon.setAttribute('data-post-id', str(post['id']))
+        
+        # Add click handler for bookmark
+        toggle_bookmark_proxy = create_proxy(toggle_bookmark)
+        proxies[f"toggle_bookmark_{post['id']}"] = toggle_bookmark_proxy
+        bookmark_icon.addEventListener("click", toggle_bookmark_proxy)
+        
         bookmark.appendChild(bookmark_icon)
         
         # Add buttons to container
         actions_container.appendChild(action_buttons)
         actions_container.appendChild(bookmark)
         
-        # 4. Content section
+        # 3. Content section
         content_div = document.createElement('div')
         content_div.className = 'post-content'
         
@@ -171,7 +254,6 @@ def create_post_element(post):
         content_div.appendChild(time)
         
         # Add all sections to post
-        post_div.appendChild(header)
         post_div.appendChild(post_image)
         post_div.appendChild(actions_container)
         post_div.appendChild(content_div)
@@ -180,38 +262,6 @@ def create_post_element(post):
     except Exception as e:
         console.error(f"Error creating post element: {e}")
         return document.createElement('div')
-
-def toggle_like(event):
-    """Toggle heart icon between outline and solid"""
-    try:
-        icon = event.target
-        
-        if 'far' in icon.className:
-            # Like - switch to solid red heart
-            icon.className = 'fas fa-heart'
-            icon.style.color = '#ed4956'  # Instagram red
-        else:
-            # Unlike - switch to outline heart
-            icon.className = 'far fa-heart'
-            icon.style.color = '#000'  # Black color
-    except Exception as e:
-        console.error(f"Error toggling like: {e}")
-
-def toggle_bookmark(event):
-    """Toggle bookmark icon between outline and solid"""
-    try:
-        icon = event.target
-        
-        if 'far' in icon.className:
-            # Save - switch to solid yellow bookmark
-            icon.className = 'fas fa-bookmark'
-            icon.style.color = '#ffcc00'  # Bright yellow
-        else:
-            # Unsave - switch to outline bookmark
-            icon.className = 'far fa-bookmark'
-            icon.style.color = '#000'  # Black color
-    except Exception as e:
-        console.error(f"Error toggling bookmark: {e}")
 
 async def load_posts():
     """Load posts and add them to the DOM"""
@@ -251,52 +301,73 @@ def setup():
     # Properly await the async function
     run_async(load_posts)
     
-    # Add scroll to top button
-    add_scroll_to_top_button()
+    # Add CSS for heart animation to the document
+    add_heart_animation_css()
 
-def add_scroll_to_top_button():
-    """Add a button to scroll back to top of feed"""
+def add_heart_animation_css():
+    """Add CSS for heart animation to the document"""
     try:
-        container = document.getElementById('instagram-feed-container')
-        if not container:
-            return
-            
-        # Create scroll to top button
-        button = document.createElement('button')
-        button.id = 'scroll-to-top'
-        button.innerHTML = '&#8679;' # Up arrow
-        button.style.position = 'fixed'
-        button.style.bottom = '20px'
-        button.style.right = '20px'
-        button.style.zIndex = '1000'
-        button.style.display = 'none'
-        button.style.padding = '10px 15px'
-        button.style.backgroundColor = '#0095f6'
-        button.style.color = 'white'
-        button.style.border = 'none'
-        button.style.borderRadius = '50%'
-        button.style.cursor = 'pointer'
-        button.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)'
+        style = document.createElement("style")
+        style.textContent = """
+        /* Double-click heart animation styles */
+        .post-image {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
         
-        # Add click event
-        button.onclick = create_proxy(lambda event: container.scrollTo({
-            'top': 0,
-            'behavior': 'smooth'
-        }))
+        .heart-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            color: #ffffff;
+            font-size: 100px;
+            opacity: 0;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+            pointer-events: none;
+        }
         
-        # Show/hide based on scroll position
-        def check_scroll_position(event):
-            if container.scrollTop > 300:
-                button.style.display = 'block'
-            else:
-                button.style.display = 'none'
+        .heart-animation.animate {
+            animation: heart-burst 0.8s ease-out forwards;
+        }
         
-        container.addEventListener('scroll', create_proxy(check_scroll_position))
+        @keyframes heart-burst {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            30% {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            45% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            75% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
         
-        # Add button to document
-        document.body.appendChild(button)
+        /* Heart icon animation */
+        .action-buttons i.fa-heart:active {
+            transform: scale(1.2);
+        }
+        """
+        document.head.appendChild(style)
     except Exception as e:
-        console.error(f"Error adding scroll button: {e}")
+        console.error(f"Error adding CSS: {e}")
 
 # Run setup when the script is loaded
 setup()
