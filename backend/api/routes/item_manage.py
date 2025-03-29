@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy.orm import Session
 from app.db_setup import get_db  # This should provide a SQLAlchemy session
-from api.models.TradeOffers import Item  # SQLAlchemy model for trade_items
+from api.models.TradeOffers import Item, User  # SQLAlchemy model for trade_items
 from app.zodb_setup import get_root, commit_changes
 from app.getUserID import check_session_cookie
 from fastapi.responses import JSONResponse
 from api.models.item_class import TradeItem
+
+from ZODB import DB
 
 router = APIRouter(tags=["Items_management"])
 
@@ -50,7 +52,9 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
     if "trade_items" not in root:
         root["trade_items"] = {}
 
-    new_item_id = len(root["trade_items"]) + 1
+    # new_item_id = len(root["trade_items"]) + 1
+    trade_items = root["trade_items"]
+    new_item_id = max(trade_items.keys(), default=0) + 1
     root["trade_items"][new_item_id] = TradeItem(
         name=item_name,
         description=item_description,
@@ -60,7 +64,6 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
     )
     commit_changes()
 
-    # Add to the SQLAlchemy database
     new_trade_item = Item(
         userID=user_id,
         zodb_id=new_item_id,
@@ -71,33 +74,46 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
 
     return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id, "is_purchasable": is_purchasable}, status_code=201)
 
-@router.get("/get-post/{item_id}")
-async def get_post(item_id: int, db: Session = Depends(get_db)):
-    trade_item = db.query(Item).filter(Item.ID == item_id).first()
-    if not trade_item:
-        raise HTTPException(status_code=404, detail="Item not found in SQL database")
-    
-    root = get_root()
-    item_obj = root["trade_items"].get(trade_item.zodb_id)
-    if not item_obj:
-        raise HTTPException(status_code=404, detail="Item not found in ZODB")
-    
-    post_data = {
-        "id": trade_item.ID,
-        "name": item_obj.name,
-        "description": item_obj.description,
-        "price": item_obj.print,
-        "image": item_obj.image,
-        "category": item_obj.category,
-        "is_purchasable": trade_item.is_purchasable,
-        "ownerID": trade_item.userID,
-    }
+@router.get("/get-all-posts")
+async def get_all_posts(request: Request, db: Session = Depends(get_db)):
+    try:
+        user_id = check_session_cookie(request)
+        items = db.query(Item).filter(Item.userID != user_id).all()
 
-    post_data["likes"] = 100  # Example static likes count, you can retrieve this from a 'likes' table if needed
-    post_data["comments"] = [
-        {"username": "user1", "comment": "Great item!"},
-        {"username": "user2", "comment": "I would love to trade for this!"}
-    ]
-    post_data["comments_count"] = len(post_data["comments"])
-
-    return post_data
+        if not items:
+            return {"message": "No items available."}
+        
+        result_items = []
+        root = get_root()
+        for item in items:
+            zodb_data = root.get("trade_items", {}).get(item.zodb_id)
+            if zodb_data:
+                item_data = {
+                    "ID": item.ID,
+                    "is_purchasable": item.is_purchasable,
+                    "userID": item.userID,
+                    "zodb_id": item.zodb_id,
+                    "name": zodb_data.name,
+                    "description": zodb_data.description,
+                    "price": zodb_data.price,
+                    "image": zodb_data.image,
+                    "category": zodb_data.category
+                }
+                result_items.append(item_data)
+            else:
+                result_items.append({
+                    "ID": item.ID,
+                    "is_purchasable": item.is_purchasable,
+                    "userID": item.userID,
+                    "zodb_id": item.zodb_id,
+                    "name": None,
+                    "description": None,
+                    "price": None,
+                    "image": None,
+                    "category": None
+                })
+        
+        return result_items
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")

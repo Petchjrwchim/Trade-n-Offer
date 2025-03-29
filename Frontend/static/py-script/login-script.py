@@ -20,7 +20,7 @@ async def login(event=None):
 
         headers = [["Content-Type", "application/json"]]
 
-        response = await fetch("http://127.0.0.1:8000/login",
+        response = await fetch("/login",
                                method="POST",
                                body=json.dumps(userInfo),
                                headers=headers,

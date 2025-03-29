@@ -1,63 +1,52 @@
 import json
-from pyodide.ffi import create_proxy
-from js import document, console, fetch, window
-
-# Sample data with trading items
-SAMPLE_POSTS = [
-    {
-        "id": 1,
-        "username": "camera_lover",
-        "image_url": "/static/image_test/camera.jpg",
-        "caption": "Vintage camera in excellent condition. Looking to trade for audio equipment.",
-        "price": "$120 or trade",
-        "location": "Bangkok",
-        "posted_time": "2d"
-    },
-    {
-        "id": 2,
-        "username": "music_shop",
-        "image_url": "/static/image_test/guitar.jpg",
-        "caption": "Acoustic guitar with case. Great sound, barely used. Open to trades for other instruments.",
-        "price": "$250 or trade",
-        "location": "Chiang Mai",
-        "posted_time": "5h"
-    },
-    {
-        "id": 3,
-        "username": "instrument_trader",
-        "image_url": "/static/image_test/piano.jpg",
-        "caption": "Digital piano with weighted keys. Perfect condition. Would trade for guitar equipment.",
-        "price": "$350 or trade",
-        "location": "Phuket",
-        "posted_time": "1d"
-    }
-]
+from pyodide.ffi import create_proxy, to_js
+from js import document, console, fetch, window, Promise
+import asyncio
 
 async def fetch_posts():
-    """
-    Fetch posts from an API endpoint or use sample data
-    In a real app, you might make an API call here
-    """
     try:
-        # For now, use sample data
-        return SAMPLE_POSTS
+        console.log("Fetching posts from backend...")
+
+        response = await fetch(
+            "/get-all-posts",  # Ensure this is correct
+            to_js({
+                "method": "GET",
+                "headers": {"Content-Type": "application/json"},
+                "credentials": "include"  # Important for handling session cookies
+            })
+        )
+
+        console.log(f"Response status: {response.status}")
+
+        if response.status == 200:
+            posts = await response.json()
+            console.log("Fetched posts:", posts)
+            return posts
+        else:
+            console.error(f"Failed to fetch posts. Status: {response.status}")
+            return []
+
     except Exception as e:
         console.error(f"Error fetching posts: {e}")
         return []
 
+
 def create_post_element(post):
     """Create a DOM element for a post with improved layout"""
     try:
+        # Ensure post is a JavaScript object that can be accessed like a dictionary
+        post = post.to_py()  # Convert to Python dictionary if it's a Pyodide proxy
+        
         # Create post container
         post_div = document.createElement('div')
         post_div.className = 'instagram-post'
-        post_div.id = f"post-{post['id']}"
+        post_div.id = f"post-{post['zodb_id']}"  # Use zodb_id for the post's ID
         
         # 1. Post image
         post_image = document.createElement('div')
         post_image.className = 'post-image'
         image = document.createElement('img')
-        image.src = post['image_url']
+        image.src = post['image']  # Use the base64 image string from the ZODB data
         image.alt = 'Item for trade'
         post_image.appendChild(image)
         
@@ -73,7 +62,7 @@ def create_post_element(post):
         heart_icon = document.createElement('i')
         heart_icon.className = 'far fa-heart'
         heart_icon.title = 'Interested in trading'
-        heart_icon.setAttribute('data-post-id', str(post['id']))
+        heart_icon.setAttribute('data-post-id', str(post['zodb_id']))  # Use zodb_id
         heart_icon.onclick = create_proxy(lambda event: toggle_like(event))
         action_buttons.appendChild(heart_icon)
         
@@ -99,37 +88,44 @@ def create_post_element(post):
         # Item price
         price_div = document.createElement('div')
         price_div.className = 'item-price'
-        price_div.textContent = post['price']
+        price_div.textContent = f"Price: {post['price']}"  # Adding "Price:" for clarity
         content_div.appendChild(price_div)
         
-        # Username and caption
+        # Category and description
+        category_div = document.createElement('div')
+        category_div.className = 'item-category'
+        category_div.textContent = f"Category: {post['category']}"
+        content_div.appendChild(category_div)
+        
+        description_div = document.createElement('div')
+        description_div.className = 'item-description'
+        description_div.textContent = f"Description: {post['description']}"
+        content_div.appendChild(description_div)
+        
+        # Purchasing availability
+        purchasable_div = document.createElement('div')
+        purchasable_div.className = 'item-purchasable'
+        purchasable_div.textContent = f"Available for purchase: {'Yes' if post['is_purchasable'] else 'No'}"
+        content_div.appendChild(purchasable_div)
+        
+        # Username and caption (if available)
         user_caption = document.createElement('div')
         user_caption.className = 'user-caption'
         
-        username = document.createElement('div')
-        username.className = 'username'
-        username.textContent = post['username']
+        # Assuming post includes a username and caption, add them accordingly
+        if 'username' in post:
+            username = document.createElement('div')
+            username.className = 'username'
+            username.textContent = post['username']
+            user_caption.appendChild(username)
+
+        if 'caption' in post:
+            caption = document.createElement('div')
+            caption.className = 'caption'
+            caption.textContent = post['caption']
+            user_caption.appendChild(caption)
         
-        caption = document.createElement('div')
-        caption.className = 'caption'
-        caption.textContent = post['caption']
-        
-        user_caption.appendChild(username)
-        user_caption.appendChild(caption)
         content_div.appendChild(user_caption)
-        
-        # Location info
-        if 'location' in post:
-            location = document.createElement('div')
-            location.className = 'location-info'
-            location.textContent = f"Location: {post['location']}"
-            content_div.appendChild(location)
-        
-        # Posted time
-        time = document.createElement('div')
-        time.className = 'post-time'
-        time.textContent = post['posted_time']
-        content_div.appendChild(time)
         
         # Add all sections to post
         post_div.appendChild(post_image)
@@ -140,6 +136,7 @@ def create_post_element(post):
     except Exception as e:
         console.error(f"Error creating post element: {e}")
         return document.createElement('div')
+
 
 def toggle_like(event):
     """Toggle heart icon between outline and solid"""
@@ -174,9 +171,7 @@ def toggle_bookmark(event):
         console.error(f"Error toggling bookmark: {e}")
 
 async def load_posts():
-    """Load posts and add them to the DOM"""
     try:
-        # Get posts (either from API or sample data)
         posts = await fetch_posts()
         
         # Get the container element
@@ -197,9 +192,6 @@ async def load_posts():
         console.error(f"Error loading posts: {e}")
 
 # Properly handle the asynchronous function
-from pyodide.ffi import to_js
-from js import Promise
-
 # Function to run async function properly
 def run_async(async_func):
     Promise.resolve(to_js(async_func())).catch(lambda e: console.error(f"Error: {e}"))
