@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade’n Offer - My Products & Saved Collections</title>
+    <title>Trade'n Offer - My Products & Saved Collections</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', path='/trade_offer-style.css') }}">
+    
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
     <style>
+
         body {
             font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
@@ -16,6 +18,30 @@
             animation: gradientBG 15s ease infinite;
             color: #FFFFFF;
             overflow-x: hidden;
+        }
+
+          /* ปรับแต่ง sidebar ให้มีลักษณะเหมือนในภาพ */
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background: #2D2D2D;
+            color: #FFFFFF;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+          /* ปรับตำแหน่งปุ่ม toggle และ notification */
+        .toggle-container {
+            position: fixed;
+            top: 15px;
+            right: 15px; /* เปลี่ยนจาก left เป็น right */
+            display: flex;
+            flex-direction: row; /* เปลี่ยนจาก column เป็น row */
+            gap: 10px;
+            z-index: 1001;
         }
 
         @keyframes gradientBG {
@@ -37,53 +63,7 @@
             width: 100%; /* Ensure the content uses the full available width, centered */
         }
 
-        /* Sidebar (using the existing sidenav style) */
-        .sidebar {
-            width: 200px;
-            height: 100vh;
-            background: #2D2D2D;
-            color: #FFFFFF;
-            padding: 20px 0;
-            position: fixed;
-            left: -200px; /* Start hidden */
-            top: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
-            transition: left 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: #FFFFFF;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .sidebar a:hover, .sidebar a.active {
-            background: #444444;
-            color: #FFD700;
-        }
-
-        .sidebar .icon {
-            min-width: 24px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .sidebar .text {
-            margin-left: 12px;
-            white-space: nowrap;
-        }
+        
 
         .nav-links {
             flex-grow: 1;
@@ -237,7 +217,7 @@
             background: transparent; /* WebKit: transparent on hover */
         }
 
-        .product-grid, .saved-grid {
+        .product-grid, .saved-grid, .liked-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr); /* Fixed to 3 columns */
             gap: 20px;
@@ -245,7 +225,7 @@
             justify-content: center;
         }
 
-        .product-card, .saved-card {
+        .product-card, .saved-card, .liked-card {
             max-width: 250px;
             background-color: #2D2D2D;
             border-radius: 15px;
@@ -259,12 +239,12 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .product-card:hover, .saved-card:hover {
+        .product-card:hover, .saved-card:hover, .liked-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
         }
 
-        .product-image, .saved-image {
+        .product-image, .saved-image, .liked-image {
             width: 100%;
             height: 200px;
             border-radius: 10px;
@@ -274,11 +254,11 @@
             transition: opacity 0.3s ease;
         }
 
-        .product-image:hover, .saved-image:hover {
+        .product-image:hover, .saved-image:hover, .liked-image:hover {
             opacity: 0.8;
         }
 
-        .product-name, .saved-name {
+        .product-name, .saved-name, .liked-name {
             font-size: 18px;
             font-weight: 600;
             margin: 10px 0;
@@ -286,7 +266,7 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
-        .product-description, .saved-description {
+        .product-description, .saved-description, .liked-description {
             font-size: 14px;
             color: #CCCCCC;
             margin: 5px 0;
@@ -297,11 +277,17 @@
             -webkit-box-orient: vertical;
         }
 
-        .product-price, .saved-price {
+        .product-price, .saved-price, .liked-price {
             font-size: 16px;
             font-weight: 500;
             color: #FFD700;
             margin: 5px 0;
+        }
+
+        /* Heart icon for liked items */
+        .heart-icon {
+            color: #ed4956;
+            margin-right: 5px;
         }
 
         @media (max-width: 768px) {
@@ -334,16 +320,16 @@
                 max-height: 400px; /* Adjusted for mobile */
             }
 
-            .product-grid, .saved-grid {
+            .product-grid, .saved-grid, .liked-grid {
                 grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
                 gap: 15px;
             }
 
-            .product-card, .saved-card {
+            .product-card, .saved-card, .liked-card {
                 max-width: 200px;
             }
 
-            .product-image, .saved-image {
+            .product-image, .saved-image, .liked-image {
                 height: 150px;
             }
         }
@@ -462,8 +448,15 @@
             transform: translateY(0);
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
+        
+        /* CSS ของหน้า Profile */
+        /* เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่า sidebar จะไม่ถูกซ่อน */
+        #sidebar, #toggle-container {
+            display: block !important;
+            z-index: 9999 !important;
+        }
+
     </style>
-    <py-script src="/static/py-script/profile-script.py"></py-script> <!-- Load the external Python file -->
 </head>
 <body>
     {% include 'component/sidenav.html' %}
@@ -474,7 +467,7 @@
         <div class="profile-header">
             <img src="/static/image_test/profile_avatar.jpg" alt="Profile Avatar" class="profile-avatar">
             <div class="profile-info">
-                <h2 class="profile-name">Trade’n Offer User</h2>
+                <h2 class="profile-name">Trade'n Offer User</h2>
                 <p class="profile-description">Online trading platform</p>
             </div>
             <button class="edit-profile-btn" id="editProfileBtn">Edit Profile</button>
@@ -482,17 +475,23 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab-button" id="productsTab">Product</button>
-            <button class="tab-button active" id="savedTab">Saved Collections</button>
+            <button class="tab-button active" id="productsTab">Product</button>
+            <button class="tab-button" id="likedTab">Liked Items</button>
+            <button class="tab-button" id="savedTab">Saved Collections</button>
         </div>
-
+        
         <!-- Tab Contents -->
-        <div id="products-tab" class="tab-content">
+        <div id="products-tab" class="tab-content active">
             <div class="scrollable-grid">
                 <div class="product-grid" id="productsGrid"></div>
             </div>
         </div>
-        <div id="saved-tab" class="tab-content active">
+        <div id="liked-tab" class="tab-content">
+            <div class="scrollable-grid">
+                <div class="liked-grid" id="likedGrid"></div>
+            </div>
+        </div>
+        <div id="saved-tab" class="tab-content">
             <div class="scrollable-grid">
                 <div class="saved-grid" id="savedGrid"></div>
             </div>
@@ -505,12 +504,252 @@
             <span class="close-btn" id="closeEditProfileBtn">×</span>
             <h2>Edit Profile</h2>
             <div class="input-container">
-                <input type="text" id="editProfileName" placeholder="Enter username" value="Trade’n Offer User">
+                <input type="text" id="editProfileName" placeholder="Enter username" value="Trade'n Offer User">
                 <textarea id="editProfileDescription" placeholder="Enter profile description">Online trading platform</textarea>
                 <input type="file" id="editProfileImage" accept="image/*" style="display: none;"> <!-- Hidden file input -->
             </div>
             <button type="button" class="save-btn" id="saveProfileBtn">Save</button>
         </div>
     </div>
+
+    <!-- ฝัง script ตรงนี้ให้ทำงานโดยตรง -->
+    <script type="py">
+        from js import document, console, FileReader, window
+        from pyodide.ffi import create_proxy
+        
+        # ข้อมูลสำหรับแสดงผล
+        product_data = [
+            {"id": 1, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/laptop.jpg"},
+            {"id": 2, "name": "Fashion", "description": "Stylish outfit for everyday wear", "price": "199.99", "image": "/static/image_test/fashion.jpg"},
+            {"id": 3, "name": "Sofa", "description": "Comfortable modern sofa for living room", "price": "599.99", "image": "/static/image_test/sofa.jpg"}
+        ]
+        
+        saved_data = [
+            {"id": 1, "name": "Beads", "description": "Colorful beads for crafting", "price": "49.99", "image": "/static/image_test/beads.jpg"},
+            {"id": 2, "name": "Fashion", "description": "Trendy jacket for all seasons", "price": "129.99", "image": "/static/image_test/fashion2.jpg"},
+            {"id": 3, "name": "Books", "description": "Set of educational books", "price": "89.99", "image": "/static/image_test/books2.jpg"}
+        ]
+        
+        liked_data = [
+            {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
+            {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"}
+        ]
+        
+        def render_products():
+            product_grid = document.getElementById('productsGrid')
+            if not product_grid:
+                console.error("Product grid element (#productsGrid) not found!")
+                return
+            product_grid.innerHTML = ''
+            for product in product_data:
+                product_div = document.createElement('div')
+                product_div.classList.add('product-card')
+        
+                img = document.createElement('img')
+                img.src = product['image']
+                img.alt = product['name']
+                img.classList.add('product-image')
+        
+                name = document.createElement('div')
+                name.classList.add('product-name')
+                name.textContent = product['name']
+        
+                description = document.createElement('div')
+                description.classList.add('product-description')
+                description.textContent = product['description']
+        
+                price = document.createElement('div')
+                price.classList.add('product-price')
+                price.textContent = f"${product['price']}"
+        
+                product_div.appendChild(img)
+                product_div.appendChild(name)
+                product_div.appendChild(description)
+                product_div.appendChild(price)
+                product_grid.appendChild(product_div)
+            console.log("Products rendered successfully")
+        
+        def render_saved():
+            saved_grid = document.getElementById('savedGrid')
+            if not saved_grid:
+                console.error("Saved grid element (#savedGrid) not found!")
+                return
+            saved_grid.innerHTML = ''
+            for item in saved_data:
+                saved_div = document.createElement('div')
+                saved_div.classList.add('saved-card')
+        
+                img = document.createElement('img')
+                img.src = item['image']
+                img.alt = item['name']
+                img.classList.add('saved-image')
+        
+                name = document.createElement('div')
+                name.classList.add('saved-name')
+                name.textContent = item['name']
+        
+                description = document.createElement('div')
+                description.classList.add('saved-description')
+                description.textContent = item['description']
+        
+                price = document.createElement('div')
+                price.classList.add('saved-price')
+                price.textContent = f"${item['price']}"
+        
+                saved_div.appendChild(img)
+                saved_div.appendChild(name)
+                saved_div.appendChild(description)
+                saved_div.appendChild(price)
+                saved_grid.appendChild(saved_div)
+            console.log("Saved collections rendered successfully")
+        
+        def render_liked():
+            liked_grid = document.getElementById('likedGrid')
+            if not liked_grid:
+                console.error("Liked grid element (#likedGrid) not found!")
+                return
+            liked_grid.innerHTML = ''
+            for item in liked_data:
+                liked_div = document.createElement('div')
+                liked_div.classList.add('liked-card')
+        
+                img = document.createElement('img')
+                img.src = item['image']
+                img.alt = item['name']
+                img.classList.add('liked-image')
+        
+                name_container = document.createElement('div')
+                name_container.classList.add('liked-name')
+                
+                # Add heart icon
+                heart_icon = document.createElement('i')
+                heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
+                name_container.appendChild(heart_icon)
+                
+                # Add name text
+                name_text = document.createTextNode(item['name'])
+                name_container.appendChild(name_text)
+        
+                description = document.createElement('div')
+                description.classList.add('liked-description')
+                description.textContent = item['description']
+        
+                price = document.createElement('div')
+                price.classList.add('liked-price')
+                price.textContent = f"${item['price']}"
+        
+                liked_div.appendChild(img)
+                liked_div.appendChild(name_container)
+                liked_div.appendChild(description)
+                liked_div.appendChild(price)
+                liked_grid.appendChild(liked_div)
+            console.log("Liked items rendered successfully")
+        
+        # รอให้ sidenav.html script ทำงานเสร็จก่อน
+        def initialize_profile_page():
+            # ฟังก์ชันสำหรับ tab switching
+            def show_tab(tab_name, event=None):
+                console.log(f"Switching to {tab_name} tab")
+                
+                tabs = document.querySelectorAll('.tab-content')
+                buttons = document.querySelectorAll('.tab-button')
+        
+                # Remove active class from all tabs and buttons
+                for tab in tabs:
+                    tab.classList.remove('active')
+                for button in buttons:
+                    button.classList.remove('active')
+        
+                # Add active class to selected tab and button
+                tab_content = document.getElementById(f"{tab_name}-tab")
+                tab_button = document.getElementById(f"{tab_name}Tab")
+                
+                if tab_content:
+                    tab_content.classList.add('active')
+                else:
+                    console.error(f"Tab content #{tab_name}-tab not found")
+                    
+                if tab_button:
+                    tab_button.classList.add('active')
+                else:
+                    console.error(f"Tab button #{tab_name}Tab not found")
+        
+                # Render content for the selected tab
+                if tab_name == 'products':
+                    render_products()
+                elif tab_name == 'saved':
+                    render_saved()
+                elif tab_name == 'liked':
+                    render_liked()
+            
+            # ฟังก์ชันสำหรับ edit profile
+            def open_edit_profile(event=None):
+                popup = document.getElementById('editProfilePopup')
+                if popup:
+                    popup.style.display = 'flex'
+                else:
+                    console.error("Edit profile popup not found")
+        
+            def close_edit_profile(event=None):
+                popup = document.getElementById('editProfilePopup')
+                if popup:
+                    popup.style.display = 'none'
+                else:
+                    console.error("Edit profile popup not found")
+        
+            def save_profile_changes(event=None):
+                name_input = document.getElementById('editProfileName')
+                desc_input = document.getElementById('editProfileDescription')
+                
+                if not name_input or not desc_input:
+                    console.error("Profile form elements not found")
+                    return
+                    
+                name = name_input.value
+                description = desc_input.value
+        
+                if name and description:
+                    name_element = document.querySelector('.profile-name')
+                    desc_element = document.querySelector('.profile-description')
+                    
+                    if name_element:
+                        name_element.textContent = name
+                    if desc_element:
+                        desc_element.textContent = description
+                        
+                    close_edit_profile()
+                else:
+                    console.error('Please fill in all fields')
+            
+            # ติดตั้ง event listener สำหรับ tabs
+            productsTab = document.getElementById("productsTab")
+            likedTab = document.getElementById("likedTab")
+            savedTab = document.getElementById("savedTab")
+            
+            if productsTab:
+                productsTab.addEventListener("click", create_proxy(lambda e: show_tab("products", e)))
+            if likedTab:
+                likedTab.addEventListener("click", create_proxy(lambda e: show_tab("liked", e)))
+            if savedTab:
+                savedTab.addEventListener("click", create_proxy(lambda e: show_tab("saved", e)))
+            
+            # ติดตั้ง event listener สำหรับ edit profile
+            editProfileBtn = document.getElementById("editProfileBtn")
+            closeEditProfileBtn = document.getElementById("closeEditProfileBtn")
+            saveProfileBtn = document.getElementById("saveProfileBtn")
+            
+            if editProfileBtn:
+                editProfileBtn.addEventListener("click", create_proxy(open_edit_profile))
+            if closeEditProfileBtn:
+                closeEditProfileBtn.addEventListener("click", create_proxy(close_edit_profile))
+            if saveProfileBtn:
+                saveProfileBtn.addEventListener("click", create_proxy(save_profile_changes))
+            
+            # แสดง content เริ่มต้น
+            render_products()
+        
+        # ใช้ setTimeout เพื่อให้แน่ใจว่า sidenav script ทำงานเสร็จก่อน
+        window.setTimeout(create_proxy(initialize_profile_page), 100)
+    </script>
 </body>
 </html>

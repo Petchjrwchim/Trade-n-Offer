@@ -6,53 +6,88 @@ menu_toggle = document.querySelector('.menu-toggle')
 sidebar = document.querySelector('.sidebar')
 
 def toggle_sidebar(event):
-    sidebar.classList.toggle('active')
-    menu_toggle.classList.toggle('active')
+    if sidebar and menu_toggle:
+        sidebar.classList.toggle('active')
+        menu_toggle.classList.toggle('active')
 
-menu_toggle.addEventListener('click', create_proxy(toggle_sidebar))
+if menu_toggle:
+    menu_toggle.addEventListener('click', create_proxy(toggle_sidebar))
 
 # Tab switching
-def show_tab(tab_name, event=None):  # Added event parameter to handle the event object
+def show_tab(tab_name, event=None):
+    console.log(f"Switching to {tab_name} tab")
+    
     tabs = document.querySelectorAll('.tab-content')
     buttons = document.querySelectorAll('.tab-button')
 
+    # Remove active class from all tabs and buttons
     for tab in tabs:
         tab.classList.remove('active')
     for button in buttons:
         button.classList.remove('active')
 
-    document.querySelector(f'#{tab_name}-tab').classList.add('active')
-    document.querySelector(f'.tab-button[id="{tab_name}Tab"]').classList.add('active')  # Updated selector to use ID
+    # Add active class to selected tab and button
+    tab_content = document.getElementById(f"{tab_name}-tab")
+    tab_button = document.getElementById(f"{tab_name}Tab")
+    
+    if tab_content:
+        tab_content.classList.add('active')
+    else:
+        console.error(f"Tab content #{tab_name}-tab not found")
+        
+    if tab_button:
+        tab_button.classList.add('active')
+    else:
+        console.error(f"Tab button #{tab_name}Tab not found")
 
+    # Render content for the selected tab
     if tab_name == 'products':
         render_products()
     elif tab_name == 'saved':
         render_saved()
+    elif tab_name == 'liked':
+        render_liked()
+    else:
+        console.error(f"Unknown tab: {tab_name}")
 
-# Edit Profile Popup
+# Functions for handling profile popup
 def open_edit_profile(event=None):
-    document.querySelector('#editProfilePopup').style.display = 'flex'
+    popup = document.getElementById('editProfilePopup')
+    if popup:
+        popup.style.display = 'flex'
+    else:
+        console.error("Edit profile popup not found")
 
 def close_edit_profile(event=None):
-    document.querySelector('#editProfilePopup').style.display = 'none'
+    popup = document.getElementById('editProfilePopup')
+    if popup:
+        popup.style.display = 'none'
+    else:
+        console.error("Edit profile popup not found")
 
 def save_profile_changes(event=None):
-    name = document.querySelector('#editProfileName').value
-    description = document.querySelector('#editProfileDescription').value
+    name_input = document.getElementById('editProfileName')
+    desc_input = document.getElementById('editProfileDescription')
+    
+    if not name_input or not desc_input:
+        console.error("Profile form elements not found")
+        return
+        
+    name = name_input.value
+    description = desc_input.value
 
     if name and description:
-        document.querySelector('.profile-name').textContent = name
-        document.querySelector('.profile-description').textContent = description
+        name_element = document.querySelector('.profile-name')
+        desc_element = document.querySelector('.profile-description')
+        
+        if name_element:
+            name_element.textContent = name
+        if desc_element:
+            desc_element.textContent = description
+            
         close_edit_profile()
     else:
         console.error('Please fill in all fields')
-
-# Event listeners
-document.querySelector('#editProfileBtn').addEventListener('click', create_proxy(open_edit_profile))
-document.querySelector('#closeEditProfileBtn').addEventListener('click', create_proxy(close_edit_profile))
-document.querySelector('#saveProfileBtn').addEventListener('click', create_proxy(save_profile_changes))
-document.querySelector('#productsTab').addEventListener('click', create_proxy(lambda event: show_tab('products', event)))
-document.querySelector('#savedTab').addEventListener('click', create_proxy(lambda event: show_tab('saved', event)))
 
 # Simulated product data
 product_data = [
@@ -71,8 +106,16 @@ saved_data = [
     {"id": 3, "name": "Books", "description": "Set of educational books", "price": "89.99", "image": "/static/image_test/books2.jpg"}
 ]
 
-def render_products():
-    product_grid = document.querySelector('#productsGrid')
+# Simulated liked items data
+liked_data = [
+    {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
+    {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
+    {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"}
+]
+
+# แก้ไขฟังก์ชันเพื่อรับ event parameter แต่ไม่ใช้
+def render_products(event=None):
+    product_grid = document.getElementById('productsGrid')
     if not product_grid:
         console.error("Product grid element (#productsGrid) not found!")
         return
@@ -105,8 +148,9 @@ def render_products():
         product_grid.appendChild(product_div)
     console.log("Products rendered successfully")
 
-def render_saved():
-    saved_grid = document.querySelector('#savedGrid')
+# แก้ไขฟังก์ชันเพื่อรับ event parameter แต่ไม่ใช้
+def render_saved(event=None):
+    saved_grid = document.getElementById('savedGrid')
     if not saved_grid:
         console.error("Saved grid element (#savedGrid) not found!")
         return
@@ -139,5 +183,80 @@ def render_saved():
         saved_grid.appendChild(saved_div)
     console.log("Saved collections rendered successfully")
 
+# แก้ไขฟังก์ชันเพื่อรับ event parameter แต่ไม่ใช้
+def render_liked(event=None):
+    liked_grid = document.getElementById('likedGrid')
+    if not liked_grid:
+        console.error("Liked grid element (#likedGrid) not found!")
+        return
+    liked_grid.innerHTML = ''
+    for item in liked_data:
+        liked_div = document.createElement('div')
+        liked_div.classList.add('liked-card')
+
+        img = document.createElement('img')
+        img.src = item['image']
+        img.alt = item['name']
+        img.classList.add('liked-image')
+
+        name_container = document.createElement('div')
+        name_container.classList.add('liked-name')
+        
+        # Add heart icon
+        heart_icon = document.createElement('i')
+        heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
+        name_container.appendChild(heart_icon)
+        
+        # Add name text
+        name_text = document.createTextNode(item['name'])
+        name_container.appendChild(name_text)
+
+        description = document.createElement('div')
+        description.classList.add('liked-description')
+        description.textContent = item['description']
+
+        price = document.createElement('div')
+        price.classList.add('liked-price')
+        price.textContent = f"${item['price']}"
+
+        liked_div.appendChild(img)
+        liked_div.appendChild(name_container)
+        liked_div.appendChild(description)
+        liked_div.appendChild(price)
+        liked_grid.appendChild(liked_div)
+    console.log("Liked items rendered successfully")
+
+# Event listeners for tab switching
+productsTab = document.getElementById("productsTab")
+likedTab = document.getElementById("likedTab")
+savedTab = document.getElementById("savedTab")
+
+if productsTab:
+    productsTab.addEventListener("click", create_proxy(lambda e: show_tab("products", e)))
+else:
+    console.error("Products tab not found")
+    
+if likedTab:
+    likedTab.addEventListener("click", create_proxy(lambda e: show_tab("liked", e)))
+else:
+    console.error("Liked tab not found")
+    
+if savedTab:
+    savedTab.addEventListener("click", create_proxy(lambda e: show_tab("saved", e)))
+else:
+    console.error("Saved tab not found")
+    
+# Event listeners for profile editing
+editProfileBtn = document.getElementById("editProfileBtn")
+closeEditProfileBtn = document.getElementById("closeEditProfileBtn")
+saveProfileBtn = document.getElementById("saveProfileBtn")
+
+if editProfileBtn:
+    editProfileBtn.addEventListener("click", create_proxy(open_edit_profile))
+if closeEditProfileBtn:
+    closeEditProfileBtn.addEventListener("click", create_proxy(close_edit_profile))
+if saveProfileBtn:
+    saveProfileBtn.addEventListener("click", create_proxy(save_profile_changes))
+
 # Initialize with Saved Collections tab active (default)
-show_tab('saved')
+render_saved()  # Render default tab on load
