@@ -5,7 +5,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from app.getUserID import check_session_cookie
-
 #authentication function
 from api.routes.authentication import router as auth_router
 from api.routes.item_manage import router as item_manage_router

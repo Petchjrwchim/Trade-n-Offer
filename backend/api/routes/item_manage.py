@@ -2,12 +2,10 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy.orm import Session
 from app.db_setup import get_db  # This should provide a SQLAlchemy session
 from api.models.TradeOffers import Item, User  # SQLAlchemy model for trade_items
-from app.zodb_setup import get_root, commit_changes
+from app.zodb_setup import get_root, commit_changes, close_connection
 from app.getUserID import check_session_cookie
 from fastapi.responses import JSONResponse
 from api.models.item_class import TradeItem
-
-from ZODB import DB
 
 router = APIRouter(tags=["Items_management"])
 
@@ -49,43 +47,59 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
 
     root = get_root()
 
+    # Initialize the 'trade_items' dictionary if it doesn't exist
     if "trade_items" not in root:
         root["trade_items"] = {}
 
-    # new_item_id = len(root["trade_items"]) + 1
-    trade_items = root["trade_items"]
-    new_item_id = max(trade_items.keys(), default=0) + 1
-    root["trade_items"][new_item_id] = TradeItem(
-        name=item_name,
-        description=item_description,
-        price=item_price,
-        image=item_image,
-        category="General"
-    )
-    commit_changes()
+    # Get the current number of items in 'trade_items'
+    new_item_id = len(root["trade_items"]) + 1
 
-    new_trade_item = Item(
-        userID=user_id,
-        zodb_id=new_item_id,
-        is_purchasable=is_purchasable
-    )
-    db.add(new_trade_item)
-    db.commit()
+    # Add the new item to the 'trade_items' dictionary in ZODB
+    try:
+        # Add the new item to ZODB
+        trade_items = root["trade_items"].copy()
+        trade_items[new_item_id] = TradeItem(
+            name=item_name,
+            description=item_description,
+            price=item_price,
+            image=item_image,
+            category="General"
+        )
 
-    return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id, "is_purchasable": is_purchasable}, status_code=201)
+        # Reassign the dictionary back to root
+        root["trade_items"] = trade_items  
+
+        # Now handle SQLAlchemy part
+        new_trade_item = Item(
+            userID=user_id,
+            zodb_id=new_item_id,
+            is_purchasable=is_purchasable
+        )
+
+        commit_changes()  # Commit ZODB changes
+        db.add(new_trade_item)
+        db.commit()  # Commit SQLAlchemy changes
+
+        return JSONResponse(content={"message": "Item added successfully!", "zodb_id": new_item_id, "is_purchasable": is_purchasable}, status_code=201)
+
+    except Exception as e:
+        db.rollback()  # Rollback SQLAlchemy changes
+        close_connection()  # Close the ZODB connection
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 @router.get("/get-all-posts")
 async def get_all_posts(request: Request, db: Session = Depends(get_db)):
     try:
         user_id = check_session_cookie(request)
         items = db.query(Item).filter(Item.userID != user_id).all()
-
+        print(items)
         if not items:
             return {"message": "No items available."}
         
         result_items = []
         root = get_root()
         for item in items:
+            print(item.zodb_id)
             zodb_data = root.get("trade_items", {}).get(item.zodb_id)
             if zodb_data:
                 item_data = {
