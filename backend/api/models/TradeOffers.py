@@ -49,7 +49,8 @@ class Item(Base):
     ID = Column(Integer, primary_key=True, index=True)
     userID = Column(Integer, ForeignKey("users.ID"), nullable=False)
     zodb_id = Column(Integer, nullable=False)
-    is_purchasable = Column(Boolean, default=False)  # New Flag
+    is_purchasable = Column(Boolean, default=False)
+    is_available = Column(Boolean, default=True)
 
     owner = relationship("User", back_populates="items")
     sent_offers = relationship("TradeOffer", foreign_keys="[TradeOffer.sender_item_id]", back_populates="sender_item")

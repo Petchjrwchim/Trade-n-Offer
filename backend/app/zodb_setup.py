@@ -37,4 +37,3 @@ def inspect_zodb():
         for item_id, item_obj in trade_items.items():
             print(f"ID: {item_id}, Name: , Price: , Category: ")
 
-inspect_zodb()

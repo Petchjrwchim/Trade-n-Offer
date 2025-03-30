@@ -41,6 +41,7 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
     item_image = item.get("item_image")
     item_price = item.get("item_price")
     is_purchasable = item.get("is_purchasable", False)
+    is_available = item.get("is_available", True)
 
     if not item_name:
         raise HTTPException(status_code=400, detail="Item name must be provided")
@@ -66,14 +67,15 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
             category="General"
         )
 
-        # Reassign the dictionary back to root
+        trade_items[new_item_id].set_available(is_available)
         root["trade_items"] = trade_items  
 
         # Now handle SQLAlchemy part
         new_trade_item = Item(
             userID=user_id,
             zodb_id=new_item_id,
-            is_purchasable=is_purchasable
+            is_purchasable=is_purchasable,
+            is_available=is_available
         )
 
         commit_changes()  # Commit ZODB changes
@@ -91,7 +93,7 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
 async def get_all_posts(request: Request, db: Session = Depends(get_db)):
     try:
         user_id = check_session_cookie(request)
-        items = db.query(Item).filter(Item.userID != user_id).all()
+        items = db.query(Item).filter(Item.userID != user_id, Item.is_available == True).all()
         print(items)
         if not items:
             return {"message": "No items available."}
@@ -101,7 +103,7 @@ async def get_all_posts(request: Request, db: Session = Depends(get_db)):
         for item in items:
             print(item.zodb_id)
             zodb_data = root.get("trade_items", {}).get(item.zodb_id)
-            if zodb_data:
+            if zodb_data and zodb_data.is_available:
                 item_data = {
                     "ID": item.ID,
                     "is_purchasable": item.is_purchasable,
