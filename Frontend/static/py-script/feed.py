@@ -32,17 +32,37 @@ async def fetch_posts():
         console.error(f"Error fetching posts: {e}")
         return []
 
+async def check_wishlist_status(item_id, heart_icon):
+    try:
+
+        headers = [["Content-Type", "application/json"]]
+        response = await fetch(f"/status_wishlist/{item_id}",
+                               method="GET",
+                               headers=headers,
+                               credentials="include")
+        if not response.ok:
+            print("Failed to fetch wishlist status")
+            return
+        
+        data = await response.json()  # Convert response to JSON
+
+        if data:
+            heart_icon.className = 'fas fa-heart'
+            heart_icon.style.color = '#ed4956'  # Red for liked
+        else:
+            heart_icon.className = 'far fa-heart'
+            heart_icon.style.color = '#000'  # Black for not liked
+
+    except Exception as e:
+        print(f"Error checking wishlist status: {e}")
 
 def create_post_element(post):
-    """Create a DOM element for a post with improved layout"""
     try:
-        # Ensure post is a JavaScript object that can be accessed like a dictionary
-        post = post.to_py()  # Convert to Python dictionary if it's a Pyodide proxy
+        post = post.to_py()
         
-        # Create post container
         post_div = document.createElement('div')
         post_div.className = 'instagram-post'
-        post_div.id = f"post-{post['zodb_id']}"  # Use zodb_id for the post's ID
+        post_div.id = f"post-{post['zodb_id']}"
         
         # 1. Post image
         post_image = document.createElement('div')
@@ -64,10 +84,11 @@ def create_post_element(post):
         heart_icon = document.createElement('i')
         heart_icon.className = 'far fa-heart'
         heart_icon.title = 'Interested in trading'
-        heart_icon.setAttribute('data-post-id', str(post['ID']))  # Use zodb_id
+        heart_icon.setAttribute('data-post-id', str(post['ID']))
         heart_icon.onclick = create_proxy(lambda event: toggle_like(event))
         action_buttons.appendChild(heart_icon)
         
+        Promise.resolve(check_wishlist_status(post['ID'], heart_icon))
         # Bookmark container
         bookmark = document.createElement('div')
         bookmark.className = 'bookmark'
@@ -97,8 +118,6 @@ def create_post_element(post):
 
         user_caption = document.createElement('div')
         user_caption.className = 'user-caption'
-        
-        # Assuming post includes a username and caption, add them accordingly
         username = document.createElement('div')
         username.className = 'item_name'
         username.textContent = post['name']
@@ -112,9 +131,6 @@ def create_post_element(post):
         description_div.textContent = f"{post['description']}"
         content_div.appendChild(description_div)
         
-        # Username and caption (if available)
-        
-        # Add all sections to post
         post_div.appendChild(post_image)
         post_div.appendChild(actions_container)
         post_div.appendChild(content_div)
@@ -133,18 +149,13 @@ def toggle_like(event):
             icon.className = 'fas fa-heart'
             icon.style.color = '#ed4956'
             console.log(f"Item ID: {item_id} liked")
-            # Call the function to add the item to the wishlist
             Promise.resolve(add_to_wishlist(item_id))
         else:
             icon.className = 'far fa-heart'
             icon.style.color = '#000'
             console.log(f"Item ID: {item_id} removed from like")
-            # Call the function to remove the item from the wishlist
             Promise.resolve(remove_from_wishlist(item_id))
         
-    except Exception as e:
-        console.error(f"Error toggling like: {e}")
-
     except Exception as e:
         console.error(f"Error toggling like: {e}")
 
@@ -168,24 +179,29 @@ async def add_to_wishlist(item_id):
         console.error(f"Error adding item to wishlist: {e}")
 
 async def remove_from_wishlist(item_id):
-    """Send data to the backend to remove item from the wishlist"""
     try:
-        url = f'/wishlist/{item_id}'
-        response = await fetch(url, {
-            "method": 'DELETE',
-            "headers": {"Content-Type": "application/json"}
-        })
 
+        headers = [["Content-Type", "application/json"]]
+        response = await fetch(f"/remove_wishlist/{item_id}",
+                               method="DELETE",
+                               headers=headers,
+                               credentials="include")
+
+        # url = f'/wishlist/{item_id}'
+        # response = await fetch(url, {
+        #     "method": 'DELETE',
+        #     "headers": {"Content-Type": "application/json"}
+        # })
         # Try to parse the response as JSON
-        try:
-            response_json = await response.json()
-            console.log(response_json.get("message", "Item removed from wishlist"))
-        except Exception as e:
-            console.error(f"Error parsing response as JSON: {e}")
+        # try:
+        #     response_json = await response.json()
+        #     console.log(response_json.get("message", "Item removed from wishlist"))
+        # except Exception as e:
+        #     console.error(f"Error parsing response as JSON: {e}")
     
     except Exception as e:
         console.error(f"Error removing item from wishlist: {e}")
-        
+    
 def toggle_bookmark(event):
     """Toggle bookmark icon between outline and solid"""
     try:
