@@ -10,451 +10,439 @@
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
     <style>
 
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            background: linear-gradient(45deg, #000000, #1a1a1a, #000033, #000000);
-            background-size: 200% 200%;
-            animation: gradientBG 15s ease infinite;
-            color: #FFFFFF;
-            overflow-x: hidden;
-        }
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    background: linear-gradient(45deg, #000000, #1a1a1a, #000033, #000000);
+    background-size: 200% 200%;
+    animation: gradientBG 15s ease infinite;
+    color: #FFFFFF;
+    overflow-x: hidden;
+    display: flex;
+}
 
-          /* ปรับแต่ง sidebar ให้มีลักษณะเหมือนในภาพ */
-        .sidebar {
-            width: 200px;
-            height: 100vh;
-            background: #2D2D2D;
-            color: #FFFFFF;
-            position: fixed;
-            left: 0;
-            top: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-        }
-          /* ปรับตำแหน่งปุ่ม toggle และ notification */
-        .toggle-container {
-            position: fixed;
-            top: 15px;
-            right: 15px; /* เปลี่ยนจาก left เป็น right */
-            display: flex;
-            flex-direction: row; /* เปลี่ยนจาก column เป็น row */
-            gap: 10px;
-            z-index: 1001;
-        }
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
 
-        .content {
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto; /* Center the content horizontally with equal margins on both sides */
-            overflow: hidden;
-            min-height: calc(100vh - 40px);
-            background-color: transparent; /* Transparent to show gradient */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%; /* Ensure the content uses the full available width, centered */
-        }
 
-        
+/* Main content container - centered properly */
+.content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 106px; /* Same as sidebar width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+}
 
-        .nav-links {
-            flex-grow: 1;
-        }
+/* Inner content wrapper to maintain proper centering */
+.content-wrapper {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .profile-link {
-            margin-top: auto;
-            border-top: 1px solid #444444;
-            padding-top: 15px;
-        }
+/* Profile Header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 800px;
+}
 
-        .menu-toggle {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            font-size: 24px;
-            color: #FFFFFF;
-            background: #2D2D2D;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            z-index: 1001;
-            border-radius: 4px;
-            transition: left 0.3s ease;
-        }
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #444444;
+    object-fit: cover;
+    border: 2px solid #FFD700;
+}
 
-        .menu-toggle.active {
-            left: 215px;
-        }
+.profile-info {
+    flex-grow: 1;
+}
 
-        /* Profile Header */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 800px;
-        }
+.profile-name {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #FFFFFF;
+}
 
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background-color: #444444;
-            object-fit: cover;
-            border: 2px solid #FFD700;
-        }
+.profile-description {
+    font-size: 14px;
+    color: #CCCCCC;
+    margin: 5px 0;
+}
 
-        .profile-info {
-            flex-grow: 1;
-        }
+.edit-profile-btn {
+    padding: 8px 16px;
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
 
-        .profile-name {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0;
-            color: #FFFFFF;
-        }
+.edit-profile-btn:hover {
+    background-color: #4A4A4A;
+}
 
-        .profile-description {
-            font-size: 14px;
-            color: #CCCCCC;
-            margin: 5px 0;
-        }
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #444444;
+    width: 100%;
+    max-width: 800px;
+}
 
-        .edit-profile-btn {
-            padding: 8px 16px;
-            background-color: #3A3A3A;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-        }
+.tab-button {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: #CCCCCC;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
 
-        .edit-profile-btn:hover {
-            background-color: #4A4A4A;
-        }
+.tab-button.active {
+    color: #FFFFFF;
+    border-bottom: 2px solid #FFD700;
+}
 
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #444444;
-            width: 100%;
-            max-width: 800px;
-        }
+.tab-button:hover {
+    color: #FFFFFF;
+}
 
-        .tab-button {
-            padding: 10px 20px;
-            background: none;
-            border: none;
-            color: #CCCCCC;
-            font-size: 16px;
-            cursor: pointer;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
-            border-bottom: 2px solid transparent;
-        }
+/* Tab Content */
+.tab-content {
+    width: 100%;
+    max-width: 800px;
+    flex-grow: 1;
+    display: none;
+}
 
-        .tab-button.active {
-            color: #FFFFFF;
-            border-bottom: 2px solid #FFD700;
-        }
+.tab-content.active {
+    display: block;
+}
 
-        .tab-button:hover {
-            color: #FFFFFF;
-        }
+/* Scrollable Product and Saved Grids */
+.scrollable-grid {
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    padding: 20px 0;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
 
-        /* Tab Content */
-        .tab-content {
-            width: 100%;
-            max-width: 800px;
-            flex-grow: 1;
-            display: none;
-        }
+.scrollable-grid::-webkit-scrollbar {
+    width: 8px;
+}
 
-        .tab-content.active {
-            display: block;
-        }
+.scrollable-grid::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
 
-        /* Scrollable Product and Saved Grids */
-        .scrollable-grid {
-            max-height: 600px; /* Adjustable height for scrolling */
-            overflow-y: auto;
-            overflow-x: hidden;
-            width: 100%;
-            padding: 20px 0;
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: transparent transparent; /* Firefox: transparent thumb and track */
-        }
+.scrollable-grid::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+}
 
-        .scrollable-grid::-webkit-scrollbar {
-            width: 8px;
-        }
+.scrollable-grid::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+}
 
-        .scrollable-grid::-webkit-scrollbar-track {
-            background: transparent; /* WebKit: transparent track */
-            border-radius: 10px;
-        }
+/* Product Grid and Cards */
+.product-grid, 
+.saved-grid, 
+.liked-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+}
 
-        .scrollable-grid::-webkit-scrollbar-thumb {
-            background: transparent; /* WebKit: transparent thumb */
-            border-radius: 10px;
-        }
+.product-card, 
+.saved-card, 
+.liked-card {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+    background-color: #2D2D2D;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-        .scrollable-grid::-webkit-scrollbar-thumb:hover {
-            background: transparent; /* WebKit: transparent on hover */
-        }
+.product-card:hover, 
+.saved-card:hover, 
+.liked-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+}
 
-        .product-grid, .saved-grid, .liked-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Fixed to 3 columns */
-            gap: 20px;
-            width: 100%;
-            justify-content: center;
-        }
+.product-image, 
+.saved-image, 
+.liked-image {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid #444444;
+    transition: opacity 0.3s ease;
+}
 
-        .product-card, .saved-card, .liked-card {
-            max-width: 250px;
-            background-color: #2D2D2D;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+.product-image:hover, 
+.saved-image:hover, 
+.liked-image:hover {
+    opacity: 0.8;
+}
 
-        .product-card:hover, .saved-card:hover, .liked-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
-        }
+.product-name, 
+.saved-name, 
+.liked-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px 0;
+    color: #FFFFFF;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
 
-        .product-image, .saved-image, .liked-image {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            object-fit: cover;
-            cursor: pointer;
-            border: 2px solid #444444;
-            transition: opacity 0.3s ease;
-        }
+.product-description, 
+.saved-description, 
+.liked-description {
+    font-size: 14px;
+    color: #CCCCCC;
+    margin: 5px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
 
-        .product-image:hover, .saved-image:hover, .liked-image:hover {
-            opacity: 0.8;
-        }
+.product-price, 
+.saved-price, 
+.liked-price {
+    font-size: 16px;
+    font-weight: 500;
+    color: #FFD700;
+    margin: 5px 0;
+}
 
-        .product-name, .saved-name, .liked-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 10px 0;
-            color: #FFFFFF;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
+/* Heart icon for liked items */
+.heart-icon {
+    color: #ed4956;
+    margin-right: 5px;
+}
 
-        .product-description, .saved-description, .liked-description {
-            font-size: 14px;
-            color: #CCCCCC;
-            margin: 5px 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
+/* Edit Profile Popup */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+}
 
-        .product-price, .saved-price, .liked-price {
-            font-size: 16px;
-            font-weight: 500;
-            color: #FFD700;
-            margin: 5px 0;
-        }
+.popup-content {
+    background-color: #2D2D2D;
+    padding: 30px;
+    border-radius: 20px;
+    width: 400px;
+    max-width: 90%;
+    max-height: 80vh;
+    text-align: center;
+    color: #FFFFFF;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-out;
+    overflow-y: auto;
+    position: relative;
+}
 
-        /* Heart icon for liked items */
-        .heart-icon {
-            color: #ed4956;
-            margin-right: 5px;
-        }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        @media (max-width: 768px) {
-            .content {
-                margin-left: 0;
-                padding: 10px;
-            }
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #FFFFFF;
+    transition: color 0.3s ease;
+    background: none;
+    border: none;
+    padding: 5px 10px;
+}
 
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
-            }
+.close-btn:hover {
+    color: #f44336;
+}
 
-            .profile-avatar {
-                width: 100px;
-                height: 100px;
-            }
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 20px;
+}
 
-            .tabs {
-                flex-direction: column;
-                gap: 10px;
-                border-bottom: none;
-            }
+input[type="text"], 
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
 
-            .tab-button {
-                padding: 8px 16px;
-            }
+input[type="text"]:focus, 
+textarea:focus {
+    border-color: #FFD700;
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
 
-            .scrollable-grid {
-                max-height: 400px; /* Adjusted for mobile */
-            }
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
 
-            .product-grid, .saved-grid, .liked-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
-                gap: 15px;
-            }
+input[type="file"] {
+    display: none;
+}
 
-            .product-card, .saved-card, .liked-card {
-                max-width: 200px;
-            }
+.save-btn {
+    padding: 12px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
 
-            .product-image, .saved-image, .liked-image {
-                height: 150px;
-            }
-        }
+.save-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
 
-        /* Enhanced Popup Styling (without image preview) */
-        .popup {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-        }
+.save-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
 
-        .popup-content {
-            background-color: #2D2D2D;
-            padding: 30px;
-            border-radius: 20px;
-            width: 400px;
-            max-width: 90%;
-            max-height: 80vh;
-            text-align: center;
-            color: #FFFFFF;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s ease-out;
-            overflow-y: auto;
-            position: relative;
-        }
+/* Ensure sidebar is visible */
+#sidebar, 
+#toggle-container {
+    display: block !important;
+    z-index: 9999 !important;
+}
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+        padding: 10px;
+    }
 
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #FFFFFF;
-            transition: color 0.3s ease;
-            background: none;
-            border: none;
-            padding: 5px 10px;
-        }
+    .sidebar, #sidebar {
+        display: none !important;
+    }
 
-        .close-btn:hover {
-            color: #f44336;
-        }
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
 
-        .input-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
 
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #444444;
-            border-radius: 10px;
-            background-color: #3A3A3A;
-            color: #FFFFFF;
-            font-size: 16px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
+    .tabs {
+        flex-direction: column;
+        gap: 10px;
+        border-bottom: none;
+    }
 
-        input[type="text"]:focus, textarea:focus {
-            border-color: #FFD700;
-            outline: none;
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
-        }
+    .tab-button {
+        padding: 8px 16px;
+    }
 
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+    .scrollable-grid {
+        max-height: 400px;
+    }
 
-        input[type="file"] {
-            display: none; /* Hidden file input, no longer needed */
-        }
+    .product-grid, 
+    .saved-grid, 
+    .liked-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
 
-        .save-btn {
-            padding: 12px 25px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
+    .product-card, 
+    .saved-card, 
+    .liked-card {
+        max-width: 200px;
+    }
 
-        .save-btn:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .save-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* CSS ของหน้า Profile */
-        /* เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่า sidebar จะไม่ถูกซ่อน */
-        #sidebar, #toggle-container {
-            display: block !important;
-            z-index: 9999 !important;
-        }
+    .product-image, 
+    .saved-image, 
+    .liked-image {
+        height: 150px;
+    }
+}
 
     </style>
 </head>
@@ -517,25 +505,192 @@
         from js import document, console, FileReader, window
         from pyodide.ffi import create_proxy
         
-        # ข้อมูลสำหรับแสดงผล
+        # Sidebar toggle functionality
+        menu_toggle = document.querySelector('.menu-toggle')
+        sidebar = document.querySelector('.sidebar')
+        
+        def toggle_sidebar(event):
+            if sidebar and menu_toggle:
+                sidebar.classList.toggle('active')
+                menu_toggle.classList.toggle('active')
+        
+        if menu_toggle:
+            menu_toggle.addEventListener('click', create_proxy(toggle_sidebar))
+        
+        # Tab switching functionality
+        def show_tab(tab_name, event=None):
+            console.log(f"Switching to {tab_name} tab")
+            
+            tabs = document.querySelectorAll('.tab-content')
+            buttons = document.querySelectorAll('.tab-button')
+
+            # Remove active class from all tabs and buttons
+            for tab in tabs:
+                tab.classList.remove('active')
+            for button in buttons:
+                button.classList.remove('active')
+
+            # Add active class to selected tab and button
+            tab_content = document.getElementById(f"{tab_name}-tab")
+            tab_button = document.getElementById(f"{tab_name}Tab")
+            
+            if tab_content:
+                tab_content.classList.add('active')
+            else:
+                console.error(f"Tab content #{tab_name}-tab not found")
+                
+            if tab_button:
+                tab_button.classList.add('active')
+            else:
+                console.error(f"Tab button #{tab_name}Tab not found")
+
+            # Update URL hash
+            window.location.hash = f"{tab_name}-tab"
+
+            # Render content for the selected tab
+            if tab_name == 'products':
+                render_products()
+            elif tab_name == 'saved':
+                render_saved()
+            elif tab_name == 'liked':
+                render_liked()
+            else:
+                console.error(f"Unknown tab: {tab_name}")
+        # Image preview functionality for profile image
+        def handle_profile_image_change(event):
+            try:
+                files = event.target.files
+                if files.length > 0:
+                    file = files.item(0)
+                    profile_preview = document.querySelector('.profile-avatar')
+                    reader = FileReader.new()
+                    
+                    def on_load(e):
+                        # Update preview image in the popup
+                        profile_preview.src = e.target.result
+                        # Store the image data in a data attribute to use when saving
+                        document.getElementById('editProfileImage').setAttribute('data-image', e.target.result)
+                        
+                    reader.onload = create_proxy(on_load)
+                    reader.readAsDataURL(file)
+            except Exception as e:
+                console.error(f"Error handling profile image change: {e}")
+        
+        # Edit Profile popup functions
+        def open_edit_profile(event=None):
+            try:
+                # Get current values to populate the form
+                current_name = document.querySelector('.profile-name').textContent
+                current_description = document.querySelector('.profile-description').textContent
+                current_image = document.querySelector('.profile-avatar').src
+                
+                # Set values in form
+                document.getElementById('editProfileName').value = current_name
+                document.getElementById('editProfileDescription').value = current_description
+                
+                # Show the custom file input and styles
+                document.getElementById('profileImageSelect').style.display = 'block'
+                
+                # Display popup
+                popup = document.getElementById('editProfilePopup')
+                if popup:
+                    popup.style.display = 'flex'
+                else:
+                    console.error("Edit profile popup not found")
+            except Exception as e:
+                console.error(f"Error opening profile popup: {e}")
+        
+        def close_edit_profile(event=None):
+            popup = document.getElementById('editProfilePopup')
+            if popup:
+                popup.style.display = 'none'
+            else:
+                console.error("Edit profile popup not found")
+        
+        def save_profile_changes(event=None):
+            try:
+                name_input = document.getElementById('editProfileName')
+                desc_input = document.getElementById('editProfileDescription')
+                image_input = document.getElementById('editProfileImage')
+                
+                if not name_input or not desc_input:
+                    console.error("Profile form elements not found")
+                    return
+                    
+                name = name_input.value
+                description = desc_input.value
+                image_data = image_input.getAttribute('data-image')  # Get stored image data
+        
+                if name and description:
+                    # Update profile name and description
+                    name_element = document.querySelector('.profile-name')
+                    desc_element = document.querySelector('.profile-description')
+                    avatar_element = document.querySelector('.profile-avatar')
+                    
+                    if name_element:
+                        name_element.textContent = name
+                    if desc_element:
+                        desc_element.textContent = description
+                    
+                    # Update profile image if a new one was selected
+                    if image_data and avatar_element:
+                        avatar_element.src = image_data
+                        
+                    close_edit_profile()
+                    
+                    # Show success feedback to user
+                    feedback = document.createElement("div")
+                    feedback.style.position = "fixed"
+                    feedback.style.bottom = "20px"
+                    feedback.style.right = "20px"
+                    feedback.style.backgroundColor = "#4CAF50"
+                    feedback.style.color = "white"
+                    feedback.style.padding = "10px 20px"
+                    feedback.style.borderRadius = "5px"
+                    feedback.style.zIndex = "1000"
+                    feedback.textContent = "Profile updated successfully!"
+                    document.body.appendChild(feedback)
+                    
+                    # Remove feedback after 3 seconds
+                    def remove_feedback():
+                        document.body.removeChild(feedback)
+                    window.setTimeout(create_proxy(remove_feedback), 3000)
+                else:
+                    console.error('Please fill in all required fields')
+            except Exception as e:
+                console.error(f"Error saving profile changes: {e}")
+        
+        # Simulated product data
         product_data = [
-            {"id": 1, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/laptop.jpg"},
-            {"id": 2, "name": "Fashion", "description": "Stylish outfit for everyday wear", "price": "199.99", "image": "/static/image_test/fashion.jpg"},
-            {"id": 3, "name": "Sofa", "description": "Comfortable modern sofa for living room", "price": "599.99", "image": "/static/image_test/sofa.jpg"}
+            {"id": 1, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/piano.jpg"},
+            {"id": 2, "name": "Fashion", "description": "Stylish outfit for everyday wear", "price": "199.99", "image": "/static/image_test/guitar.jpg"},
+            {"id": 3, "name": "Sofa", "description": "Comfortable modern sofa for living room", "price": "599.99", "image": "/static/image_test/camera.jpg"},
+            {"id": 4, "name": "Lamp", "description": "Elegant floor lamp for home decor", "price": "89.99", "image": "/static/image_test/guitar.jpg"},
+            {"id": 5, "name": "Sports Gear", "description": "Complete set of sports equipment", "price": "299.99", "image": "/static/image_test/piano.jpg"},
+            {"id": 6, "name": "Books", "description": "Collection of classic literature books", "price": "149.99", "image": "/static/image_test/camera.jpg"}
         ]
         
+        # Simulated saved collections data
         saved_data = [
-            {"id": 1, "name": "Beads", "description": "Colorful beads for crafting", "price": "49.99", "image": "/static/image_test/beads.jpg"},
-            {"id": 2, "name": "Fashion", "description": "Trendy jacket for all seasons", "price": "129.99", "image": "/static/image_test/fashion2.jpg"},
-            {"id": 3, "name": "Books", "description": "Set of educational books", "price": "89.99", "image": "/static/image_test/books2.jpg"}
+            {"id": 1, "name": "Beads", "description": "Colorful beads for crafting", "price": "49.99", "image": "/static/image_test/guitar.jpg"},
+            {"id": 2, "name": "Fashion", "description": "Trendy jacket for all seasons", "price": "129.99", "image": "/static/image_test/piano.jpg"},
+            {"id": 3, "name": "Books", "description": "Set of educational books", "price": "89.99", "image": "/static/image_test/guitar.jpg"}
         ]
         
+        # Simulated liked items data
         liked_data = [
             {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
-            {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"}
+            {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
+            {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"},
+            {"id": 4, "name": "Headphones", "description": "Noise-canceling headphones with premium sound", "price": "199.99", "image": "/static/image_test/camera.jpg"},
+            {"id": 5, "name": "Watch", "description": "Luxury smartwatch with fitness tracking", "price": "349.99", "image": "/static/image_test/piano.jpg"},
+            {"id": 6, "name": "Smartphone", "description": "Latest model smartphone with advanced features", "price": "699.99", "image": "/static/image_test/guitar.jpg"}
         ]
+
         
-        def render_products():
+        
+        # Functions to render content for each tab
+        def render_products(event=None):
             product_grid = document.getElementById('productsGrid')
             if not product_grid:
                 console.error("Product grid element (#productsGrid) not found!")
@@ -569,7 +724,7 @@
                 product_grid.appendChild(product_div)
             console.log("Products rendered successfully")
         
-        def render_saved():
+        def render_saved(event=None):
             saved_grid = document.getElementById('savedGrid')
             if not saved_grid:
                 console.error("Saved grid element (#savedGrid) not found!")
@@ -603,7 +758,7 @@
                 saved_grid.appendChild(saved_div)
             console.log("Saved collections rendered successfully")
         
-        def render_liked():
+        def render_liked(event=None):
             liked_grid = document.getElementById('likedGrid')
             if not liked_grid:
                 console.error("Liked grid element (#likedGrid) not found!")
@@ -644,112 +799,106 @@
                 liked_div.appendChild(price)
                 liked_grid.appendChild(liked_div)
             console.log("Liked items rendered successfully")
+
+
+        # ในฟังก์ชัน initialize() ให้เพิ่มโค้ดนี้ก่อนส่วน render_products()
+        def check_hash_and_show_tab():
+            try:
+                hash = window.location.hash
+                if hash == "#liked-tab":
+                    show_tab("liked")
+            except Exception as e:
+                console.error(f"Error checking hash: {e}")
         
-        # รอให้ sidenav.html script ทำงานเสร็จก่อน
-        def initialize_profile_page():
-            # ฟังก์ชันสำหรับ tab switching
-            def show_tab(tab_name, event=None):
-                console.log(f"Switching to {tab_name} tab")
+
+        
+        def initialize():
+            try:
+                # Create the custom file input wrapper
+                file_input_container = document.createElement("div")
+                file_input_container.id = "profileImageSelect"
+                file_input_container.className = "custom-file-input"
+                file_input_container.style.display = "none"
+                file_input_container.style.marginBottom = "15px"
+                file_input_container.style.textAlign = "center"
                 
-                tabs = document.querySelectorAll('.tab-content')
-                buttons = document.querySelectorAll('.tab-button')
-        
-                # Remove active class from all tabs and buttons
-                for tab in tabs:
-                    tab.classList.remove('active')
-                for button in buttons:
-                    button.classList.remove('active')
-        
-                # Add active class to selected tab and button
-                tab_content = document.getElementById(f"{tab_name}-tab")
-                tab_button = document.getElementById(f"{tab_name}Tab")
+                # Create the label for the file input
+                file_label = document.createElement("label")
+                file_label.htmlFor = "editProfileImage"
+                file_label.style.display = "inline-block"
+                file_label.style.padding = "10px 15px"
+                file_label.style.backgroundColor = "#3A3A3A"
+                file_label.style.color = "#FFFFFF"
+                file_label.style.borderRadius = "6px"
+                file_label.style.cursor = "pointer"
+                file_label.style.transition = "background-color 0.3s"
+                file_label.innerHTML = '<i class="fas fa-camera"></i> Choose Profile Image'
                 
-                if tab_content:
-                    tab_content.classList.add('active')
-                else:
-                    console.error(f"Tab content #{tab_name}-tab not found")
-                    
-                if tab_button:
-                    tab_button.classList.add('active')
-                else:
-                    console.error(f"Tab button #{tab_name}Tab not found")
-        
-                # Render content for the selected tab
-                if tab_name == 'products':
-                    render_products()
-                elif tab_name == 'saved':
-                    render_saved()
-                elif tab_name == 'liked':
-                    render_liked()
-            
-            # ฟังก์ชันสำหรับ edit profile
-            def open_edit_profile(event=None):
-                popup = document.getElementById('editProfilePopup')
-                if popup:
-                    popup.style.display = 'flex'
-                else:
-                    console.error("Edit profile popup not found")
-        
-            def close_edit_profile(event=None):
-                popup = document.getElementById('editProfilePopup')
-                if popup:
-                    popup.style.display = 'none'
-                else:
-                    console.error("Edit profile popup not found")
-        
-            def save_profile_changes(event=None):
-                name_input = document.getElementById('editProfileName')
-                desc_input = document.getElementById('editProfileDescription')
+                # Add hover effect
+                file_label.addEventListener("mouseover", create_proxy(lambda e: 
+                    e.target.style.setProperty("background-color", "#4A4A4A")))
+                file_label.addEventListener("mouseout", create_proxy(lambda e: 
+                    e.target.style.setProperty("background-color", "#3A3A3A")))
                 
-                if not name_input or not desc_input:
-                    console.error("Profile form elements not found")
-                    return
-                    
-                name = name_input.value
-                description = desc_input.value
-        
-                if name and description:
-                    name_element = document.querySelector('.profile-name')
-                    desc_element = document.querySelector('.profile-description')
-                    
-                    if name_element:
-                        name_element.textContent = name
-                    if desc_element:
-                        desc_element.textContent = description
-                        
-                    close_edit_profile()
+                # Add the file input and label to the container
+                file_input_container.appendChild(file_label)
+                
+                # Get the edit profile popup content
+                popup_content = document.querySelector("#editProfilePopup .popup-content")
+                
+                if popup_content:
+                    # Insert the file input container after the heading
+                    heading = popup_content.querySelector("h2")
+                    if heading:
+                        heading.insertAdjacentElement("afterend", file_input_container)
+                
+                # Setup event listeners for tab switching
+                productsTab = document.getElementById("productsTab")
+                likedTab = document.getElementById("likedTab")
+                savedTab = document.getElementById("savedTab")
+                
+                if productsTab:
+                    productsTab.addEventListener("click", create_proxy(lambda e: show_tab("products", e)))
                 else:
-                    console.error('Please fill in all fields')
-            
-            # ติดตั้ง event listener สำหรับ tabs
-            productsTab = document.getElementById("productsTab")
-            likedTab = document.getElementById("likedTab")
-            savedTab = document.getElementById("savedTab")
-            
-            if productsTab:
-                productsTab.addEventListener("click", create_proxy(lambda e: show_tab("products", e)))
-            if likedTab:
-                likedTab.addEventListener("click", create_proxy(lambda e: show_tab("liked", e)))
-            if savedTab:
-                savedTab.addEventListener("click", create_proxy(lambda e: show_tab("saved", e)))
-            
-            # ติดตั้ง event listener สำหรับ edit profile
-            editProfileBtn = document.getElementById("editProfileBtn")
-            closeEditProfileBtn = document.getElementById("closeEditProfileBtn")
-            saveProfileBtn = document.getElementById("saveProfileBtn")
-            
-            if editProfileBtn:
-                editProfileBtn.addEventListener("click", create_proxy(open_edit_profile))
-            if closeEditProfileBtn:
-                closeEditProfileBtn.addEventListener("click", create_proxy(close_edit_profile))
-            if saveProfileBtn:
-                saveProfileBtn.addEventListener("click", create_proxy(save_profile_changes))
-            
-            # แสดง content เริ่มต้น
-            render_products()
+                    console.error("Products tab not found")
+                    
+                if likedTab:
+                    likedTab.addEventListener("click", create_proxy(lambda e: show_tab("liked", e)))
+                else:
+                    console.error("Liked tab not found")
+                    
+                if savedTab:
+                    savedTab.addEventListener("click", create_proxy(lambda e: show_tab("saved", e)))
+                else:
+                    console.error("Saved tab not found")
+                    
+                # Setup event listeners for profile editing
+                editProfileBtn = document.getElementById("editProfileBtn")
+                closeEditProfileBtn = document.getElementById("closeEditProfileBtn")
+                saveProfileBtn = document.getElementById("saveProfileBtn")
+                editProfileImage = document.getElementById("editProfileImage")
+                
+                if editProfileBtn:
+                    editProfileBtn.addEventListener("click", create_proxy(open_edit_profile))
+                if closeEditProfileBtn:
+                    closeEditProfileBtn.addEventListener("click", create_proxy(close_edit_profile))
+                if saveProfileBtn:
+                    saveProfileBtn.addEventListener("click", create_proxy(save_profile_changes))
+                if editProfileImage:
+                    editProfileImage.addEventListener("change", create_proxy(handle_profile_image_change))
+                    # Make the file input visible to the label
+                    file_label.appendChild(editProfileImage)
+
+                
+                # Initialize with Products tab active
+                render_products()
+                check_hash_and_show_tab()
+                
+            except Exception as e:
+                console.error(f"Error during initialization: {e}")
         
-        # ใช้ setTimeout เพื่อให้แน่ใจว่า sidenav script ทำงานเสร็จก่อน
-        window.setTimeout(create_proxy(initialize_profile_page), 100)
+        # Run initialization
+        initialize()
     </script>
 </body>
 </html>
