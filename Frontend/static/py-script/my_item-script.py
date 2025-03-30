@@ -27,7 +27,6 @@ def close_add_popup(event=None):
 
 async def save_new_product(event=None):
     try:
-        # Get product details from the input fields
         name = document.querySelector("#addProductName").value.strip()
         description = document.querySelector("#addProductDescription").value.strip()
         price = document.querySelector("#addProductPrice").value.strip()
@@ -44,14 +43,15 @@ async def save_new_product(event=None):
                 "item_name": name,
                 "item_description": description,
                 "item_price": price,
-                "item_image": image_url
+                "item_image": image_url,
+                "is_available": True
             }
             
             # Instead of a dictionary, pass headers as an array of key-value pairs.
             headers = [["Content-Type", "application/json"]]
         
             # Send data to the backend via POST request with credentials included
-            response = await fetch("http://127.0.0.1:8000/add-item", 
+            response = await fetch("/add-item", 
                                    method="POST", 
                                    body=json.dumps(new_product), 
                                    headers=headers, 
@@ -59,10 +59,7 @@ async def save_new_product(event=None):
         
             data = await response.json()
             console.log("Product added:", data)
-            
-            # Assuming close_add_popup is defined elsewhere
             close_add_popup()
-            console.log('******************saved************************')
         else:
             console.error("Please fill in all fields and select an image")
     except Exception as e:

@@ -48,16 +48,12 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
 
     root = get_root()
 
-    # Initialize the 'trade_items' dictionary if it doesn't exist
     if "trade_items" not in root:
         root["trade_items"] = {}
 
-    # Get the current number of items in 'trade_items'
     new_item_id = len(root["trade_items"]) + 1
 
-    # Add the new item to the 'trade_items' dictionary in ZODB
     try:
-        # Add the new item to ZODB
         trade_items = root["trade_items"].copy()
         trade_items[new_item_id] = TradeItem(
             name=item_name,
@@ -65,13 +61,10 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
             price=item_price,
             image=item_image,
             category="General",
-            is_available=is_available
         )
 
-        # Reassign the dictionary back to root
         root["trade_items"] = trade_items  
 
-        # Now handle SQLAlchemy part
         new_trade_item = Item(
             userID=user_id,
             zodb_id=new_item_id,

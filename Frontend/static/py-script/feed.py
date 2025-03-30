@@ -1,3 +1,5 @@
+from pyscript import when
+import pyodide.http
 import json
 from pyodide.ffi import create_proxy, to_js
 from js import document, console, fetch, window, Promise
@@ -62,7 +64,7 @@ def create_post_element(post):
         heart_icon = document.createElement('i')
         heart_icon.className = 'far fa-heart'
         heart_icon.title = 'Interested in trading'
-        heart_icon.setAttribute('data-post-id', str(post['zodb_id']))  # Use zodb_id
+        heart_icon.setAttribute('data-post-id', str(post['ID']))  # Use zodb_id
         heart_icon.onclick = create_proxy(lambda event: toggle_like(event))
         action_buttons.appendChild(heart_icon)
         
@@ -122,20 +124,20 @@ def create_post_element(post):
         console.error(f"Error creating post element: {e}")
         return document.createElement('div')
 
-
 def toggle_like(event):
     """Toggle heart icon between outline and solid"""
     try:
         icon = event.target
-        
+        item_id = icon.getAttribute('data-post-id')
+
         if 'far' in icon.className:
-            # Like - switch to solid red heart
             icon.className = 'fas fa-heart'
-            icon.style.color = '#ed4956'  # Instagram red
+            icon.style.color = '#ed4956'
+            console.log(f"Item ID: {item_id}")
         else:
-            # Unlike - switch to outline heart
             icon.className = 'far fa-heart'
-            icon.style.color = '#000'  # Black color
+            icon.style.color = '#000'
+            console.log(f"Item ID remove: {item_id}")
     except Exception as e:
         console.error(f"Error toggling like: {e}")
 
