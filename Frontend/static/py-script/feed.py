@@ -32,6 +32,7 @@ async def fetch_posts():
 
 
 def create_post_element(post):
+    """Create a DOM element for a post with improved layout"""
     try:
         # Ensure post is a JavaScript object that can be accessed like a dictionary
         post = post.to_py()  # Convert to Python dictionary if it's a Pyodide proxy
@@ -91,40 +92,25 @@ def create_post_element(post):
         content_div.appendChild(price_div)
         
         # Category and description
-        category_div = document.createElement('div')
-        category_div.className = 'item-category'
-        category_div.textContent = f"Category: {post['category']}"
-        content_div.appendChild(category_div)
-        
-        description_div = document.createElement('div')
-        description_div.className = 'item-description'
-        description_div.textContent = f"Description: {post['description']}"
-        content_div.appendChild(description_div)
-        
-        # Purchasing availability
-        purchasable_div = document.createElement('div')
-        purchasable_div.className = 'item-purchasable'
-        purchasable_div.textContent = f"Available for purchase: {'Yes' if post['is_purchasable'] else 'No'}"
-        content_div.appendChild(purchasable_div)
-        
-        # Username and caption (if available)
+
         user_caption = document.createElement('div')
         user_caption.className = 'user-caption'
         
         # Assuming post includes a username and caption, add them accordingly
-        if 'username' in post:
-            username = document.createElement('div')
-            username.className = 'username'
-            username.textContent = post['username']
-            user_caption.appendChild(username)
-
-        if 'caption' in post:
-            caption = document.createElement('div')
-            caption.className = 'caption'
-            caption.textContent = post['caption']
-            user_caption.appendChild(caption)
+        username = document.createElement('div')
+        username.className = 'item_name'
+        username.textContent = post['name']
+        user_caption.appendChild(username)
         
         content_div.appendChild(user_caption)
+
+        
+        description_div = document.createElement('div')
+        description_div.className = 'item-description'
+        description_div.textContent = f"{post['description']}"
+        content_div.appendChild(description_div)
+        
+        # Username and caption (if available)
         
         # Add all sections to post
         post_div.appendChild(post_image)
