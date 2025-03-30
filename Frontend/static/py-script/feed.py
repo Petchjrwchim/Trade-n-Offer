@@ -32,7 +32,6 @@ async def fetch_posts():
 
 
 def create_post_element(post):
-    """Create a DOM element for a post with improved layout"""
     try:
         # Ensure post is a JavaScript object that can be accessed like a dictionary
         post = post.to_py()  # Convert to Python dictionary if it's a Pyodide proxy
