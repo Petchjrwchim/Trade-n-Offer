@@ -5,16 +5,18 @@ from api.models.TradeOffers import Wishlist
 from api.db_schema.wishlist import WishlistCreate
 from app.getUserID import check_session_cookie
 from typing import List
-router = APIRouter(prefix="/wishlist", tags=["Wishlist_management"])
+router = APIRouter(tags=["Wishlist_management"])
 
+# prefix="/wishlist",
 @router.post("/add_wishlist")
-def add_to_wishlist(request: Request, wishlist_data: WishlistCreate, db: Session = Depends(get_db)):
+def add_to_wishlist(request: Request, wishItem: dict, db: Session = Depends(get_db)):
     user_id = check_session_cookie(request)
-    existing = db.query(Wishlist).filter_by(user_id=user_id, item_id=wishlist_data.item_id).first()
+    item_id = wishItem["item_id"]
+    existing = db.query(Wishlist).filter_by(user_id=user_id, item_id=item_id).first()
     if existing:
         raise HTTPException(status_code=400, detail="Item already in wishlist")
     
-    wishlist_item = Wishlist(user_id=user_id, item_id=wishlist_data.item_id)
+    wishlist_item = Wishlist(user_id=user_id, item_id=item_id)
     db.add(wishlist_item)
     db.commit()
     db.refresh(wishlist_item)

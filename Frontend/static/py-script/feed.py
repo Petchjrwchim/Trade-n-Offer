@@ -125,7 +125,6 @@ def create_post_element(post):
         return document.createElement('div')
 
 def toggle_like(event):
-    """Toggle heart icon between outline and solid"""
     try:
         icon = event.target
         item_id = icon.getAttribute('data-post-id')
@@ -133,14 +132,60 @@ def toggle_like(event):
         if 'far' in icon.className:
             icon.className = 'fas fa-heart'
             icon.style.color = '#ed4956'
-            console.log(f"Item ID: {item_id}")
+            console.log(f"Item ID: {item_id} liked")
+            # Call the function to add the item to the wishlist
+            Promise.resolve(add_to_wishlist(item_id))
         else:
             icon.className = 'far fa-heart'
             icon.style.color = '#000'
-            console.log(f"Item ID remove: {item_id}")
+            console.log(f"Item ID: {item_id} removed from like")
+            # Call the function to remove the item from the wishlist
+            Promise.resolve(remove_from_wishlist(item_id))
+        
     except Exception as e:
         console.error(f"Error toggling like: {e}")
 
+    except Exception as e:
+        console.error(f"Error toggling like: {e}")
+
+async def add_to_wishlist(item_id):
+    try:
+        headers = [["Content-Type", "application/json"]]
+        payload = {"item_id": item_id}
+        response = await fetch("/add_wishlist",
+                               method="POST",
+                               body=json.dumps(payload),
+                               headers=headers,
+                               credentials="include")
+
+        # try:
+        #     response_json = await response.json()
+        #     console.log(response_json.get("message", "Item added to wishlist"))
+        # except Exception as e:
+        #     console.error(f"Error parsing response as JSON: {e}")
+    
+    except Exception as e:
+        console.error(f"Error adding item to wishlist: {e}")
+
+async def remove_from_wishlist(item_id):
+    """Send data to the backend to remove item from the wishlist"""
+    try:
+        url = f'/wishlist/{item_id}'
+        response = await fetch(url, {
+            "method": 'DELETE',
+            "headers": {"Content-Type": "application/json"}
+        })
+
+        # Try to parse the response as JSON
+        try:
+            response_json = await response.json()
+            console.log(response_json.get("message", "Item removed from wishlist"))
+        except Exception as e:
+            console.error(f"Error parsing response as JSON: {e}")
+    
+    except Exception as e:
+        console.error(f"Error removing item from wishlist: {e}")
+        
 def toggle_bookmark(event):
     """Toggle bookmark icon between outline and solid"""
     try:
