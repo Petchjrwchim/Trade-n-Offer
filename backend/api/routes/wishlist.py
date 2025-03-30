@@ -8,10 +8,9 @@ from typing import List
 router = APIRouter(tags=["Wishlist_management"])
 
 # prefix="/wishlist",
-@router.post("/add_wishlist")
-def add_to_wishlist(request: Request, wishItem: dict, db: Session = Depends(get_db)):
+@router.post("/add_wishlist/{item_id}")
+def add_to_wishlist(request: Request,item_id: int, db: Session = Depends(get_db)):
     user_id = check_session_cookie(request)
-    item_id = wishItem["item_id"]
     existing = db.query(Wishlist).filter_by(user_id=user_id, item_id=item_id).first()
     if existing:
         raise HTTPException(status_code=400, detail="Item already in wishlist")

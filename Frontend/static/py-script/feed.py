@@ -151,10 +151,10 @@ def toggle_like(event):
 async def add_to_wishlist(item_id):
     try:
         headers = [["Content-Type", "application/json"]]
-        payload = {"item_id": item_id}
-        response = await fetch("/add_wishlist",
+        # payload = {"item_id": item_id}
+        response = await fetch(f"/add_wishlist/{item_id}",
                                method="POST",
-                               body=json.dumps(payload),
+                            #    body=json.dumps(payload),
                                headers=headers,
                                credentials="include")
 
