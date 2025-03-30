@@ -41,6 +41,7 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
     item_image = item.get("item_image")
     item_price = item.get("item_price")
     is_purchasable = item.get("is_purchasable", False)
+    is_available = item.get("is_available", True)
 
     if not item_name:
         raise HTTPException(status_code=400, detail="Item name must be provided")
@@ -63,7 +64,8 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
             description=item_description,
             price=item_price,
             image=item_image,
-            category="General"
+            category="General",
+            is_available=is_available
         )
 
         # Reassign the dictionary back to root
@@ -73,7 +75,8 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
         new_trade_item = Item(
             userID=user_id,
             zodb_id=new_item_id,
-            is_purchasable=is_purchasable
+            is_purchasable=is_purchasable,
+            is_available=is_available
         )
 
         commit_changes()  # Commit ZODB changes
@@ -101,11 +104,15 @@ async def get_all_posts(request: Request, db: Session = Depends(get_db)):
         for item in items:
             print(item.zodb_id)
             zodb_data = root.get("trade_items", {}).get(item.zodb_id)
+
+            user = db.query(User).filter(User.ID == item.userID).first()
+            username = user.UserName if user else "Unknow User"
             if zodb_data:
                 item_data = {
                     "ID": item.ID,
                     "is_purchasable": item.is_purchasable,
                     "userID": item.userID,
+                    "username": username,
                     "zodb_id": item.zodb_id,
                     "name": zodb_data.name,
                     "description": zodb_data.description,
@@ -119,6 +126,7 @@ async def get_all_posts(request: Request, db: Session = Depends(get_db)):
                     "ID": item.ID,
                     "is_purchasable": item.is_purchasable,
                     "userID": item.userID,
+                    "username": username,
                     "zodb_id": item.zodb_id,
                     "name": None,
                     "description": None,
