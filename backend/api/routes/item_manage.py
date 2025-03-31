@@ -28,7 +28,7 @@ async def get_items_for_user(request: Request, db: Session = Depends(get_db)):
                 "image": item_obj.image,
                 "category": item_obj.category
             })
-    return {"items": user_items}
+    return user_items
 
 @router.post("/add-item")
 async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
