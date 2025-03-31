@@ -1,0 +1,11 @@
+เปลี่ยน
+-trade_offer.html
+-Profile.html (อันนี้ย้าย PyScript มาอยู่ในhtml จะเเยกเเล้วมันบัคไรไม่รู้)
+-main_page_profile.html
+
+เพิ่ม
+-search_bar.html (อันนี้อยู่ในtardeOffer)
+-profile-switcher.html (อันนี้อยู่ในtardeOffer)
+-instagram_post_with_offer.html
+
+PyScript ที่เหลือก็ตามชื่อ html

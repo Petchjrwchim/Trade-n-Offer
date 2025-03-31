@@ -40,6 +40,9 @@ def show_tab(tab_name, event=None):
     else:
         console.error(f"Tab button #{tab_name}Tab not found")
 
+    # Update URL hash
+    window.location.hash = f"{tab_name}-tab"
+
     # Render content for the selected tab
     if tab_name == 'products':
         render_products()
@@ -49,7 +52,6 @@ def show_tab(tab_name, event=None):
         render_liked()
     else:
         console.error(f"Unknown tab: {tab_name}")
-
 # Image preview functionality for profile image
 def handle_profile_image_change(event):
     try:
@@ -181,6 +183,8 @@ liked_data = [
     {"id": 6, "name": "Smartphone", "description": "Latest model smartphone with advanced features", "price": "699.99", "image": "/static/image_test/guitar.jpg"}
 ]
 
+
+
 # Functions to render content for each tab
 def render_products(event=None):
     product_grid = document.getElementById('productsGrid')
@@ -292,6 +296,18 @@ def render_liked(event=None):
         liked_grid.appendChild(liked_div)
     console.log("Liked items rendered successfully")
 
+
+# ในฟังก์ชัน initialize() ให้เพิ่มโค้ดนี้ก่อนส่วน render_products()
+def check_hash_and_show_tab():
+    try:
+        hash = window.location.hash
+        if hash == "#liked-tab":
+            show_tab("liked")
+    except Exception as e:
+        console.error(f"Error checking hash: {e}")
+
+
+
 def initialize():
     try:
         # Create the custom file input wrapper
@@ -368,9 +384,11 @@ def initialize():
             editProfileImage.addEventListener("change", create_proxy(handle_profile_image_change))
             # Make the file input visible to the label
             file_label.appendChild(editProfileImage)
+
         
         # Initialize with Products tab active
         render_products()
+        check_hash_and_show_tab()
         
     except Exception as e:
         console.error(f"Error during initialization: {e}")
