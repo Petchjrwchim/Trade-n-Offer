@@ -7,24 +7,23 @@ from app.getUserID import check_session_cookie
 from typing import List
 router = APIRouter(tags=["Wishlist_management"])
 
-# prefix="/wishlist",
-@router.post("/add_wishlist/{item_id}")
-def add_to_wishlist(request: Request, item_id: int, db: Session = Depends(get_db)):
+@router.post("/add_wishlist/{zodb_id}")
+def add_to_wishlist(request: Request, zodb_id: int, db: Session = Depends(get_db)):
     user_id = check_session_cookie(request)
-    existing = db.query(Wishlist).filter_by(user_id=user_id, item_id=item_id).first()
+    existing = db.query(Wishlist).filter_by(user_id=user_id, item_id=zodb_id).first()
     if existing:
         raise HTTPException(status_code=400, detail="Item already in wishlist")
     
-    wishlist_item = Wishlist(user_id=user_id, item_id=item_id)
+    wishlist_item = Wishlist(user_id=user_id, item_id=zodb_id)
     db.add(wishlist_item)
     db.commit()
     db.refresh(wishlist_item)
     return {"message": "Item added to wishlist"}
 
-@router.delete("/remove_wishlist/{item_id}")
-def remove_from_wishlist(request: Request, item_id: int, db: Session = Depends(get_db)):
+@router.delete("/remove_wishlist/{zodb_id}")
+def remove_from_wishlist(request: Request, zodb_id: int, db: Session = Depends(get_db)):
     user_id = check_session_cookie(request)
-    wishlist_item = db.query(Wishlist).filter_by(user_id=user_id, item_id=item_id).first()
+    wishlist_item = db.query(Wishlist).filter_by(user_id=user_id, item_id=zodb_id).first()
     
     if not wishlist_item:
         raise HTTPException(status_code=404, detail="Wishlist item not found")

@@ -84,11 +84,11 @@ def create_post_element(post):
         heart_icon = document.createElement('i')
         heart_icon.className = 'far fa-heart'
         heart_icon.title = 'Interested in trading'
-        heart_icon.setAttribute('data-post-id', str(post['ID']))
+        heart_icon.setAttribute('data-post-id', str(post['zodb_id']))
         heart_icon.onclick = create_proxy(lambda event: toggle_like(event))
         action_buttons.appendChild(heart_icon)
         
-        Promise.resolve(check_wishlist_status(post['ID'], heart_icon))
+        Promise.resolve(check_wishlist_status(post['zodb_id'], heart_icon))
         # Bookmark container
         bookmark = document.createElement('div')
         bookmark.className = 'bookmark'

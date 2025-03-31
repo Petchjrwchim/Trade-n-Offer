@@ -12,8 +12,6 @@ router = APIRouter(tags=["Items_management"])
 @router.get("/my-items")
 async def get_items_for_user(request: Request, db: Session = Depends(get_db)):
     user_id = check_session_cookie(request)
-
-    # Query the database using SQLAlchemy
     trade_items = db.query(Item).filter(Item.userID == user_id).all()
 
     root = get_root()
