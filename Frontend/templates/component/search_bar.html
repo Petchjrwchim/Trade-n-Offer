@@ -1,0 +1,94 @@
+<!-- Search Bar Component -->
+<div class="search-container">
+    <div class="search-box">
+        <input type="text" class="search-input" placeholder="Search by username and press Enter..." id="searchInput">
+        <button class="search-button" id="searchButton">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+/* Search Bar Styling */
+.search-container {
+    width: 100%;
+    max-width: 470px;
+    margin: 0 auto;
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    z-index: 1001;
+    padding: 0 20px;
+}
+
+.search-box {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 25px;
+    padding: 3px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: none;
+    border-radius: 25px;
+    background: #2D2D2D;
+    color: #FFFFFF;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.search-input:focus {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    background: #3A3A3A;
+}
+
+.search-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #FFFFFF;
+    transition: color 0.3s ease;
+}
+
+.search-button i {
+    font-size: 16px;
+}
+
+.search-button:hover {
+    color: #FFD700;
+}
+
+/* No results message */
+.no-results {
+    color: white;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    margin: 80px auto 20px auto;
+    max-width: 400px;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .search-container {
+        max-width: 80%;
+        top: 10px;
+    }
+}
+</style>

@@ -138,6 +138,4 @@ def render_saved():
         saved_div.appendChild(price)
         saved_grid.appendChild(saved_div)
     console.log("Saved collections rendered successfully")
-
-# Initialize with Saved Collections tab active (default)
 show_tab('saved')

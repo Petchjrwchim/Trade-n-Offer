@@ -16,6 +16,7 @@
     {% include 'component/sidenav.html' %}
 
     <div class="content">
+        {% include 'component/search_bar.html' %}
         <!-- Replace card_container with Instagram feed -->
         {% include 'component/instagram_feed.html' %}
         
@@ -25,5 +26,6 @@
     
     <!-- Include PyScript for the Instagram feed -->
     <py-script src="{{ url_for('static', path='/py-script/feed.py') }}"></py-script>
+    <py-script src="{{ url_for('static', path='/py-script/search_bar-script.py') }}"></py-script>
 </body>
 </html>
