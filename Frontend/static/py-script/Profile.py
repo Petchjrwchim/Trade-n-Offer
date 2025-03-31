@@ -174,14 +174,44 @@ saved_data = [
 ]
 
 # Simulated liked items data
+# liked_data = [
+#     {"id": 1, "name": "Camerasdasda", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
+#     {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
+#     {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"},
+#     {"id": 4, "name": "Headphones", "description": "Noise-canceling headphones with premium sound", "price": "199.99", "image": "/static/image_test/camera.jpg"},
+#     {"id": 5, "name": "Watch", "description": "Luxury smartwatch with fitness tracking", "price": "349.99", "image": "/static/image_test/piano.jpg"},
+#     {"id": 6, "name": "Smartphone", "description": "Latest model smartphone with advanced features", "price": "699.99", "image": "/static/image_test/guitar.jpg"}
+# ]
 liked_data = [
-    {"id": 1, "name": "Camerasdasda", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
-    {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
-    {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"},
-    {"id": 4, "name": "Headphones", "description": "Noise-canceling headphones with premium sound", "price": "199.99", "image": "/static/image_test/camera.jpg"},
-    {"id": 5, "name": "Watch", "description": "Luxury smartwatch with fitness tracking", "price": "349.99", "image": "/static/image_test/piano.jpg"},
-    {"id": 6, "name": "Smartphone", "description": "Latest model smartphone with advanced features", "price": "699.99", "image": "/static/image_test/guitar.jpg"}
+    {
+        "id": 1,
+        "username": "camera_lover",
+        "profile_pic": "/static/image_test/guitar.jpg", 
+        "image_url": "/static/image_test/camera.jpg",
+        "name": "Camera", 
+        "description": "High-quality digital camera for photography",
+        "price": "$499.99",
+        "caption": "Vintage camera in excellent condition. Looking to trade for audio equipment.",
+        "location": "Bangkok",
+        "posted_time": "2d",
+        "is_offer": False
+    },
+    {
+        "id": 2,
+        "username": "music_enthusiast",
+        "profile_pic": "/static/image_test/piano.jpg", 
+        "image_url": "/static/image_test/guitar.jpg",
+        "name": "Guitar", 
+        "description": "Acoustic guitar for beginners and professionals",
+        "price": "$299.99",
+        "caption": "Beautiful acoustic guitar, barely used. Open to trades.",
+        "location": "Chiang Mai",
+        "posted_time": "1w",
+        "is_offer": False
+    }
+    # เพิ่มรายการอื่นๆ ตามต้องการ
 ]
+
 
 
 
@@ -254,6 +284,120 @@ def render_saved(event=None):
         saved_grid.appendChild(saved_div)
     console.log("Saved collections rendered successfully")
 
+def create_post_popup(item):
+    # สร้าง popup container
+    popup = document.createElement('div')
+    popup.style.position = 'fixed'
+    popup.style.top = '0'
+    popup.style.left = '0'
+    popup.style.width = '100%'
+    popup.style.height = '100%'
+    popup.style.backgroundColor = 'rgba(0,0,0,0.8)'
+    popup.style.display = 'flex'
+    popup.style.justifyContent = 'center'
+    popup.style.alignItems = 'center'
+    popup.style.zIndex = '1000'
+    
+    # สร้าง popup content
+    popup_content = document.createElement('div')
+    popup_content.style.width = '375px'  # ขนาดเหมือนในรูป
+    popup_content.style.backgroundColor = 'white'
+    popup_content.style.borderRadius = '15px'
+    popup_content.style.overflow = 'hidden'
+    popup_content.style.position = 'relative'
+    
+    # สร้างเนื้อหา popup เหมือนในรูป
+    popup_content.innerHTML = f'''
+        <div style="display:flex; align-items:center; padding:10px;color:black">
+            <img src="{item.get('profile_pic', '')}" 
+                 style="width:32px; height:32px; border-radius:50%; margin-right:10px;">
+            <div style="font-weight:bold;">{item.get('username', '')}</div>
+        </div>
+        
+        <div style="width:100%; height:375px;">
+            <img src="{item.get('image_url', '')}" 
+                 style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; padding:10px;color:black">
+            <div style="display:flex; gap:15px;">
+                <i class="far fa-heart" id="likeIcon" style="font-size:24px; cursor:pointer;"></i>
+            </div>
+            <div>
+                <i class="far fa-bookmark" id="bookmarkIcon" style="font-size:24px; cursor:pointer;"></i>
+            </div>
+        </div>
+        
+        <div style="padding:10px;">
+            <div style="color:#0095f6; font-weight:bold;">
+                {item.get('price', '')}
+            </div>
+            <div style="margin-top:5px;color:black">
+                <span style="font-weight:bold; margin-right:5px; color:black">{item.get('username', '')}</span>
+                {item.get('caption', '')}
+            </div>
+            <div style="color:gray; margin-top:5px;">
+                Location: {item.get('location', 'Not specified')}
+            </div>
+            <div style="color:gray; font-size:12px; margin-top:5px;">
+                {item.get('posted_time', 'Recently Added')}
+            </div>
+        </div>
+    '''
+    
+    # เพิ่มปุ่มปิด
+    close_btn = document.createElement('button')
+    close_btn.textContent = '×'
+    close_btn.style.position = 'absolute'
+    close_btn.style.top = '10px'
+    close_btn.style.right = '10px'
+    close_btn.style.background = 'none'
+    close_btn.style.border = 'none'
+    close_btn.style.fontSize = '30px'
+    close_btn.style.cursor = 'pointer'
+    close_btn.style.zIndex = '1001'
+    close_btn.style.color = 'white'
+    
+    # เพิ่มฟังก์ชันสำหรับปุ่ม like และ bookmark
+    def toggle_like(event):
+        like_icon = document.getElementById('likeIcon')
+        if 'far' in like_icon.className:
+            like_icon.className = 'fas fa-heart'
+            like_icon.style.color = 'red'
+        else:
+            like_icon.className = 'far fa-heart'
+            like_icon.style.color = 'black'
+    
+    def toggle_bookmark(event):
+        bookmark_icon = document.getElementById('bookmarkIcon')
+        if 'far' in bookmark_icon.className:
+            bookmark_icon.className = 'fas fa-bookmark'
+            bookmark_icon.style.color = 'black'
+        else:
+            bookmark_icon.className = 'far fa-bookmark'
+            bookmark_icon.style.color = 'black'
+    
+    # สร้าง popup
+    popup_content.appendChild(close_btn)
+    popup.appendChild(popup_content)
+    
+    # เพิ่มเหตุการณ์
+    def close_popup(event):
+        document.body.removeChild(popup)
+    
+    close_btn.addEventListener('click', create_proxy(close_popup))
+    popup.addEventListener('click', create_proxy(lambda e: close_popup(e) if e.target == popup else None))
+    
+    # เพิ่ม popup เข้าไปใน body
+    document.body.appendChild(popup)
+    
+    # เพิ่ม event listeners สำหรับ like และ bookmark
+    like_icon = document.getElementById('likeIcon')
+    bookmark_icon = document.getElementById('bookmarkIcon')
+    
+    like_icon.addEventListener('click', create_proxy(toggle_like))
+    bookmark_icon.addEventListener('click', create_proxy(toggle_bookmark))
+
 def render_liked(event=None):
     liked_grid = document.getElementById('likedGrid')
     if not liked_grid:
@@ -263,21 +407,20 @@ def render_liked(event=None):
     for item in liked_data:
         liked_div = document.createElement('div')
         liked_div.classList.add('liked-card')
+        liked_div.style.cursor = 'pointer'
 
         img = document.createElement('img')
-        img.src = item['image']
+        img.src = item['image_url']  # เปลี่ยนจาก 'image' เป็น 'image_url'
         img.alt = item['name']
         img.classList.add('liked-image')
 
         name_container = document.createElement('div')
         name_container.classList.add('liked-name')
         
-        # Add heart icon
         heart_icon = document.createElement('i')
         heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
         name_container.appendChild(heart_icon)
         
-        # Add name text
         name_text = document.createTextNode(item['name'])
         name_container.appendChild(name_text)
 
@@ -287,24 +430,24 @@ def render_liked(event=None):
 
         price = document.createElement('div')
         price.classList.add('liked-price')
-        price.textContent = f"${item['price']}"
+        price.textContent = item['price']
 
         liked_div.appendChild(img)
         liked_div.appendChild(name_container)
         liked_div.appendChild(description)
         liked_div.appendChild(price)
+
+        # สร้าง event listener สำหรับการคลิก
+        def create_click_handler(selected_item):
+            def handler(event):
+                create_post_popup(selected_item)
+            return handler
+
+        click_proxy = create_proxy(create_click_handler(item))
+        liked_div.addEventListener('click', click_proxy)
+        
         liked_grid.appendChild(liked_div)
     console.log("Liked items rendered successfully")
-
-
-# ในฟังก์ชัน initialize() ให้เพิ่มโค้ดนี้ก่อนส่วน render_products()
-def check_hash_and_show_tab():
-    try:
-        hash = window.location.hash
-        if hash == "#liked-tab":
-            show_tab("liked")
-    except Exception as e:
-        console.error(f"Error checking hash: {e}")
 
 
 
