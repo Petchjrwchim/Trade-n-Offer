@@ -69,6 +69,32 @@
             <button type="button" class="save-btn" py-click="save_new_product">Add</button>
         </div>
     </div>
+    <script>
+        // JavaScript for image preview
+        document.querySelector("#addProductImage").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            const preview = document.querySelector("#addProductImagePreview");
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = "none";
+                preview.src = "";
+            }
+        });
 
+        // JavaScript for search and filter
+        document.querySelector("#searchInput").addEventListener("input", function() {
+            PyScript.runPython("update_product_grid_with_search()");
+        });
+
+        document.querySelector("#filterSelect").addEventListener("change", function() {
+            PyScript.runPython("update_product_grid_with_filter()");
+        });
+    </script>
 </body>
 </html>
