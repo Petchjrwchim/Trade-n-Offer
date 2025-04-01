@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy.orm import Session
-from app.db_setup import get_db  # This should provide a SQLAlchemy session
-from api.models.TradeOffers import Item, User  # SQLAlchemy model for trade_items
+from app.db_setup import get_db
+from api.models.TradeOffers import Item
 from app.zodb_setup import get_root, commit_changes, close_connection
 from app.getUserID import check_session_cookie
 from fastapi.responses import JSONResponse
@@ -80,53 +80,3 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
         db.rollback()  # Rollback SQLAlchemy changes
         close_connection()  # Close the ZODB connection
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
-@router.get("/get-all-posts")
-async def get_all_posts(request: Request, db: Session = Depends(get_db)):
-    try:
-        user_id = check_session_cookie(request)
-        items = db.query(Item).filter(Item.userID != user_id).all()
-        print(items)
-        if not items:
-            return {"message": "No items available."}
-        
-        result_items = []
-        root = get_root()
-        for item in items:
-            print(item.zodb_id)
-            zodb_data = root.get("trade_items", {}).get(item.zodb_id)
-
-            user = db.query(User).filter(User.ID == item.userID).first()
-            username = user.UserName if user else "Unknow User"
-            if zodb_data:
-                item_data = {
-                    "ID": item.ID,
-                    "is_purchasable": item.is_purchasable,
-                    "userID": item.userID,
-                    "username": username,
-                    "zodb_id": item.zodb_id,
-                    "name": zodb_data.name,
-                    "description": zodb_data.description,
-                    "price": zodb_data.price,
-                    "image": zodb_data.image,
-                    "category": zodb_data.category
-                }
-                result_items.append(item_data)
-            else:
-                result_items.append({
-                    "ID": item.ID,
-                    "is_purchasable": item.is_purchasable,
-                    "userID": item.userID,
-                    "username": username,
-                    "zodb_id": item.zodb_id,
-                    "name": None,
-                    "description": None,
-                    "price": None,
-                    "image": None,
-                    "category": None
-                })
-        
-        return result_items
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
