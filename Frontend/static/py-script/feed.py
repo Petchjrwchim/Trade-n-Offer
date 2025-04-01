@@ -5,7 +5,6 @@ from pyodide.ffi import create_proxy, to_js
 from js import document, console, fetch, window, Promise
 import asyncio
 
-# ฟังก์ชันเดิมสำหรับดึงข้อมูลโพสต์ทั่วไป
 async def fetch_posts():
     try:
         console.log("Fetching posts from backend...")
@@ -164,14 +163,15 @@ def create_post_element(post):
         caption_container = document.createElement('div')
         caption_container.className = 'caption'
         
-        username_span = document.createElement('span')
-        username_span.className = 'username'
-        username_span.textContent = post['username'] + " "
+        # username_span = document.createElement('span')
+        # username_span.className = 'username'
+        # username_span.textContent = post['username'] + " "
         
         item_name = document.createElement('span')
+        item_name.className = 'itemName'
         item_name.textContent = post['name']
         
-        caption_container.appendChild(username_span)
+        # caption_container.appendChild(username_span)
         caption_container.appendChild(item_name)
         user_caption.appendChild(caption_container)
         content_div.appendChild(user_caption)

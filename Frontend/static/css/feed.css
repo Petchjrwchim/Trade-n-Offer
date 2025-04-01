@@ -166,6 +166,14 @@
     margin-bottom: 3px;
 }
 
+.itemName {
+    font-weight: 600;
+    color: #262626;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 3px;
+}
+
 .caption {
     font-size: 14px;
     line-height: 1.4;
