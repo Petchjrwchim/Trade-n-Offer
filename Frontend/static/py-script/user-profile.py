@@ -196,7 +196,7 @@ async def fetch_user_wishlist():
         console.error(f"Error fetching posts: {e}")
         return []
 
-def create_post_popup(item):
+# def create_post_popup(item):
     # สร้าง popup container
     popup = document.createElement('div')
     popup.style.position = 'fixed'
@@ -330,7 +330,7 @@ def render_liked(item):
     item = item.to_py()
     
     img = document.createElement('img')
-    img.src = item['image_url']
+    img.src = item['image']
     img.alt = item['name']
     img.classList.add('liked-image')
     name_container = document.createElement('div')
@@ -352,12 +352,12 @@ def render_liked(item):
     liked_div.appendChild(name_container)
     liked_div.appendChild(description)
     liked_div.appendChild(price)
-    def create_click_handler(selected_item):
-        def handler(event):
-            create_post_popup(selected_item)
-        return handler
-    click_proxy = create_proxy(create_click_handler(item))
-    liked_div.addEventListener('click', click_proxy)
+    # def create_click_handler(selected_item):
+    #     def handler(event):
+    #         create_post_popup(selected_item)
+    #     return handler
+    # click_proxy = create_proxy(create_click_handler(item))
+    # liked_div.addEventListener('click', click_proxy)
     
     liked_grid.appendChild(liked_div)    
 
@@ -438,10 +438,10 @@ async def initialize():
             # Make the file input visible to the label
             file_label.appendChild(editProfileImage)
 
-        Promise.resolve(to_js(render_liked(await create_userWishlist()))).catch(lambda e: console.error(f"Error: {e}"))
+        Promise.resolve(to_js(create_userWishlist())).catch(lambda e: console.error(f"Error: {e}"))
         
         
     except Exception as e:
         console.error(f"Error during initialization: {e}")
 Promise.resolve(to_js(initialize())).catch(lambda e: console.error(f"Error: {e}"))
-initialize()
+# initialize()
