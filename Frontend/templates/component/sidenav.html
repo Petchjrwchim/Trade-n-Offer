@@ -10,8 +10,6 @@
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
 </head>
 <body>
-    <!-- Notification toggle button (moved to top-right) -->
-    <button class="notification-toggle" id="notification-toggle"><i class="fas fa-bell"></i></button>
     
     <!-- Sidebar - now always visible, no toggle button -->
     <div class="sidebar" id="sidebar">
@@ -25,12 +23,6 @@
         <a href="/profile" class="profile-link"><span class="icon"><i class="fas fa-user"></i></span> <span class="text">Profile</span></a>
     </div>
 
-    <!-- Notification Card with Scrolling -->
-    <div class="notification-card" id="notification-card">
-        <div class="messages" id="messages-container">
-            <!-- Messages will be dynamically inserted here -->
-        </div>
-    </div>
 
     <script type="py">
         from pyodide.ffi import create_proxy
@@ -78,9 +70,6 @@
             for i, message in enumerate(messages):
                 message.style.animationDelay = f"calc({4 - i} * var(--delay))"
         
-        # Add event listener for notification
-        notification_button = document.getElementById("notification-toggle")
-        notification_button.addEventListener("click", create_proxy(toggle_notification))
         
         # Initialize notifications when the page loads
         window.addEventListener("load", create_proxy(lambda e: update_notifications()))

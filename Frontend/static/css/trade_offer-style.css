@@ -29,18 +29,17 @@ body {
 }
 
 .sidebar {
-    width: 200px;
+    width: 180px;
     height: 100vh;
-    background: #2D2D2D;
+    background: #000000;
     color: white;
     padding-top: 20px;
     position: fixed;
-    left: 0; /* Modified to be always visible */
-    top: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     z-index: 10;
+    background: transparent; /* เพื่อให้เห็นพื้นหลัง tsParticles */
 }
 
 .sidebar a {
@@ -73,11 +72,11 @@ body {
     margin-top: auto;
 }
 
-/* Content area styling - adjusted margin for always-visible sidebar */
+/* Content area styling */
 .content {
     position: relative;
-    margin-left: 200px; /* Match sidebar width */
-    width: calc(100% - 200px);
+    margin-left: 180px; /* ชิดกับ sidebar */
+    width: calc(100% - 180px);
     height: 100vh;
     display: flex;
     align-items: flex-start; /* เปลี่ยนจาก center เป็น flex-start เพื่อย้ายขึ้นด้านบน */

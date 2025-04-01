@@ -1,6 +1,7 @@
-
-from js import document, console, window, FileReader
-from pyodide.ffi import create_proxy
+from js import document, console, window, FileReader, fetch
+from pyodide.ffi import create_proxy, to_js
+import json
+import asyncio
 
 # Simulated product data without the category field
 product_data = [
@@ -25,38 +26,53 @@ def open_add_popup(event=None):
 def close_add_popup(event=None):
     document.querySelector("#addProductPopup").style.display = "none"
 
-def save_new_product(event=None):
+async def save_new_product(event=None):
     try:
         name = document.querySelector("#addProductName").value.strip()
         description = document.querySelector("#addProductDescription").value.strip()
         price = document.querySelector("#addProductPrice").value.strip()
         image_url = document.querySelector("#addProductImagePreview").src
+        is_trade = document.querySelector("#addProductTrade").checked
+        is_sell = document.querySelector("#addProductSell").checked
         
-        console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}")
+        console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}, trade={is_trade}, sell={is_sell}")
         
-        if name and description and price and image_url:
+        if name and description and price and image_url and (is_trade or is_sell):
             if not image_url.startswith("data:image/"):
                 console.error("Invalid image URL detected")
                 return
-            
+    
             new_product = {
-                "id": len(product_data) + 1,
-                "name": name,
-                "description": description,
-                "price": price,
-                "image": image_url
+                "item_name": name,
+                "item_description": description,
+                "item_price": price,
+                "item_image": image_url,
+                "is_available": True,
+                "is_trade": is_trade,
+                "is_sell": is_sell
             }
-            product_data.append(new_product)
-            update_product_grid_with_search()
+            
+            # Instead of a dictionary, pass headers as an array of key-value pairs.
+            headers = [["Content-Type", "application/json"]]
+        
+            # Send data to the backend via POST request with credentials included
+            response = await fetch("/add-item", 
+                                   method="POST", 
+                                   body=json.dumps(new_product), 
+                                   headers=headers, 
+                                   credentials="include")
+        
+            data = await response.json()
+            console.log("Product added:", data)
             close_add_popup()
         else:
-            console.error("Please fill in all fields and select an image")
+            console.error("Please fill in all fields, select an image, and choose at least one option (Trade or Sell)")
     except Exception as e:
         console.error(f"Error in save_new_product: {e}")
 
 def update_product_grid():
     update_product_grid_with_search()
-
+    
 def update_product_grid_with_search():
     search_query = document.querySelector("#searchInput").value.strip().lower()
     filter_option = document.querySelector("#filterSelect").value
@@ -159,26 +175,26 @@ update_product_grid()
 
 window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
 
-def handle_image_preview(event):
-    files = event.target.files  # Get the FileList object
-    if files.length > 0:  # Use .length to check if there are files
-        file = files.item(0)  # Use .item() to access the first file
-        if file:
-            preview = document.querySelector("#addProductImagePreview")
-            reader = FileReader.new()
+# def handle_image_preview(event):
+#     files = event.target.files  # Get the FileList object
+#     if files.length > 0:  # Use .length to check if there are files
+#         file = files.item(0)  # Use .item() to access the first file
+#         if file:
+#             preview = document.querySelector("#addProductImagePreview")
+#             reader = FileReader.new()
             
-            def on_load(e):
-                preview.src = e.target.result
-                preview.style.display = "block"
+#             def on_load(e):
+#                 preview.src = e.target.result
+#                 preview.style.display = "block"
             
-            reader.onload = create_proxy(on_load)
-            reader.readAsDataURL(file)
-    else:
-        preview = document.querySelector("#addProductImagePreview")
-        preview.style.display = "none"
-        preview.src = ""
+#             reader.onload = create_proxy(on_load)
+#             reader.readAsDataURL(file)
+#     else:
+#         preview = document.querySelector("#addProductImagePreview")
+#         preview.style.display = "none"
+#         preview.src = ""
 
-document.querySelector("#addProductImage").addEventListener("change", create_proxy(handle_image_preview))
+# document.querySelector("#addProductImage").addEventListener("change", create_proxy(handle_image_preview))
 
 document.querySelector("#searchInput").addEventListener("input", create_proxy(lambda e: update_product_grid_with_search()))
 document.querySelector("#filterSelect").addEventListener("change", create_proxy(lambda e: update_product_grid_with_search()))

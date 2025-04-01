@@ -1,0 +1,23 @@
+Run sql code below in MySQL WorkBench
+ALTER TABLE trade_items DROP COLUMN image, DROP COLUMN name, DROP COLUMN description, DROP COLUMN price;
+ALTER TABLE trade_items ADD COLUMN zodb_id INT UNIQUE DEFAULT NULL;
+
+
+ZODB → Stores item details (name, description, price, image, category).
+MySQL → Stores user accounts and links each item to zodb_id.
+
+How it Works:
+A user adds an item through /add-item.
+The item is stored in ZODB with a unique ID.
+The item’s zodb_id is linked to MySQL in the trade_items table.
+The /debug-zodb API lets you check if everything works.
+
+
+"trade_items" table
++----+--------+---------+
+| ID | userID | zodb_id |
++----+--------+---------+
+| 1  | 7      | 1       |
+| 2  | 8      | 2       |
++----+--------+---------+
+
