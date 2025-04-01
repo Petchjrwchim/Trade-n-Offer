@@ -32,10 +32,12 @@ async def save_new_product(event=None):
         description = document.querySelector("#addProductDescription").value.strip()
         price = document.querySelector("#addProductPrice").value.strip()
         image_url = document.querySelector("#addProductImagePreview").src
+        is_trade = document.querySelector("#addProductTrade").checked
+        is_sell = document.querySelector("#addProductSell").checked
         
-        console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}")
+        console.log(f"Attempting to save: name={name}, description={description}, price={price}, image_url={image_url}, trade={is_trade}, sell={is_sell}")
         
-        if name and description and price and image_url:
+        if name and description and price and image_url and (is_trade or is_sell):
             if not image_url.startswith("data:image/"):
                 console.error("Invalid image URL detected")
                 return
@@ -45,7 +47,9 @@ async def save_new_product(event=None):
                 "item_description": description,
                 "item_price": price,
                 "item_image": image_url,
-                "is_available": True
+                "is_available": True,
+                "is_trade": is_trade,
+                "is_sell": is_sell
             }
             
             # Instead of a dictionary, pass headers as an array of key-value pairs.
@@ -62,7 +66,7 @@ async def save_new_product(event=None):
             console.log("Product added:", data)
             close_add_popup()
         else:
-            console.error("Please fill in all fields and select an image")
+            console.error("Please fill in all fields, select an image, and choose at least one option (Trade or Sell)")
     except Exception as e:
         console.error(f"Error in save_new_product: {e}")
 

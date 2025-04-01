@@ -64,11 +64,22 @@
                 <textarea id="addProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
                 <input type="number" id="addProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
                 <input type="file" id="addProductImage" accept="image/*">
+                
+                <div class="option-container" style="margin: 10px 0;">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="addProductTrade" name="trade">
+                        <label for="addProductTrade">Trade</label>
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="addProductSell" name="sell">
+                        <label for="addProductSell">Sell</label>
+                    </div>
+                </div>
             </div>
             <img id="addProductImagePreview" class="edit-product-image" src="" alt="Preview Image" style="display: none;">
             <button type="button" class="save-btn" py-click="save_new_product">Add</button>
         </div>
-    </div>
+    </div>  
     <script>
         // JavaScript for image preview
         document.querySelector("#addProductImage").addEventListener("change", function(event) {
@@ -96,5 +107,6 @@
             PyScript.runPython("update_product_grid_with_filter()");
         });
     </script>
+
 </body>
 </html>
