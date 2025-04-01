@@ -3,15 +3,6 @@ from pyodide.ffi import create_proxy, to_js
 import json
 import asyncio
 
-# Simulated product data without the category field
-product_data = [
-    {"id": 1, "name": "Camera", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
-    {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
-    {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"},
-    {"id": 4, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/laptop.jpg"},
-    {"id": 5, "name": "Phone", "description": "Latest smartphone with 5G and 128GB storage", "price": "699.99", "image": "/static/image_test/phone.jpg"}
-]
-
 selected_product = None
 
 def open_add_popup(event=None):
@@ -172,10 +163,26 @@ def add_product_element(item, is_new):
     price.classList.add("product-price")
     price.textContent = f"${item['price']}"
 
+    buttonContainer = document.createElement("div")
+    buttonContainer.classList.add("product-buttons")
+
+    editBtn = document.createElement("div")
+    editBtn.classList.add("edit-btn")
+    editBtn.textContent = "Edit"
+    editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(item["id"])))
+
+    removeBtn = document.createElement("div")
+    removeBtn.classList.add("remove-btn")
+    removeBtn.textContent = "Remove"
+
+    buttonContainer.appendChild(editBtn)
+    buttonContainer.appendChild(removeBtn)
+
     productDiv.appendChild(img)
     productDiv.appendChild(name)
     productDiv.appendChild(description)
     productDiv.appendChild(price)
+    productDiv.appendChild(buttonContainer)
     productGrid.appendChild(productDiv)
 
 
