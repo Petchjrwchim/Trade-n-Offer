@@ -1,5 +1,7 @@
-from js import document, console, FileReader, window
-from pyodide.ffi import create_proxy
+from js import document, console, FileReader, window, fetch, Promise
+from pyodide.ffi import create_proxy, to_js
+import json
+import asyncio
 
 # Sidebar toggle functionality
 menu_toggle = document.querySelector('.menu-toggle')
@@ -167,6 +169,33 @@ liked_data = [
     },
 ]
 
+async def fetch_user_wishlist():
+    try:
+        console.log("Fetching user wishlist")
+
+        response = await fetch(
+            "/user_wishlist",
+            to_js({
+                "method": "GET",
+                "headers": {"Content-Type": "application/json"},
+                "credentials": "include"
+            })
+        )
+
+        console.log(f"Response status: {response.status}")
+
+        if response.status == 200:
+            posts = await response.json()
+            console.log("Fetched posts:", posts)
+            return posts
+        else:
+            console.error(f"Failed to fetch posts. Status: {response.status}")
+            return []
+
+    except Exception as e:
+        console.error(f"Error fetching posts: {e}")
+        return []
+
 def create_post_popup(item):
     # สร้าง popup container
     popup = document.createElement('div')
@@ -280,57 +309,59 @@ def create_post_popup(item):
     like_icon.addEventListener('click', create_proxy(toggle_like))
     bookmark_icon.addEventListener('click', create_proxy(toggle_bookmark))
 
-def render_liked(event=None):
+async def create_userWishlist():
+    wishlist = await fetch_user_wishlist()
     liked_grid = document.getElementById('likedGrid')
     if not liked_grid:
         console.error("Liked grid element (#likedGrid) not found!")
         return
-    liked_grid.innerHTML = ''
-    for item in liked_data:
-        liked_div = document.createElement('div')
-        liked_div.classList.add('liked-card')
-        liked_div.style.cursor = 'pointer'
+    else:
+        liked_grid.innerHTML = ''
+        for item in wishlist:
+            render_liked(item)
+        console.log("Liked items rendered successfully")
 
-        img = document.createElement('img')
-        img.src = item['image_url']  # เปลี่ยนจาก 'image' เป็น 'image_url'
-        img.alt = item['name']
-        img.classList.add('liked-image')
+def render_liked(item):
+    liked_grid = document.getElementById('likedGrid')
+    liked_div = document.createElement('div')
+    liked_div.classList.add('liked-card')
+    liked_div.style.cursor = 'pointer'
 
-        name_container = document.createElement('div')
-        name_container.classList.add('liked-name')
-        
-        heart_icon = document.createElement('i')
-        heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
-        name_container.appendChild(heart_icon)
-        
-        name_text = document.createTextNode(item['name'])
-        name_container.appendChild(name_text)
+    item = item.to_py()
+    
+    img = document.createElement('img')
+    img.src = item['image_url']
+    img.alt = item['name']
+    img.classList.add('liked-image')
+    name_container = document.createElement('div')
+    name_container.classList.add('liked-name')
+    
+    heart_icon = document.createElement('i')
+    heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
+    name_container.appendChild(heart_icon)
+    
+    name_text = document.createTextNode(item['name'])
+    name_container.appendChild(name_text)
+    description = document.createElement('div')
+    description.classList.add('liked-description')
+    description.textContent = item['description']
+    price = document.createElement('div')
+    price.classList.add('liked-price')
+    price.textContent = item['price']
+    liked_div.appendChild(img)
+    liked_div.appendChild(name_container)
+    liked_div.appendChild(description)
+    liked_div.appendChild(price)
+    def create_click_handler(selected_item):
+        def handler(event):
+            create_post_popup(selected_item)
+        return handler
+    click_proxy = create_proxy(create_click_handler(item))
+    liked_div.addEventListener('click', click_proxy)
+    
+    liked_grid.appendChild(liked_div)    
 
-        description = document.createElement('div')
-        description.classList.add('liked-description')
-        description.textContent = item['description']
-
-        price = document.createElement('div')
-        price.classList.add('liked-price')
-        price.textContent = item['price']
-
-        liked_div.appendChild(img)
-        liked_div.appendChild(name_container)
-        liked_div.appendChild(description)
-        liked_div.appendChild(price)
-
-        def create_click_handler(selected_item):
-            def handler(event):
-                create_post_popup(selected_item)
-            return handler
-
-        click_proxy = create_proxy(create_click_handler(item))
-        liked_div.addEventListener('click', click_proxy)
-        
-        liked_grid.appendChild(liked_div)
-    console.log("Liked items rendered successfully")
-
-def initialize():
+async def initialize():
     try:
         # Create the custom file input wrapper
         file_input_container = document.createElement("div")
@@ -407,9 +438,10 @@ def initialize():
             # Make the file input visible to the label
             file_label.appendChild(editProfileImage)
 
-        render_liked()
+        Promise.resolve(to_js(render_liked(await create_userWishlist()))).catch(lambda e: console.error(f"Error: {e}"))
+        
         
     except Exception as e:
         console.error(f"Error during initialization: {e}")
-
+Promise.resolve(to_js(initialize())).catch(lambda e: console.error(f"Error: {e}"))
 initialize()

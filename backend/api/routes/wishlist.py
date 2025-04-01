@@ -56,17 +56,16 @@ def get_user_wishlist(request: Request, db:Session = Depends(get_db)):
         result_items = []
         root = get_root()
         for item in items:
-            zodb_data = root.get("trade_items", {}).get(item.zodb_id)
-            user = db.query(User).filter(User.ID == item.userID).first()
+            zodb_data = root.get("trade_items", {}).get(item.item_id)
+            user = db.query(User).filter(User.ID == item.user_id).first()
             username = user.UserName if user else "Unknow User"
             
             if zodb_data:
                 item_data = {
                     "ID": item.ID,
-                    "is_purchasable": item.is_purchasable,
-                    "userID": item.userID,
+                    "userID": item.user_id,
                     "username": username,
-                    "zodb_id": item.zodb_id,
+                    "zodb_id": item.item_id,
                     "name": zodb_data.name,
                     "description": zodb_data.description,
                     "price": zodb_data.price,
@@ -77,10 +76,9 @@ def get_user_wishlist(request: Request, db:Session = Depends(get_db)):
             else:
                 result_items.append({
                     "ID": item.ID,
-                    "is_purchasable": item.is_purchasable,
-                    "userID": item.userID,
+                    "userID": item.user_id,
                     "username": username,
-                    "zodb_id": item.zodb_id,
+                    "zodb_id": item.item_id,
                     "name": None,
                     "description": None,
                     "price": None,
