@@ -47,7 +47,10 @@ def show_tab(tab_name, event=None):
     elif tab_name == 'saved':
         render_saved()
     elif tab_name == 'liked':
-        render_liked()
+        # Call the function to load wishlist items instead of directly calling render_liked
+        Promise.resolve(to_js(create_userWishlist())).catch(
+            lambda e: console.error(f"Error loading wishlist: {e}")
+        )
     else:
         console.error(f"Unknown tab: {tab_name}")
 
@@ -153,22 +156,6 @@ def save_profile_changes(event=None):
     except Exception as e:
         console.error(f"Error saving profile changes: {e}")
 
-liked_data = [
-    {
-        "id": 1,
-        "username": "camera_lover",
-        "profile_pic": "/static/image_test/guitar.jpg", 
-        "image_url": "/static/image_test/camera.jpg",
-        "name": "Camera", 
-        "description": "High-quality digital camera for photography",
-        "price": "$499.99",
-        "caption": "Vintage camera in excellent condition. Looking to trade for audio equipment.",
-        "location": "Bangkok",
-        "posted_time": "2d",
-        "is_offer": False
-    },
-]
-
 async def fetch_user_wishlist():
     try:
         console.log("Fetching user wishlist")
@@ -186,18 +173,43 @@ async def fetch_user_wishlist():
 
         if response.status == 200:
             posts = await response.json()
-            console.log("Fetched posts:", posts)
+            console.log("Fetched wishlist items:", posts)
             return posts
         else:
-            console.error(f"Failed to fetch posts. Status: {response.status}")
-            return []
+            console.error(f"Failed to fetch wishlist. Status: {response.status}")
+            # Return sample data if API call fails
+            return sample_liked_data
 
     except Exception as e:
-        console.error(f"Error fetching posts: {e}")
-        return []
+        console.error(f"Error fetching wishlist: {e}")
+        # Return sample data if there's an exception
+        return sample_liked_data
 
-# def create_post_popup(item):
-    # สร้าง popup container
+async def check_wishlist_status(item_id, heart_icon):
+    try:
+        headers = [["Content-Type", "application/json"]]
+        response = await fetch(f"/status_wishlist/{item_id}",
+                               method="GET",
+                               headers=headers,
+                               credentials="include")
+        if not response.ok:
+            console.log("Failed to fetch wishlist status")
+            return
+        
+        data = await response.json()
+
+        if data:
+            heart_icon.className = 'fas fa-heart'
+            heart_icon.style.color = '#ed4956'  # Red for liked
+        else:
+            heart_icon.className = 'far fa-heart'
+            heart_icon.style.color = '#000'  # Black for not liked
+
+    except Exception as e:
+        console.error(f"Error checking wishlist status: {e}")
+
+def create_post_popup(item):
+    # Create popup container
     popup = document.createElement('div')
     popup.style.position = 'fixed'
     popup.style.top = '0'
@@ -209,25 +221,28 @@ async def fetch_user_wishlist():
     popup.style.justifyContent = 'center'
     popup.style.alignItems = 'center'
     popup.style.zIndex = '1000'
-    
-    # สร้าง popup content
+
     popup_content = document.createElement('div')
-    popup_content.style.width = '375px'  # ขนาดเหมือนในรูป
+    popup_content.style.width = '375px'
     popup_content.style.backgroundColor = 'white'
     popup_content.style.borderRadius = '15px'
     popup_content.style.overflow = 'hidden'
     popup_content.style.position = 'relative'
     
-    # สร้างเนื้อหา popup เหมือนในรูป
+    # Create the popup content
+    profile_pic = item.get('profile_pic', '') or '/static/image_test/profile_default.jpg'
+    image_url = item.get('image_url', '') or item.get('image', '')
+    username = item.get('username', 'User')
+    
     popup_content.innerHTML = f'''
         <div style="display:flex; align-items:center; padding:10px;color:black">
-            <img src="{item.get('profile_pic', '')}" 
+            <img src="{profile_pic}" 
                  style="width:32px; height:32px; border-radius:50%; margin-right:10px;">
-            <div style="font-weight:bold;">{item.get('username', '')}</div>
+            <div style="font-weight:bold;">{username}</div>
         </div>
         
         <div style="width:100%; height:375px;">
-            <img src="{item.get('image_url', '')}" 
+            <img src="{image_url}" 
                  style="width:100%; height:100%; object-fit:cover;">
         </div>
         
@@ -245,18 +260,15 @@ async def fetch_user_wishlist():
                 {item.get('price', '')}
             </div>
             <div style="margin-top:5px;color:black">
-                <span style="font-weight:bold; margin-right:5px; color:black">{item.get('username', '')}</span>
-                {item.get('caption', '')}
-            </div>
-            <div style="color:gray; margin-top:5px;">
-                Location: {item.get('location', 'Not specified')}
-            </div>
-            <div style="color:gray; font-size:12px; margin-top:5px;">
-                {item.get('posted_time', 'Recently Added')}
+                <span style="font-weight:bold; margin-right:5px; color:black">{username}</span>
+                {item.get('description', '')}
             </div>
         </div>
     '''
-    
+
+    heart_icon = popup_content.querySelector('#likeIcon');
+    Promise.resolve(check_wishlist_status(item['zodb_id'], heart_icon))
+
     close_btn = document.createElement('button')
     close_btn.textContent = '×'
     close_btn.style.position = 'absolute'
@@ -269,40 +281,40 @@ async def fetch_user_wishlist():
     close_btn.style.zIndex = '1001'
     close_btn.style.color = 'white'
     
-    # เพิ่มฟังก์ชันสำหรับปุ่ม like และ bookmark
+    # Functions for like and bookmark buttons
     def toggle_like(event):
         like_icon = document.getElementById('likeIcon')
         if 'far' in like_icon.className:
             like_icon.className = 'fas fa-heart'
-            like_icon.style.color = 'red'
+            like_icon.style.color = '#ed4956'
         else:
             like_icon.className = 'far fa-heart'
-            like_icon.style.color = 'black'
+            like_icon.style.color = '#000'
     
     def toggle_bookmark(event):
         bookmark_icon = document.getElementById('bookmarkIcon')
         if 'far' in bookmark_icon.className:
             bookmark_icon.className = 'fas fa-bookmark'
-            bookmark_icon.style.color = 'black'
+            bookmark_icon.style.color = '#000'
         else:
             bookmark_icon.className = 'far fa-bookmark'
-            bookmark_icon.style.color = 'black'
+            bookmark_icon.style.color = '#000'
     
-    # สร้าง popup
+    # Add content to popup
     popup_content.appendChild(close_btn)
     popup.appendChild(popup_content)
     
-    # เพิ่มเหตุการณ์
+    # Close popup event
     def close_popup(event):
         document.body.removeChild(popup)
     
     close_btn.addEventListener('click', create_proxy(close_popup))
     popup.addEventListener('click', create_proxy(lambda e: close_popup(e) if e.target == popup else None))
     
-    # เพิ่ม popup เข้าไปใน body
+    # Add popup to body
     document.body.appendChild(popup)
     
-    # เพิ่ม event listeners สำหรับ like และ bookmark
+    # Add event listeners for like and bookmark
     like_icon = document.getElementById('likeIcon')
     bookmark_icon = document.getElementById('bookmarkIcon')
     
@@ -310,56 +322,100 @@ async def fetch_user_wishlist():
     bookmark_icon.addEventListener('click', create_proxy(toggle_bookmark))
 
 async def create_userWishlist():
-    wishlist = await fetch_user_wishlist()
-    liked_grid = document.getElementById('likedGrid')
-    if not liked_grid:
-        console.error("Liked grid element (#likedGrid) not found!")
-        return
-    else:
+    try:
+        wishlist = await fetch_user_wishlist()
+        liked_grid = document.getElementById('likedGrid')
+        if not liked_grid:
+            console.error("Liked grid element (#likedGrid) not found!")
+            return
+        
+        # Clear existing content
         liked_grid.innerHTML = ''
+        
+        # Check if wishlist is empty
+        if not wishlist or len(wishlist) == 0:
+            empty_message = document.createElement('div')
+            empty_message.style.textAlign = 'center'
+            empty_message.style.padding = '20px'
+            empty_message.style.color = '#FFFFFF'
+            empty_message.style.fontSize = '16px'
+            empty_message.textContent = 'Your wishlist is empty. Add items from the Explore tab!'
+            liked_grid.appendChild(empty_message)
+            console.log("Empty wishlist message displayed")
+            return
+            
+        # Render each wishlist item
         for item in wishlist:
             render_liked(item)
-        console.log("Liked items rendered successfully")
+        
+        console.log("Wishlist items rendered successfully")
+    except Exception as e:
+        console.error(f"Error creating wishlist: {e}")
 
 def render_liked(item):
-    liked_grid = document.getElementById('likedGrid')
-    liked_div = document.createElement('div')
-    liked_div.classList.add('liked-card')
-    liked_div.style.cursor = 'pointer'
+    try:
+        liked_grid = document.getElementById('likedGrid')
+        if not liked_grid:
+            console.error("Liked grid not found")
+            return
+            
+        liked_div = document.createElement('div')
+        liked_div.classList.add('liked-card')
+        liked_div.style.cursor = 'pointer'
 
-    item = item.to_py()
-    
-    img = document.createElement('img')
-    img.src = item['image']
-    img.alt = item['name']
-    img.classList.add('liked-image')
-    name_container = document.createElement('div')
-    name_container.classList.add('liked-name')
-    
-    heart_icon = document.createElement('i')
-    heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
-    name_container.appendChild(heart_icon)
-    
-    name_text = document.createTextNode(item['name'])
-    name_container.appendChild(name_text)
-    description = document.createElement('div')
-    description.classList.add('liked-description')
-    description.textContent = item['description']
-    price = document.createElement('div')
-    price.classList.add('liked-price')
-    price.textContent = item['price']
-    liked_div.appendChild(img)
-    liked_div.appendChild(name_container)
-    liked_div.appendChild(description)
-    liked_div.appendChild(price)
-    # def create_click_handler(selected_item):
-    #     def handler(event):
-    #         create_post_popup(selected_item)
-    #     return handler
-    # click_proxy = create_proxy(create_click_handler(item))
-    # liked_div.addEventListener('click', click_proxy)
-    
-    liked_grid.appendChild(liked_div)    
+        # Convert item if it's a JS object
+        if hasattr(item, 'to_py'):
+            item = item.to_py()
+        
+        # Handle different property names coming from different APIs
+        img = document.createElement('img')
+        img.src = item.get('image_url', '') or item.get('image', '')
+        img.alt = item.get('name', 'Item')
+        img.classList.add('liked-image')
+        
+        name_container = document.createElement('div')
+        name_container.classList.add('liked-name')
+        
+        heart_icon = document.createElement('i')
+        heart_icon.classList.add('fas', 'fa-heart', 'heart-icon')
+        name_container.appendChild(heart_icon)
+        
+        name_text = document.createTextNode(item.get('name', 'Item'))
+        name_container.appendChild(name_text)
+        
+        description = document.createElement('div')
+        description.classList.add('liked-description')
+        description.textContent = item.get('description', '')
+        
+        price = document.createElement('div')
+        price.classList.add('liked-price')
+        price.textContent = item.get('price', '$0')
+        
+        liked_div.appendChild(img)
+        liked_div.appendChild(name_container)
+        liked_div.appendChild(description)
+        liked_div.appendChild(price)
+        
+        # Add click event to show item details
+        def create_click_handler(selected_item):
+            def handler(event):
+                create_post_popup(selected_item)
+            return handler
+
+        click_proxy = create_proxy(create_click_handler(item))
+        liked_div.addEventListener('click', click_proxy)
+        
+        liked_grid.appendChild(liked_div)
+    except Exception as e:
+        console.error(f"Error rendering liked item: {e}")
+
+def render_products():
+    # Placeholder function in case we need it in the future
+    console.log("render_products called but not implemented")
+
+def render_saved():
+    # Placeholder function in case we need it in the future
+    console.log("render_saved called but not implemented")
 
 async def initialize():
     try:
@@ -438,10 +494,21 @@ async def initialize():
             # Make the file input visible to the label
             file_label.appendChild(editProfileImage)
 
-        Promise.resolve(to_js(create_userWishlist())).catch(lambda e: console.error(f"Error: {e}"))
-        
+        # Check URL hash to see which tab to show
+        hash = window.location.hash
+        if hash and hash.startswith('#') and hash.endswith('-tab'):
+            tab_name = hash[1:-4]  # Remove the '#' and '-tab'
+            if tab_name in ['products', 'liked', 'saved']:
+                show_tab(tab_name)
+            else:
+                # Default to wishlist tab
+                show_tab('liked')
+        else:
+            # Default to wishlist tab if no hash
+            show_tab('liked')
         
     except Exception as e:
         console.error(f"Error during initialization: {e}")
+
+# Initialize the application
 Promise.resolve(to_js(initialize())).catch(lambda e: console.error(f"Error: {e}"))
-# initialize()
