@@ -39,6 +39,7 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
     item_image = item.get("item_image")
     item_price = item.get("item_price")
     is_purchasable = item.get("is_purchasable", False)
+    is_tradeable = item.get("is_tradeable", True)
     is_available = item.get("is_available", True)
 
     if not item_name:
@@ -67,6 +68,7 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
             userID=user_id,
             zodb_id=new_item_id,
             is_purchasable=is_purchasable,
+            is_tradeable=is_tradeable,
             is_available=is_available
         )
 

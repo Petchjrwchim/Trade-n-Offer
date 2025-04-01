@@ -39,8 +39,8 @@ async def save_new_product(event=None):
                 "item_price": price,
                 "item_image": image_url,
                 "is_available": True,
-                "is_trade": is_trade,
-                "is_sell": is_sell
+                "is_tradeable": is_trade,
+                "is_purchasable": is_sell
             }
             
             # Instead of a dictionary, pass headers as an array of key-value pairs.
@@ -114,7 +114,7 @@ async def fetch_userItem():
         console.error(f"Error fetching posts: {e}")
         return []
     
-Promise.resolve(to_js(fetch_userItem())).catch(lambda e: console.error(f"Error: {e}"))
+# Promise.resolve(to_js(fetch_userItem())).catch(lambda e: console.error(f"Error: {e}"))
 
 def update_product_grid():
     run_async(update_product_grid_with_search)

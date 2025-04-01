@@ -50,6 +50,7 @@ class Item(Base):
     userID = Column(Integer, ForeignKey("users.ID"), nullable=False)
     zodb_id = Column(Integer, nullable=False)
     is_purchasable = Column(Boolean, default=False)
+    is_tradeable = Column(Boolean, default=True)
     is_available = Column(Boolean, default=True)
 
     owner = relationship("User", back_populates="items")
