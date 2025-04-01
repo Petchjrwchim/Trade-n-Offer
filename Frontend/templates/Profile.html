@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/css/trade_offer-style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/css/Profile.css') }}">
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
-    <py-script src="{{ url_for('static', path='/py-script/Profile.py') }}"></py-script>
+    <py-script src="{{ url_for('static', path='/py-script/user-profile.py') }}"></py-script>
 </head>
 <body>
     {% include 'component/sidenav.html' %}
@@ -27,25 +27,13 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab-button active" id="productsTab">Product</button>
             <button class="tab-button" id="likedTab">Liked Items</button>
-            <button class="tab-button" id="savedTab">Saved Collections</button>
         </div>
         
         <!-- Tab Contents -->
-        <div id="products-tab" class="tab-content active">
-            <div class="scrollable-grid">
-                <div class="product-grid" id="productsGrid"></div>
-            </div>
-        </div>
         <div id="liked-tab" class="tab-content">
             <div class="scrollable-grid">
                 <div class="liked-grid" id="likedGrid"></div>
-            </div>
-        </div>
-        <div id="saved-tab" class="tab-content">
-            <div class="scrollable-grid">
-                <div class="saved-grid" id="savedGrid"></div>
             </div>
         </div>
     </div>

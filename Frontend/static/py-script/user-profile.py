@@ -20,13 +20,11 @@ def show_tab(tab_name, event=None):
     tabs = document.querySelectorAll('.tab-content')
     buttons = document.querySelectorAll('.tab-button')
 
-    # Remove active class from all tabs and buttons
     for tab in tabs:
         tab.classList.remove('active')
     for button in buttons:
         button.classList.remove('active')
 
-    # Add active class to selected tab and button
     tab_content = document.getElementById(f"{tab_name}-tab")
     tab_button = document.getElementById(f"{tab_name}Tab")
     
@@ -40,10 +38,8 @@ def show_tab(tab_name, event=None):
     else:
         console.error(f"Tab button #{tab_name}Tab not found")
 
-    # Update URL hash
     window.location.hash = f"{tab_name}-tab"
 
-    # Render content for the selected tab
     if tab_name == 'products':
         render_products()
     elif tab_name == 'saved':
@@ -52,7 +48,7 @@ def show_tab(tab_name, event=None):
         render_liked()
     else:
         console.error(f"Unknown tab: {tab_name}")
-# Image preview functionality for profile image
+
 def handle_profile_image_change(event):
     try:
         files = event.target.files
@@ -72,7 +68,6 @@ def handle_profile_image_change(event):
     except Exception as e:
         console.error(f"Error handling profile image change: {e}")
 
-# Edit Profile popup functions
 def open_edit_profile(event=None):
     try:
         # Get current values to populate the form
@@ -156,32 +151,6 @@ def save_profile_changes(event=None):
     except Exception as e:
         console.error(f"Error saving profile changes: {e}")
 
-# Simulated product data
-product_data = [
-    {"id": 1, "name": "Laptop", "description": "Powerful laptop for gaming and work", "price": "999.99", "image": "/static/image_test/piano.jpg"},
-    {"id": 2, "name": "Fashion", "description": "Stylish outfit for everyday wear", "price": "199.99", "image": "/static/image_test/guitar.jpg"},
-    {"id": 3, "name": "Sofa", "description": "Comfortable modern sofa for living room", "price": "599.99", "image": "/static/image_test/camera.jpg"},
-    {"id": 4, "name": "Lamp", "description": "Elegant floor lamp for home decor", "price": "89.99", "image": "/static/image_test/guitar.jpg"},
-    {"id": 5, "name": "Sports Gear", "description": "Complete set of sports equipment", "price": "299.99", "image": "/static/image_test/piano.jpg"},
-    {"id": 6, "name": "Books", "description": "Collection of classic literature books", "price": "149.99", "image": "/static/image_test/camera.jpg"}
-]
-
-# Simulated saved collections data
-saved_data = [
-    {"id": 1, "name": "Beads", "description": "Colorful beads for crafting", "price": "49.99", "image": "/static/image_test/guitar.jpg"},
-    {"id": 2, "name": "Fashion", "description": "Trendy jacket for all seasons", "price": "129.99", "image": "/static/image_test/piano.jpg"},
-    {"id": 3, "name": "Books", "description": "Set of educational books", "price": "89.99", "image": "/static/image_test/guitar.jpg"}
-]
-
-# Simulated liked items data
-# liked_data = [
-#     {"id": 1, "name": "Camerasdasda", "description": "High-quality digital camera for photography", "price": "499.99", "image": "/static/image_test/camera.jpg"},
-#     {"id": 2, "name": "Guitar", "description": "Acoustic guitar for beginners and professionals", "price": "299.99", "image": "/static/image_test/guitar.jpg"},
-#     {"id": 3, "name": "Piano", "description": "Digital piano with 88 keys and weighted action", "price": "799.99", "image": "/static/image_test/piano.jpg"},
-#     {"id": 4, "name": "Headphones", "description": "Noise-canceling headphones with premium sound", "price": "199.99", "image": "/static/image_test/camera.jpg"},
-#     {"id": 5, "name": "Watch", "description": "Luxury smartwatch with fitness tracking", "price": "349.99", "image": "/static/image_test/piano.jpg"},
-#     {"id": 6, "name": "Smartphone", "description": "Latest model smartphone with advanced features", "price": "699.99", "image": "/static/image_test/guitar.jpg"}
-# ]
 liked_data = [
     {
         "id": 1,
@@ -196,93 +165,7 @@ liked_data = [
         "posted_time": "2d",
         "is_offer": False
     },
-    {
-        "id": 2,
-        "username": "music_enthusiast",
-        "profile_pic": "/static/image_test/piano.jpg", 
-        "image_url": "/static/image_test/guitar.jpg",
-        "name": "Guitar", 
-        "description": "Acoustic guitar for beginners and professionals",
-        "price": "$299.99",
-        "caption": "Beautiful acoustic guitar, barely used. Open to trades.",
-        "location": "Chiang Mai",
-        "posted_time": "1w",
-        "is_offer": False
-    }
-    # เพิ่มรายการอื่นๆ ตามต้องการ
 ]
-
-
-
-
-# Functions to render content for each tab
-def render_products(event=None):
-    product_grid = document.getElementById('productsGrid')
-    if not product_grid:
-        console.error("Product grid element (#productsGrid) not found!")
-        return
-    product_grid.innerHTML = ''
-    for product in product_data:
-        product_div = document.createElement('div')
-        product_div.classList.add('product-card')
-
-        img = document.createElement('img')
-        img.src = product['image']
-        img.alt = product['name']
-        img.classList.add('product-image')
-
-        name = document.createElement('div')
-        name.classList.add('product-name')
-        name.textContent = product['name']
-
-        description = document.createElement('div')
-        description.classList.add('product-description')
-        description.textContent = product['description']
-
-        price = document.createElement('div')
-        price.classList.add('product-price')
-        price.textContent = f"${product['price']}"
-
-        product_div.appendChild(img)
-        product_div.appendChild(name)
-        product_div.appendChild(description)
-        product_div.appendChild(price)
-        product_grid.appendChild(product_div)
-    console.log("Products rendered successfully")
-
-def render_saved(event=None):
-    saved_grid = document.getElementById('savedGrid')
-    if not saved_grid:
-        console.error("Saved grid element (#savedGrid) not found!")
-        return
-    saved_grid.innerHTML = ''
-    for item in saved_data:
-        saved_div = document.createElement('div')
-        saved_div.classList.add('saved-card')
-
-        img = document.createElement('img')
-        img.src = item['image']
-        img.alt = item['name']
-        img.classList.add('saved-image')
-
-        name = document.createElement('div')
-        name.classList.add('saved-name')
-        name.textContent = item['name']
-
-        description = document.createElement('div')
-        description.classList.add('saved-description')
-        description.textContent = item['description']
-
-        price = document.createElement('div')
-        price.classList.add('saved-price')
-        price.textContent = f"${item['price']}"
-
-        saved_div.appendChild(img)
-        saved_div.appendChild(name)
-        saved_div.appendChild(description)
-        saved_div.appendChild(price)
-        saved_grid.appendChild(saved_div)
-    console.log("Saved collections rendered successfully")
 
 def create_post_popup(item):
     # สร้าง popup container
@@ -345,7 +228,6 @@ def create_post_popup(item):
         </div>
     '''
     
-    # เพิ่มปุ่มปิด
     close_btn = document.createElement('button')
     close_btn.textContent = '×'
     close_btn.style.position = 'absolute'
@@ -437,7 +319,6 @@ def render_liked(event=None):
         liked_div.appendChild(description)
         liked_div.appendChild(price)
 
-        # สร้าง event listener สำหรับการคลิก
         def create_click_handler(selected_item):
             def handler(event):
                 create_post_popup(selected_item)
@@ -448,8 +329,6 @@ def render_liked(event=None):
         
         liked_grid.appendChild(liked_div)
     console.log("Liked items rendered successfully")
-
-
 
 def initialize():
     try:
@@ -528,13 +407,9 @@ def initialize():
             # Make the file input visible to the label
             file_label.appendChild(editProfileImage)
 
-        
-        # Initialize with Products tab active
-        render_products()
-        check_hash_and_show_tab()
+        render_liked()
         
     except Exception as e:
         console.error(f"Error during initialization: {e}")
 
-# Run initialization
 initialize()
