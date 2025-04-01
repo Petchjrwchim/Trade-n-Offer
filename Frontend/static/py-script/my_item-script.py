@@ -1,4 +1,4 @@
-from js import document, console, window, FileReader, fetch
+from js import document, console, fetch, Promise, window
 from pyodide.ffi import create_proxy, to_js
 import json
 import asyncio
@@ -70,81 +70,6 @@ async def save_new_product(event=None):
     except Exception as e:
         console.error(f"Error in save_new_product: {e}")
 
-def update_product_grid():
-    update_product_grid_with_search()
-    
-def update_product_grid_with_search():
-    search_query = document.querySelector("#searchInput").value.strip().lower()
-    filter_option = document.querySelector("#filterSelect").value
-
-    filtered_data = [product for product in product_data if 
-                    (search_query in product["name"].lower() or 
-                        search_query in product["price"].lower())]
-
-    if filter_option == "name_asc":
-        filtered_data.sort(key=lambda x: x["name"].lower())
-    elif filter_option == "name_desc":
-        filtered_data.sort(key=lambda x: x["name"].lower(), reverse=True)
-    elif filter_option == "price_asc":
-        filtered_data.sort(key=lambda x: float(x["price"]))
-    elif filter_option == "price_desc":
-        filtered_data.sort(key=lambda x: float(x["price"]), reverse=True)
-
-    productGrid = document.querySelector("#productGrid")
-    if not productGrid:
-        console.error("Product grid element (#productGrid) not found!")
-        return
-    productGrid.innerHTML = ""
-    for product in filtered_data:
-        add_product_element(product, False)
-    console.log("Product grid updated with search and filter")
-
-def add_product_element(product, is_new):
-    productGrid = document.querySelector("#productGrid")
-    productDiv = document.createElement("div")
-    productDiv.classList.add("product-item")
-    if is_new:
-        productDiv.classList.add("new-product")
-
-    img = document.createElement("img")
-    img.src = product["image"]
-    img.alt = product["name"]
-    img.classList.add("product-image")
-
-    name = document.createElement("div")
-    name.classList.add("product-name")
-    name.textContent = product["name"]
-
-    description = document.createElement("div")
-    description.classList.add("product-description")
-    description.textContent = product["description"]
-
-    price = document.createElement("div")
-    price.classList.add("product-price")
-    price.textContent = f"${product['price']}"
-
-    buttonContainer = document.createElement("div")
-    buttonContainer.classList.add("product-buttons")
-
-    editBtn = document.createElement("div")
-    editBtn.classList.add("edit-btn")
-    editBtn.textContent = "Edit"
-    editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(product["id"])))
-
-    removeBtn = document.createElement("div")
-    removeBtn.classList.add("remove-btn")
-    removeBtn.textContent = "Remove"
-
-    buttonContainer.appendChild(editBtn)
-    buttonContainer.appendChild(removeBtn)
-
-    productDiv.appendChild(img)
-    productDiv.appendChild(name)
-    productDiv.appendChild(description)
-    productDiv.appendChild(price)
-    productDiv.appendChild(buttonContainer)
-    productGrid.appendChild(productDiv)
-
 def open_edit_popup(product_id):
     global selected_product
     selected_product = next((p for p in product_data if p["id"] == product_id), None)
@@ -170,10 +95,175 @@ def save_product_changes(event=None):
     else:
         console.error("No product selected for editing")
 
+async def fetch_userItem():
+    try:
+        console.log("Fethcing user items")
+
+        response = await fetch(
+            "/my-items",
+            to_js({
+                "method": "GET",
+                "header": {"Content-Type": "application/json"},
+                "credentials": "include"
+            })
+        )
+
+        console.log(f"Status {response.status}")
+
+        if response.status == 200:
+            items = await response.json()
+            console.log("User Item from userItems.py:", items)
+            return items
+        
+        else:
+            console.error(f"Failed to fetch posts. Status: {response.status}")
+            return []
+    
+    except Exception as e:
+        console.error(f"Error fetching posts: {e}")
+        return []
+    
+Promise.resolve(to_js(fetch_userItem())).catch(lambda e: console.error(f"Error: {e}"))
+
+def update_product_grid():
+    run_async(update_product_grid_with_search)
+
+def run_async(async_func):
+    Promise.resolve(to_js(async_func())).catch(lambda e: console.error(f"Error: {e}"))
+
+async def update_product_grid_with_search():
+    search_query = document.querySelector('#searchInput').value.strip().lower()
+    userItems = await fetch_userItem()
+
+    productGrid = document.querySelector("#productGrid")
+    if not productGrid:
+        console.error("Product grid element not found!")
+        return
+    else:
+        productGrid.innerHTML = ""
+        for item in userItems:
+            add_product_element(item, False)
+        console.log("Product grid update")
+
+def add_product_element(item, is_new):
+    productGrid = document.querySelector("#productGrid")
+    productDiv = document.createElement("div")
+    productDiv.classList.add("product-item")
+
+    item = item.to_py()
+
+    if is_new:
+        productDiv.classList.add("new-product")
+    
+    img = document.createElement("img")
+    img.src = item["image"]
+    img.alt = item["name"]
+    img.classList.add("product-image")
+
+    name = document.createElement("div")
+    name.classList.add("product-name")
+    name.textContent = item["name"]
+
+    description = document.createElement("div")
+    description.classList.add("product-description")
+    description.textContent = item["description"]
+
+    price = document.createElement("div")
+    price.classList.add("product-price")
+    price.textContent = f"${item['price']}"
+
+    productDiv.appendChild(img)
+    productDiv.appendChild(name)
+    productDiv.appendChild(description)
+    productDiv.appendChild(price)
+    productGrid.appendChild(productDiv)
+
+
 console.log("Initializing product grid...")
 update_product_grid()
 
-window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
+
+
+
+# def update_product_grid():
+#     update_product_grid_with_search()
+    
+# def update_product_grid_with_search():
+#     search_query = document.querySelector("#searchInput").value.strip().lower()
+#     # filter_option = document.querySelector("#filterSelect").value
+
+#     filtered_data = [product for product in product_data if 
+#                     (search_query in product["name"].lower() or 
+#                         search_query in product["price"].lower())]
+
+#     if filter_option == "name_asc":
+#         filtered_data.sort(key=lambda x: x["name"].lower())
+#     elif filter_option == "name_desc":
+#         filtered_data.sort(key=lambda x: x["name"].lower(), reverse=True)
+#     elif filter_option == "price_asc":
+#         filtered_data.sort(key=lambda x: float(x["price"]))
+#     elif filter_option == "price_desc":
+#         filtered_data.sort(key=lambda x: float(x["price"]), reverse=True)
+
+#     productGrid = document.querySelector("#productGrid")
+#     if not productGrid:
+#         console.error("Product grid element (#productGrid) not found!")
+#         return
+#     productGrid.innerHTML = ""
+#     for product in filtered_data:
+#         add_product_element(product, False)
+    # console.log("Product grid updated with search and filter")
+
+# def add_product_element(product, is_new):
+#     productGrid = document.querySelector("#productGrid")
+#     productDiv = document.createElement("div")
+#     productDiv.classList.add("product-item")
+#     if is_new:
+#         productDiv.classList.add("new-product")
+
+#     img = document.createElement("img")
+#     img.src = product["image"]
+#     img.alt = product["name"]
+#     img.classList.add("product-image")
+
+#     name = document.createElement("div")
+#     name.classList.add("product-name")
+#     name.textContent = product["name"]
+
+#     description = document.createElement("div")
+#     description.classList.add("product-description")
+#     description.textContent = product["description"]
+
+#     price = document.createElement("div")
+#     price.classList.add("product-price")
+#     price.textContent = f"${product['price']}"
+
+#     buttonContainer = document.createElement("div")
+#     buttonContainer.classList.add("product-buttons")
+
+#     editBtn = document.createElement("div")
+#     editBtn.classList.add("edit-btn")
+#     editBtn.textContent = "Edit"
+#     editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(product["id"])))
+
+#     removeBtn = document.createElement("div")
+#     removeBtn.classList.add("remove-btn")
+#     removeBtn.textContent = "Remove"
+
+#     buttonContainer.appendChild(editBtn)
+#     buttonContainer.appendChild(removeBtn)
+
+#     productDiv.appendChild(img)
+#     productDiv.appendChild(name)
+#     productDiv.appendChild(description)
+#     productDiv.appendChild(price)
+#     productDiv.appendChild(buttonContainer)
+#     productGrid.appendChild(productDiv)
+
+# console.log("Initializing product grid...")
+# update_product_grid()
+
+# window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
 
 # def handle_image_preview(event):
 #     files = event.target.files  # Get the FileList object
@@ -196,5 +286,5 @@ window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
 
 # document.querySelector("#addProductImage").addEventListener("change", create_proxy(handle_image_preview))
 
-document.querySelector("#searchInput").addEventListener("input", create_proxy(lambda e: update_product_grid_with_search()))
-document.querySelector("#filterSelect").addEventListener("change", create_proxy(lambda e: update_product_grid_with_search()))
+# document.querySelector("#searchInput").addEventListener("input", create_proxy(lambda e: update_product_grid_with_search()))
+# document.querySelector("#filterSelect").addEventListener("change", create_proxy(lambda e: update_product_grid_with_search()))
