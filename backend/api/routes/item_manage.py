@@ -84,54 +84,46 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
     
 
-# @router.put("/edit-item/{item_id}")
-# async def edit_item(
-#     request: Request,
-#     item_id: int,
-#     updated_item: dict,
-#     db: Session = Depends(get_db)
-# ):
-#     user_id = check_session_cookie(request)
+@router.put("/edit-item/{item_id}")
+async def edit_item(request: Request, item_id: int, updated_item: dict, db: Session = Depends(get_db)):
+    user_id = check_session_cookie(request)
 
-#     # Fetch item from SQL
-#     trade_item = db.query(Item).filter(Item.ID == item_id, Item.userID == user_id).first()
-#     if not trade_item:
-#         raise HTTPException(status_code=404, detail="Item not found or unauthorized")
+    # Fetch item from SQL
+    trade_item = db.query(Item).filter(Item.ID == item_id, Item.userID == user_id).first()
+    if not trade_item:
+        raise HTTPException(status_code=404, detail="Item not found or unauthorized")
 
-#     root = get_root()
-#     zodb_id = trade_item.zodb_id
-#     trade_items = root.get("trade_items", {})
+    root = get_root()
+    zodb_id = trade_item.zodb_id
+    trade_items = root.get("trade_items", {})
 
-#     if zodb_id not in trade_items:
-#         raise HTTPException(status_code=404, detail="Item not found in ZODB")
+    if zodb_id not in trade_items:
+        raise HTTPException(status_code=404, detail="Item not found in ZODB")
 
-#     # Update fields in ZODB
-#     zodb_item = trade_items[zodb_id]
-#     zodb_item.name = updated_item.get("item_name", zodb_item.name)
-#     zodb_item.description = updated_item.get("item_description", zodb_item.description)
-#     zodb_item.price = updated_item.get("item_price", zodb_item.price)
-#     zodb_item.image = updated_item.get("item_image", zodb_item.image)
-#     zodb_item.category = updated_item.get("category", zodb_item.category)
+    zodb_item = trade_items[zodb_id]
+    zodb_item.name = updated_item.get("item_name", zodb_item.name)
+    zodb_item.description = updated_item.get("item_description", zodb_item.description)
+    zodb_item.price = updated_item.get("item_price", zodb_item.price)
+    zodb_item.image = updated_item.get("item_image", zodb_item.image)
+    zodb_item.category = updated_item.get("category", zodb_item.category)
 
-#     # Update fields in SQL
-#     trade_item.is_purchasable = updated_item.get("is_purchasable", trade_item.is_purchasable)
-#     trade_item.is_tradeable = updated_item.get("is_tradeable", trade_item.is_tradeable)
-#     trade_item.is_available = updated_item.get("is_available", trade_item.is_available)
+    trade_item.is_purchasable = updated_item.get("is_purchasable", trade_item.is_purchasable)
+    trade_item.is_tradeable = updated_item.get("is_tradeable", trade_item.is_tradeable)
+    trade_item.is_available = updated_item.get("is_available", trade_item.is_available)
 
-#     try:
-#         commit_changes()  # Commit ZODB changes
-#         db.commit()  # Commit SQLAlchemy changes
-#         return JSONResponse(content={"message": "Item updated successfully!"}, status_code=200)
-#     except Exception as e:
-#         db.rollback()  # Rollback SQL if an error occurs
-#         close_connection()
-#         raise HTTPException(status_code=500, detail=f"Error updating item: {str(e)}")
+    try:
+        commit_changes()  # Commit ZODB changes
+        db.commit()  # Commit SQLAlchemy changes
+        return JSONResponse(content={"message": "Item updated successfully!"}, status_code=200)
+    except Exception as e:
+        db.rollback()  # Rollback SQL if an error occurs
+        close_connection()
+        raise HTTPException(status_code=500, detail=f"Error updating item: {str(e)}")
 
 
 @router.delete("/remove-item/{item_id}")
 async def remove_item(request: Request, item_id: int, db: Session = Depends(get_db)):
     user_id = check_session_cookie(request)
-
     trade_item = db.query(Item).filter(Item.ID == item_id, Item.userID == user_id).first()
     item_in_wishlist = db.query(Wishlist).filter(Wishlist.item_id == trade_item.zodb_id).all()
     if not trade_item:
@@ -142,11 +134,11 @@ async def remove_item(request: Request, item_id: int, db: Session = Depends(get_
     trade_items = root.get("trade_items", {})
 
     if zodb_id in trade_items:
-        del trade_items[zodb_id]  # Remove from ZODB
+        del trade_items[zodb_id] 
 
     try:
-        commit_changes()  # Commit ZODB deletion
-        db.delete(trade_item)  # Remove from SQL
+        commit_changes() 
+        db.delete(trade_item) 
 
         for wishlist_item in item_in_wishlist:
             db.delete(wishlist_item)

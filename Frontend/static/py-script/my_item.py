@@ -62,30 +62,6 @@ async def save_new_product(event=None):
     except Exception as e:
         console.error(f"Error in save_new_product: {e}")
 
-def open_edit_popup(product_id):
-    global selected_product
-    selected_product = next((p for p in product_data if p["id"] == product_id), None)
-    if selected_product:
-        document.querySelector("#editProductImage").src = selected_product["image"]
-        document.querySelector("#editProductName").value = selected_product["name"]
-        document.querySelector("#editProductDescription").value = selected_product["description"]
-        document.querySelector("#editProductPrice").value = selected_product["price"]
-        document.querySelector("#editProductPopup").style.display = "block"
-    else:
-        console.error(f"Product with ID {product_id} not found")
-
-def close_edit_popup(event=None):
-    document.querySelector("#editProductPopup").style.display = "none"
-
-def save_product_changes(event=None):
-    if selected_product:
-        selected_product["name"] = document.querySelector("#editProductName").value
-        selected_product["description"] = document.querySelector("#editProductDescription").value
-        selected_product["price"] = document.querySelector("#editProductPrice").value
-        update_product_grid_with_search()
-        close_edit_popup()
-    else:
-        console.error("No product selected for editing")
 
 async def fetch_userItem():
     try:
@@ -174,7 +150,7 @@ def add_product_element(item, is_new):
 
     removeBtn = document.createElement("div")
     removeBtn.classList.add("remove-btn")
-    removeBtn.textContent = "here"
+    removeBtn.textContent = "Remove"
     removeBtn.addEventListener("click", create_proxy(lambda e: remove_btn(item["id"])))
 
     buttonContainer.appendChild(editBtn)
@@ -214,6 +190,51 @@ def remove_btn(item_id):
     console.log(f"Remove button clicked for item ID: {item_id}") 
     Promise.resolve(to_js(remove_product(item_id))).catch(lambda e: console.error(f"Error: {e}"))
     window.location.reload()
+
+def open_edit_popup(product_id):
+    global selected_product
+    selected_product = next((p for p in product_data if p["id"] == product_id), None)
+    if selected_product:
+        document.querySelector("#editProductImage").src = selected_product["image"]
+        document.querySelector("#editProductName").value = selected_product["name"]
+        document.querySelector("#editProductDescription").value = selected_product["description"]
+        document.querySelector("#editProductPrice").value = selected_product["price"]
+        document.querySelector("#editProductPopup").style.display = "block"
+    else:
+        console.error(f"Product with ID {product_id} not found")
+
+def close_edit_popup(event=None):
+    document.querySelector("#editProductPopup").style.display = "none"
+
+def save_product_changes(event=None):
+    if selected_product:
+        selected_product["name"] = document.querySelector("#editProductName").value
+        selected_product["description"] = document.querySelector("#editProductDescription").value
+        selected_product["price"] = document.querySelector("#editProductPrice").value
+        update_product_grid_with_search()
+        close_edit_popup()
+    else:
+        console.error("No product selected for editing")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # def update_product_grid():
 #     update_product_grid_with_search()
     
