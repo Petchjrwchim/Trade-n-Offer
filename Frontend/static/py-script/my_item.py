@@ -56,6 +56,7 @@ async def save_new_product(event=None):
             data = await response.json()
             console.log("Product added:", data)
             close_add_popup()
+            window.location.reload()
         else:
             console.error("Please fill in all fields, select an image, and choose at least one option (Trade or Sell)")
     except Exception as e:
@@ -173,7 +174,8 @@ def add_product_element(item, is_new):
 
     removeBtn = document.createElement("div")
     removeBtn.classList.add("remove-btn")
-    removeBtn.textContent = "Remove"
+    removeBtn.textContent = "here"
+    removeBtn.addEventListener("click", create_proxy(lambda e: remove_btn(item["id"])))
 
     buttonContainer.appendChild(editBtn)
     buttonContainer.appendChild(removeBtn)
@@ -190,8 +192,28 @@ console.log("Initializing product grid...")
 update_product_grid()
 
 
+async def remove_product(product_id):
+    try:
+        console.log(f"Attempting to remove product with ID: {product_id}")
+        
+        headers = [["Content-Type", "application/json"]]
+        response = await fetch(f"/remove-item/{product_id}",
+                               method="delete",
+                               headers=headers,
+                               credentials="include")
 
+        if response.status == 200:
+            console.log("Product removed successfully")
+        else:
+            data = await response.json()
+            console.error(f"Failed to remove product: {data.get('detail', 'Unknown error')}")
+    except Exception as e:
+        console.error(f"Error removing product: {e}")
 
+def remove_btn(item_id):
+    console.log(f"Remove button clicked for item ID: {item_id}") 
+    Promise.resolve(to_js(remove_product(item_id))).catch(lambda e: console.error(f"Error: {e}"))
+    window.location.reload()
 # def update_product_grid():
 #     update_product_grid_with_search()
     
