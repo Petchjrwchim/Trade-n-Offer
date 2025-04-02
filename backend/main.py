@@ -11,6 +11,9 @@ from api.routes.item_manage import router as item_manage_router
 from api.routes.chat_server import router as chat_router
 from api.routes.offers import router as offers_management
 from api.routes.wishlist import router as wishlist_management
+from api.routes.user_profiles import router as user_profiles_router
+from api.routes.user_profile_page import router as user_profile_page_router
+
 app = FastAPI()
 
 # CORS configuration
@@ -31,6 +34,8 @@ app.include_router(item_manage_router)
 app.include_router(chat_router)
 app.include_router(offers_management)
 app.include_router(wishlist_management)
+app.include_router(user_profiles_router)
+app.include_router(user_profile_page_router)
 
 
 @app.get("/")

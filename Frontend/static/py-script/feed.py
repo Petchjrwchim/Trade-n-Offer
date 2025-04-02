@@ -7,7 +7,7 @@ import asyncio
 
 async def fetch_posts():
     try:
-        console.log("Fetching posts from backend...")
+        console.log("Fetching posts from backend.asdasdasdasd..")
 
         response = await fetch(
             "/get-all-posts",
@@ -83,6 +83,17 @@ async def check_wishlist_status(item_id, heart_icon):
     except Exception as e:
         console.error(f"Error checking wishlist status: {e}")
 
+def navigate_to_user_profile(user_id, username):
+    try:
+        if not user_id:
+            console.error("No user ID provided for profile navigation")
+            return
+            
+        console.log(f"Navigating to profile of user: {username} (ID: {user_id})")
+        # Redirect to the user profile page with user ID as parameter
+        window.location.href = f"/user-profile/{user_id}"
+    except Exception as e:
+        console.error(f"Error navigating to user profile: {e}")
 # ฟังก์ชันเดิมสำหรับสร้าง post element
 def create_post_element(post):
     try:
@@ -108,6 +119,11 @@ def create_post_element(post):
         post_username = document.createElement('div')
         post_username.className = 'post-username'
         post_username.textContent = post['username']
+        post_username.style.cursor = 'pointer'
+        post_username.setAttribute('data-user-id', str(post['userID']))
+
+        # Add click event to username to navigate to user profile
+        post_username.onclick = create_proxy(lambda event: navigate_to_user_profile(event.target.getAttribute('data-user-id'), post['username']))
         
         # Add elements to header
         post_header.appendChild(profile_picture)
