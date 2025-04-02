@@ -62,7 +62,6 @@ async def save_new_product(event=None):
     except Exception as e:
         console.error(f"Error in save_new_product: {e}")
 
-
 async def fetch_userItem():
     try:
         console.log("Fethcing user items")

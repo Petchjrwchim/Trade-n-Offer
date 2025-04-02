@@ -1,11 +1,11 @@
-from js import document, console, window, localStorage, setTimeout
-from pyodide.ffi import create_proxy
+from js import document, console, window, localStorage, setTimeout, fetch, Promise
+from pyodide.ffi import create_proxy, to_js
 
 # ข้อมูลโปรไฟล์ตัวอย่าง
 PROFILES = [
     {"id": "1", "name": "John Smith", "image": "/static/image_test/profile_default.jpg", "title": "User"},
-    {"id": "2", "name": "Mariasdasdasdaa Garcia", "image": "/static/image_test/profile_default.jpg", "title": "User"},
-    {"id": "3", "name": "David Wang", "image": "/static/image_test/piano.jpg", "title": "User"}
+    # {"id": "2", "name": "Mariasdasdasdaa Garcia", "image": "/static/image_test/profile_default.jpg", "title": "User"},
+    # {"id": "3", "name": "David Wang", "image": "/static/image_test/piano.jpg", "title": "User"}
 ]
 
 # เก็บ Proxy ทั้งหมดไว้ใน Dictionary
@@ -21,7 +21,7 @@ def show_profile_popup(event=None):
     if popup:
         popup.style.display = "block"
         popup.classList.add("visible")
-        render_profiles()
+        Promise.resolve(to_js(create_item_profile())).catch(lambda e: console.error(f"Error: {e}"))
 
 def close_profile_popup(event=None):
     """ปิด Popup เลือกโปรไฟล์"""
@@ -52,56 +52,99 @@ def select_profile(profile):
     except Exception as e:
         log(f"Error: {e}")
 
-def render_profiles():
-    """แสดงรายการโปรไฟล์ใน Grid"""
+async def fetch_userItem():
     try:
-        product_grid = document.getElementById("productGrid")
-        if not product_grid:
-            return
-            
-        product_grid.innerHTML = ""
-        current_id = localStorage.getItem("selectedProfileId") or "1"
+        console.log("Fethcing user items")
+
+        response = await fetch(
+            "/my-items",
+            to_js({
+                "method": "GET",
+                "header": {"Content-Type": "application/json"},
+                "credentials": "include"
+            })
+        )
+
+        console.log(f"Status {response.status}")
+
+        if response.status == 200:
+            items = await response.json()
+            console.log("User Item from userItems.py:", items)
+            return items
         
-        for i, profile in enumerate(PROFILES):
-            # สร้าง Element สำหรับแต่ละโปรไฟล์
-            item = document.createElement("div")
-            item.className = "product-item"
-            if profile["id"] == current_id:
-                item.classList.add("active")
-            item.setAttribute("data-profile-id", profile["id"])
-            
-            # สร้างรูปภาพ (ไม่มีการเปลี่ยนเมื่อ hover)
+        else:
+            console.error(f"Failed to fetch posts. Status: {response.status}")
+            return []
+    
+    except Exception as e:
+        console.error(f"Error fetching posts: {e}")
+        return []
+
+async def create_item_profile():
+    userItems = await fetch_userItem()
+
+    product_grid = document.getElementById("productGrid")
+    if not product_grid:
+        console.error("Product profile grid element not found!")
+        return
+    else:
+        product_grid.innerHTML = ""
+        render_profile(userItems)
+        console.log("Product grid update")
+
+def render_profile(userItems):
+    try:
+        for item in userItems:
+
+            product_grid = document.getElementById("productGrid")
+            if not product_grid:
+                return
+
+            current_id = localStorage.getItem("selectedProfileId") or "1"
+
+            # สร้าง Element สำหรับโปรไฟล์ที่ได้จาก userItems
+            profile_item = document.createElement("div")
+            profile_item.className = "product-item"
+
+            # ทำให้โปรไฟล์ที่ถูกเลือกมีลักษณะพิเศษ
+            if item["id"] == current_id:
+                profile_item.classList.add("active")
+
+            profile_item.setAttribute("data-profile-id", item["id"])
+
+            # สร้างรูปภาพ
             img = document.createElement("img")
-            img.src = profile["image"]
+            img.src = item["image"]
             img.className = "product-image"
-            
+
             # สร้างชื่อและตำแหน่ง
             name = document.createElement("div")
             name.className = "product-name"
-            name.textContent = profile["name"]
-            
+            name.textContent = item["name"]
+
             title = document.createElement("div")
             title.className = "product-status"
-            title.textContent = profile["title"]
-            
+            title.textContent = item["title"]
+
             # เพิ่ม Element ลงใน Item
-            item.appendChild(img)
-            item.appendChild(name)
-            item.appendChild(title)
-            
+            profile_item.appendChild(img)
+            profile_item.appendChild(name)
+            profile_item.appendChild(title)
+
             # สร้าง Event Handler สำหรับคลิกเท่านั้น
-            def make_handler(pid):
+            def make_handler(profile_id):
                 def handler(event):
-                    profile = next(p for p in PROFILES if p["id"] == pid)
-                    select_profile(profile)
+                    selected_profile = next((p for p in userItems if p["id"] == profile_id), None)
+                    if selected_profile:
+                        select_profile(selected_profile)
                 return handler
-            
-            click_proxy = create_proxy(make_handler(profile["id"]))
-            proxies[f"click_{i}"] = click_proxy
-            item.addEventListener("click", click_proxy)
-            
-            product_grid.appendChild(item)
-            
+
+            click_proxy = create_proxy(make_handler(item["id"]))
+            proxies[f"click_{item['id']}"] = click_proxy
+            profile_item.addEventListener("click", click_proxy)
+
+            product_grid.appendChild(profile_item)
+
     except Exception as e:
         log(f"Error rendering profiles: {e}")
 

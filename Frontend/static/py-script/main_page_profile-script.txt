@@ -62,30 +62,30 @@ PROFILES = [
         "image": "/static/image_test/profile_hover.jpg",
         "title": "First Profile"
     },
-    {
-        "id": "2", 
-        "name": "Profile 2", 
-        "image": "/static/image_test/profile_default.jpg",
-        "title": "Second Profile"
-    },
-    {
-        "id": "3", 
-        "name": "Profile 3", 
-        "image": "/static/image_test/profile_default.jpg",
-        "title": "Third Profile"
-    },
-    {
-        "id": "4", 
-        "name": "Profile 4", 
-        "image": "/static/image_test/profile_default.jpg",
-        "title": "Fourth Profile"
-    },
-    {
-        "id": "5", 
-        "name": "Profile 5", 
-        "image": "/static/image_test/profile_default.jpg",
-        "title": "Fifth Profile"
-    }
+    # {
+    #     "id": "2", 
+    #     "name": "Profile 2", 
+    #     "image": "/static/image_test/profile_default.jpg",
+    #     "title": "Second Profile"
+    # },
+    # {
+    #     "id": "3", 
+    #     "name": "Profile 3", 
+    #     "image": "/static/image_test/profile_default.jpg",
+    #     "title": "Third Profile"
+    # },
+    # {
+    #     "id": "4", 
+    #     "name": "Profile 4", 
+    #     "image": "/static/image_test/profile_default.jpg",
+    #     "title": "Fourth Profile"
+    # },
+    # {
+    #     "id": "5", 
+    #     "name": "Profile 5", 
+    #     "image": "/static/image_test/profile_default.jpg",
+    #     "title": "Fifth Profile"
+    # }
 ]
 
 # Store event handler proxies
