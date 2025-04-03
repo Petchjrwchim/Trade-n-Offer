@@ -265,7 +265,6 @@ async def fetch_user_profile():
 async def load_user_profile():
     try:
         profile_data = await fetch_user_profile()
-        # console.log(profile_data)
         if not profile_data:
             return
         document.getElementById("profileName").textContent = profile_data.username
@@ -396,9 +395,6 @@ def render_user_items(items):
             productsGrid.innerHTML = ''
             productsGrid.appendChild(debug_div)
 
-
-
-# Initialize and load profile data
 async def initialize():
     try:
         console.log("Initializing user profile page")
