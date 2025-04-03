@@ -169,7 +169,6 @@ async def remove_from_wishlist(item_id):
     except Exception as e:
         console.error(f"Error removing item from wishlist: {e}")
 
-
 async def fetch_user_profile():
         try:
             console.log(f"Fetching profile for user ID: {user_id}")
