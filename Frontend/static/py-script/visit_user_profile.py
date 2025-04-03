@@ -9,17 +9,6 @@ console.log("Current path:", path)
 user_id = path.split('/')[-1]
 console.log("Extracted user ID:", user_id)
 
-# Sample user items data for testing if API is not available
-sample_items = [
-    {
-        "id": 1,
-        "name": "Camera",
-        "description": "High-quality digital camera for photography",
-        "price": "$499.99",
-        "image": "/static/image_test/camera.jpg"
-    }
-]
-
 def create_post_popup(item):
     # Create popup container
     popup = document.createElement('div')
@@ -239,6 +228,7 @@ async def fetch_user_profile():
             productsGrid.innerHTML = ''
             productsGrid.appendChild(debug_div)
             return None
+        
 async def load_user_profile():
     try:
         profile_data = await fetch_user_profile()
