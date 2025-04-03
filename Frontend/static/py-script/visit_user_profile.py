@@ -196,29 +196,6 @@ async def fetch_user_profile():
             
             if response.status == 200:
                 profile_data = await response.json()
-                # console.log(profile_data)
-                # # Debug: แสดงข้อมูลโปรไฟล์ทั้งหมดที่ได้รับ
-                # console.log("===== PROFILE DATA DEBUG =====")
-                # console.log("User ID:", profile_data.get("user_id"))
-                # console.log("Username:", profile_data.get("username"))
-                
-                # # Debug: แสดงจำนวน items
-                # items = profile_data.get("items", [])
-                # console.log(f"Total items found: {len(items)}")
-                
-                # console.log("===== ITEMS DETAILS =====")
-                # for i, item in enumerate(items):
-                #     console.log(f"Item #{i+1}:")
-                #     console.log("  ID:", item.get("id"))
-                #     console.log("  ZODB ID:", item.get("zodb_id"))
-                #     console.log("  Name:", item.get("name"))
-                #     console.log("  Description:", item.get("description"))
-                #     console.log("  Price:", item.get("price"))
-                #     console.log("  Image URL:", item.get("image"))
-                #     console.log("  Category:", item.get("category"))
-                #     console.log("  Is Purchasable:", item.get("is_purchasable"))
-                #     console.log("  Is Available:", item.get("is_available"))
-                #     console.log("  -----------------------")
                 return profile_data
             else:
                 error_text = await response.text()
