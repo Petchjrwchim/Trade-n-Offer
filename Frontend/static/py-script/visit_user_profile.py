@@ -240,8 +240,6 @@ async def load_user_profile():
     except Exception as e:
         console.error(f"Error in load_user_profile: {e}")
 
-
-
 def render_user_items(items):
         try:
             productsGrid = document.getElementById("productsGrid")
