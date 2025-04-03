@@ -185,45 +185,40 @@ async def fetch_user_profile():
         try:
             console.log(f"Fetching profile for user ID: {user_id}")
             
-            # Fetch user profile data
-            response = await fetch(
-                f"/user/{user_id}",
-                to_js({
-                    "method": "GET",
-                    "headers": {"Content-Type": "application/json"},
-                    "credentials": "include"
-                })
-            )
+
+            headers = [["Content-Type", "application/json"]]
+            response = await fetch(f"/user/{user_id}",
+                               method="GET",
+                               headers=headers,
+                               credentials="include")
             
             console.log(f"API response status: {response.status}")
             
             if response.status == 200:
                 profile_data = await response.json()
+                # console.log(profile_data)
+                # # Debug: แสดงข้อมูลโปรไฟล์ทั้งหมดที่ได้รับ
+                # console.log("===== PROFILE DATA DEBUG =====")
+                # console.log("User ID:", profile_data.get("user_id"))
+                # console.log("Username:", profile_data.get("username"))
                 
-                # Debug: แสดงข้อมูลโปรไฟล์ทั้งหมดที่ได้รับ
-                console.log("===== PROFILE DATA DEBUG =====")
-                console.log("User ID:", profile_data.get("user_id"))
-                console.log("Username:", profile_data.get("username"))
+                # # Debug: แสดงจำนวน items
+                # items = profile_data.get("items", [])
+                # console.log(f"Total items found: {len(items)}")
                 
-                # Debug: แสดงจำนวน items
-                items = profile_data.get("items", [])
-                console.log(f"Total items found: {len(items)}")
-                
-                # Debug: แสดงรายละเอียดของแต่ละ item
-                console.log("===== ITEMS DETAILS =====")
-                for i, item in enumerate(items):
-                    console.log(f"Item #{i+1}:")
-                    console.log("  ID:", item.get("id"))
-                    console.log("  ZODB ID:", item.get("zodb_id"))
-                    console.log("  Name:", item.get("name"))
-                    console.log("  Description:", item.get("description"))
-                    console.log("  Price:", item.get("price"))
-                    console.log("  Image URL:", item.get("image"))
-                    console.log("  Category:", item.get("category"))
-                    console.log("  Is Purchasable:", item.get("is_purchasable"))
-                    console.log("  Is Available:", item.get("is_available"))
-                    console.log("  -----------------------")
-                
+                # console.log("===== ITEMS DETAILS =====")
+                # for i, item in enumerate(items):
+                #     console.log(f"Item #{i+1}:")
+                #     console.log("  ID:", item.get("id"))
+                #     console.log("  ZODB ID:", item.get("zodb_id"))
+                #     console.log("  Name:", item.get("name"))
+                #     console.log("  Description:", item.get("description"))
+                #     console.log("  Price:", item.get("price"))
+                #     console.log("  Image URL:", item.get("image"))
+                #     console.log("  Category:", item.get("category"))
+                #     console.log("  Is Purchasable:", item.get("is_purchasable"))
+                #     console.log("  Is Available:", item.get("is_available"))
+                #     console.log("  -----------------------")
                 return profile_data
             else:
                 error_text = await response.text()
@@ -269,17 +264,14 @@ async def fetch_user_profile():
             return None
 async def load_user_profile():
     try:
-        # Fetch user profile data
         profile_data = await fetch_user_profile()
-        
+        # console.log(profile_data)
         if not profile_data:
             return
-        
-        # Update profile information
-        document.getElementById("profileName").textContent = profile_data.get("username", "Unknown User")
-        
-        # Render user items
-        render_user_items(profile_data.get("items", []))
+        document.getElementById("profileName").textContent = profile_data.username
+        userItems = profile_data.items
+        render_user_items(userItems)
+        console.log(userItems)
     except Exception as e:
         console.error(f"Error in load_user_profile: {e}")
 
