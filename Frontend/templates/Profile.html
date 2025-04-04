@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade'n Offer - My Products & Saved Collections</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/trade_offer-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/Profile.css') }}">
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+    <py-script src="{{ url_for('static', path='/py-script/user-profile.py') }}"></py-script>
+</head>
+<body>
+    {% include 'component/sidenav.html' %}
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <img src="/static/image_test/profile_avatar.jpg" alt="Profile Avatar" class="profile-avatar">
+            <div class="profile-info">
+                <h2 class="profile-name">Trade'n Offer User</h2>
+                <p class="profile-description">Online trading platform</p>
+            </div>
+            <button class="edit-profile-btn" id="editProfileBtn">Edit Profile</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button" id="likedTab">Liked Items</button>
+        </div>
+        
+        <!-- Tab Contents -->
+        <div id="liked-tab" class="tab-content">
+            <div class="scrollable-grid">
+                <div class="liked-grid" id="likedGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simplified Edit Profile Popup (without image preview) -->
+    <div id="editProfilePopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" id="closeEditProfileBtn">×</span>
+            <h2>Edit Profile</h2>
+            <div class="input-container">
+                <input type="text" id="editProfileName" placeholder="Enter username" value="Trade'n Offer User">
+                <textarea id="editProfileDescription" placeholder="Enter profile description">Online trading platform</textarea>
+                <input type="file" id="editProfileImage" accept="image/*" style="display: none;"> <!-- Hidden file input -->
+            </div>
+            <button type="button" class="save-btn" id="saveProfileBtn">Save</button>
+        </div>
+    </div>
+
+    <!-- ฝัง script ตรงนี้ให้ทำงานโดยตรง -->
+    <script type="py">
+
+    </script>
+</body>
+</html>

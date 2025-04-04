@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Trade'n Offer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/trade_offer-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/Profile.css') }}">
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+</head>
+<body>
+    {% include 'component/sidenav.html' %}
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <img src="/static/image_test/profile_default.jpg" alt="Profile Avatar" class="profile-avatar" id="profileAvatar">
+            <div class="profile-info">
+                <h2 class="profile-name" id="profileName">Loading...</h2>
+                <p class="profile-description" id="profileDescription">User on Trade'n Offer</p>
+            </div>
+        </div>
+
+        <!-- Tabs - แสดงเฉพาะ User Items -->
+        <div class="tabs">
+            <button class="tab-button active" id="productsTab">User Items</button>
+        </div>
+        
+        <!-- ส่วนแสดงรายการสินค้า -->
+        <div id="products-tab" class="tab-content active">
+            <div class="scrollable-grid">
+                <div class="product-grid" id="productsGrid"></div>
+            </div>
+        </div>
+    </div>
+    <py-script src="{{ url_for('static', path='/py-script/visit_user_profile.py') }}"></py-script>
+</body>
+</html>

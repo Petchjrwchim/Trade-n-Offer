@@ -1,0 +1,45 @@
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/main_page_profile.css') }}">
+</head>
+
+<!-- component/main_page_profile.html - Fixed version -->
+<div class="profile-card">
+    <!-- Main Profile Icon -->
+    <div class="profile-content" id="profileIconTrigger">
+        <div class="profile-image">
+            <img id="profileImage" src="/static/image_test/profile_hover.jpg" alt="Profile Image">
+        </div>
+        <div class="profile-details">
+            <span id="profileName" class="profile-name">Profile 1</span>
+            <span id="profileTitle" class="profile-title">User</span>
+        </div>
+    </div>
+
+    <div id="profilePopup" class="profile-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Profile Selection</h2>
+                <!-- Using a button element for the close button for better accessibility -->
+                <button type="button" class="close-btn" id="closeProfileBtn">×</button>
+            </div>
+            
+            <!-- Add Item Button -->
+            <div class="add-item-container">
+                <button type="button" class="button" id="addItemBtn" py-click="go_to_my_items">
+                    <span class="button__text">Add Item</span>
+                    <span class="button__icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
+                            <line y2="19" y1="5" x2="12" x1="12"></line>
+                            <line y2="12" y1="12" x2="19" x1="5"></line>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            
+            <div id="productGrid" class="product-grid">
+                <!-- Sample profiles will be inserted here by PyScript -->
+            </div>
+        </div>
+    </div>
+</div>
+<py-script src="{{ url_for('static', path='/py-script/main_page_profile.py') }}"></py-script>
