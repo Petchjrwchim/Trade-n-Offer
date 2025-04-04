@@ -1,13 +1,18 @@
-/* Styling for Profile Component */
+/* Updated Styling for Always-Visible Profile Component */
 .profile-card {
-    position: relative;
-}
-
-.profile-content {
     position: fixed;
     top: 20px;
     right: 20px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: 300px;
+}
+
+/* Current active profile styling */
+.profile-content {
+    width: 100%;
     height: 80px;
     background-color: #ffffff;
     border-radius: 15px;
@@ -18,7 +23,6 @@
     padding: 10px;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    z-index: 100;
 }
 
 .profile-content:hover {
@@ -59,91 +63,41 @@
     color: #666666;
 }
 
-/* Profile Popup Styles */
-.profile-popup {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
+/* Profile selection panel - always visible */
+.profile-panel {
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    overflow: auto;
-}
-
-.profile-popup.visible {
-    opacity: 1;
-    pointer-events: auto;
-    transition: opacity 0.3s ease;
-}
-
-.popup-content {
     background-color: #2D2D2D;
-    margin: 5% auto;
     border-radius: 16px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    position: relative;
+    max-height: calc(100vh - 150px); /* Adjust to leave space for the current profile */
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding: 20px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
 }
 
-.popup-header {
+.panel-header {
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    position: relative;
     margin-bottom: 20px;
 }
 
-.popup-header h2 {
-    font-size: 24px;
+.panel-header h3 {
+    font-size: 18px;
     font-weight: 500;
     color: #FFFFFF;
-    margin: 0;
+    margin: 0 0 15px 0;
     text-align: center;
 }
 
-.close-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    color: #FFFFFF;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.3s, transform 0.3s;
-    z-index: 10;
-    border: none;
-    outline: none;
-}
-
-.close-btn:hover {
-    color: #FFD700;
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
-}
-
-/* Add Item Container - Centered */
+/* Add Item Container */
 .add-item-container {
     width: 100%;
     display: flex;
-    justify-content: center; /* Changed from flex-end to center */
-    margin: 0 0 20px 0;
+    justify-content: center;
+    margin: 0 0 15px 0;
 }
 
 .button {
@@ -171,8 +125,8 @@
     color: #FFFFFF;
     font-size: 16px;
     transition: color 0.3s ease;
-    position: relative; /* Add position relative */
-    z-index: 2; /* Ensure text stays on top */
+    position: relative;
+    z-index: 2;
 }
 
 .button__icon {
@@ -184,7 +138,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    z-index: 1; /* Put icon behind text */
+    z-index: 1;
 }
 
 .button .svg {
@@ -193,7 +147,7 @@
 }
 
 .button:hover .button__text {
-    color: #FFD700;
+    color: #222222;
     z-index: 1;
 }
 
@@ -209,10 +163,21 @@
 /* Product Grid Styles */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
     width: 100%;
-    padding: 10px 0;
+    padding: 5px 0;
+}
+
+/* No profiles message */
+.no-profiles {
+    text-align: center;
+    padding: 20px;
+    color: #ffffff;
+    font-size: 16px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin: 10px 0;
 }
 
 .product-item {
@@ -222,7 +187,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 15px;
+    padding: 12px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
 }
@@ -232,37 +197,59 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
+/* Highlight selected profile with a more visible yellow border */
 .product-item.active {
-    border: 2px solid #FFD700;
+    border: 3px solid #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
 
 .product-image {
     width: 100%;
-    height: 180px;
+    height: 80px;
     border-radius: 10px;
     object-fit: cover;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     border: 2px solid #444444;
 }
 
 .product-name {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
     color: #FFFFFF;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
-.product-status {
-    font-size: 14px;
-    color: #B0B0B0;
-    text-align: center;
+/* Custom scrollbar for the panel */
+.profile-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.profile-panel::-webkit-scrollbar-track {
+    background: #2D2D2D;
+    border-radius: 10px;
+}
+
+.profile-panel::-webkit-scrollbar-thumb {
+    background: #555555;
+    border-radius: 10px;
+}
+
+.profile-panel::-webkit-scrollbar-thumb:hover {
+    background: #FFD700;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .profile-content {
+    .profile-card {
         width: 250px;
+    }
+    
+    .profile-content {
         height: 70px;
     }
     
@@ -279,17 +266,24 @@
         font-size: 12px;
     }
     
-    .popup-content {
-        width: 95%;
+    .profile-panel {
         padding: 15px;
     }
     
     .product-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+    }
+    
+    .product-item {
+        padding: 10px;
     }
     
     .product-image {
-        height: 140px;
+        height: 70px;
+    }
+    
+    .product-name {
+        font-size: 12px;
     }
 }

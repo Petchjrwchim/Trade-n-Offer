@@ -25,15 +25,20 @@ router = APIRouter()
 
 @router.get("/user-profile/{user_id}", response_class=HTMLResponse)
 async def user_profile(request: Request, user_id: int, db: Session = Depends(get_db)):
+    """
+    Render the user profile page for a specific user
+    """
     try:
         print(f"Rendering user profile page for user ID: {user_id}")
         print(f"Using templates from: {templates_dir}")
+        
         return templates.TemplateResponse(
             "user_profile.html",
             {"request": request, "user_id": user_id}
         )
     except Exception as e:
         print(f"Error rendering user profile: {str(e)}")
+        # Return a simple error page if template rendering fails
         error_html = f"""
         <!DOCTYPE html>
         <html>

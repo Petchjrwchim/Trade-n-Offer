@@ -9,6 +9,9 @@ router = APIRouter(tags=["user_profiles"])
 
 @router.get("/user/{user_id}")
 async def get_user_profile(user_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a user's profile information and their items
+    """
     try:
         user = db.query(User).filter(User.ID == user_id).first()
         if not user:
@@ -30,6 +33,7 @@ async def get_user_profile(user_id: int, db: Session = Depends(get_db)):
                     "description": item_obj.description,
                     "price": item_obj.price,
                     "image": item_obj.image,
+                    "category": item_obj.category if hasattr(item_obj, 'category') else None,
                     "is_purchasable": item.is_purchasable,
                     "is_available": item.is_available
                 })

@@ -1,182 +1,201 @@
 from js import document, console, window, localStorage, setTimeout, fetch, Promise
 from pyodide.ffi import create_proxy, to_js
+import json
 
-# ข้อมูลโปรไฟล์ตัวอย่าง
-PROFILES = [
-    {"id": "1", "name": "John Smith", "image": "/static/image_test/profile_default.jpg", "title": "User"},
-    # {"id": "2", "name": "Mariasdasdasdaa Garcia", "image": "/static/image_test/profile_default.jpg", "title": "User"},
-    # {"id": "3", "name": "David Wang", "image": "/static/image_test/piano.jpg", "title": "User"}
-]
-
-# เก็บ Proxy ทั้งหมดไว้ใน Dictionary
+# Global variable to store proxies
 proxies = {}
 
 def log(message):
-    """ฟังก์ชันสำหรับแสดง log"""
+    """Log function for consistent logging"""
     console.log(message)
 
-def show_profile_popup(event=None):
-    """แสดง Popup เลือกโปรไฟล์"""
-    popup = document.getElementById("profilePopup")
-    if popup:
-        popup.style.display = "block"
-        popup.classList.add("visible")
-        Promise.resolve(to_js(create_item_profile())).catch(lambda e: console.error(f"Error: {e}"))
-
-def close_profile_popup(event=None):
-    """ปิด Popup เลือกโปรไฟล์"""
-    popup = document.getElementById("profilePopup")
-    if popup:
-        popup.classList.remove("visible")
-        
-        # ใช้ Persistent Proxy สำหรับ Callback
-        if "hide_popup" not in proxies:
-            def hide_popup():
-                popup.style.display = "none"
-            proxies["hide_popup"] = create_proxy(hide_popup)
-        
-        setTimeout(proxies["hide_popup"], 300)
+def generate_profiles_from_items(items):
+    """Convert database items to profile-like objects"""
+    profiles = []
+    for item in items:
+        profile = {
+            'id': str(item['id']),
+            'name': item['name'],
+            'description': item['description'],
+            'image': item.get('image', "/static/image_test/placeholder.jpg")  # Default placeholder
+        }
+        profiles.append(profile)
+    return profiles
 
 def select_profile(profile):
-    """เลือกโปรไฟล์และอัปเดตการแสดงผล"""
+    """Select and update profile in UI"""
     try:
-        document.getElementById("profileImage").src = profile["image"]
-        document.getElementById("profileName").textContent = profile["name"]
-        document.getElementById("profileTitle").textContent = profile["title"]
+        default_image = "/static/image_test/placeholder.jpg"
+        image = profile.get('image', default_image)
+        name = profile.get('name', 'User Item')
+        item_id = str(profile.get('id', ''))
+
+        document.getElementById("profileImage").src = image
+        document.getElementById("profileName").textContent = name
         
-        localStorage.setItem("selectedProfileId", profile["id"])
-        localStorage.setItem("selectedProfileName", profile["name"])
-        localStorage.setItem("selectedProfileTitle", profile["title"])
+        localStorage.setItem("selectedProfileId", item_id)
+        localStorage.setItem("selectedProfileName", name)
+        localStorage.setItem("selectedProfileImage", image)
         
-        close_profile_popup()
+        # Refresh the grid to update the active profile indication
+        Promise.resolve(to_js(fetch_and_display_profile_grid())).catch(
+            lambda e: console.error(f"Error refreshing profile grid: {e}")
+        )
+        
     except Exception as e:
-        log(f"Error: {e}")
+        log(f"Error selecting profile: {e}")
 
-async def fetch_userItem():
+async def fetch_and_display_profile_grid():
+    """Fetch user items and display in profile grid (name and image only)"""
     try:
-        console.log("Fethcing user items")
-
+        # Fetch user items
         response = await fetch(
-            "/my-items",
+            "/my-items", 
             to_js({
                 "method": "GET",
-                "header": {"Content-Type": "application/json"},
+                "headers": {"Content-Type": "application/json"},
                 "credentials": "include"
             })
         )
-
-        console.log(f"Status {response.status}")
-
-        if response.status == 200:
-            items = await response.json()
-            console.log("User Item from userItems.py:", items)
-            return items
         
-        else:
-            console.error(f"Failed to fetch posts. Status: {response.status}")
+        # Check response status
+        if not response.ok:
+            console.error(f"Failed to fetch items. Status: {response.status}")
             return []
-    
-    except Exception as e:
-        console.error(f"Error fetching posts: {e}")
-        return []
-
-async def create_item_profile():
-    userItems = await fetch_userItem()
-
-    product_grid = document.getElementById("productGrid")
-    if not product_grid:
-        console.error("Product profile grid element not found!")
-        return
-    else:
+        
+        # Parse response data
+        raw_items = await response.json()
+        
+        # Convert JsProxy to Python list
+        items = []
+        if hasattr(raw_items, 'to_py'):
+            items = raw_items.to_py()
+        else:
+            for i in range(len(raw_items)):
+                item = raw_items[i]
+                items.append({
+                    'id': item['id'],
+                    'name': item['name'],
+                    'description': item.get('description', ''),
+                    'image': item.get('image', "/static/image_test/placeholder.jpg")
+                })
+        
+        # Generate profiles data
+        profiles = generate_profiles_from_items(items)
+        
+        # Get grid container
+        product_grid = document.getElementById("productGrid")
+        if not product_grid:
+            console.error("Product grid element not found!")
+            return []
+        
+        # Clear previous content
         product_grid.innerHTML = ""
-        render_profile(userItems)
-        console.log("Product grid update")
-
-def render_profile(userItems):
-    try:
-        for item in userItems:
-
-            product_grid = document.getElementById("productGrid")
-            if not product_grid:
-                return
-
-            current_id = localStorage.getItem("selectedProfileId") or "1"
-
-            # สร้าง Element สำหรับโปรไฟล์ที่ได้จาก userItems
+        
+        # Get currently selected profile
+        current_id = localStorage.getItem("selectedProfileId") or ""
+        
+        # Check if there are any profiles
+        if len(profiles) == 0:
+            # Create and display "NO PROFILE" message
+            no_profiles_div = document.createElement("div")
+            no_profiles_div.className = "no-profiles"
+            no_profiles_div.textContent = "NO PROFILE"
+            product_grid.appendChild(no_profiles_div)
+            return []
+        
+        # Populate grid items
+        for profile in profiles:
+            # Create container element
             profile_item = document.createElement("div")
             profile_item.className = "product-item"
-
-            # ทำให้โปรไฟล์ที่ถูกเลือกมีลักษณะพิเศษ
-            if item["id"] == current_id:
+            
+            # Apply active class for the selected profile (more emphasis on yellow border)
+            if profile['id'] == current_id:
                 profile_item.classList.add("active")
-
-            profile_item.setAttribute("data-profile-id", item["id"])
-
-            # สร้างรูปภาพ
+                
+            profile_item.setAttribute("data-profile-id", profile['id'])
+            
+            # Create image element
             img = document.createElement("img")
-            img.src = item["image"]
+            img.src = profile['image']
             img.className = "product-image"
-
-            # สร้างชื่อและตำแหน่ง
+            img.alt = profile['name']
+            
+            # Create name element
             name = document.createElement("div")
             name.className = "product-name"
-            name.textContent = item["name"]
-
-            title = document.createElement("div")
-            title.className = "product-status"
-            title.textContent = item["title"]
-
-            # เพิ่ม Element ลงใน Item
+            name.textContent = profile['name']
+            
+            # Assemble elements
             profile_item.appendChild(img)
             profile_item.appendChild(name)
-            profile_item.appendChild(title)
-
-            # สร้าง Event Handler สำหรับคลิกเท่านั้น
-            def make_handler(profile_id):
+            
+            # Add click handler
+            def make_handler(prof):
                 def handler(event):
-                    selected_profile = next((p for p in userItems if p["id"] == profile_id), None)
-                    if selected_profile:
-                        select_profile(selected_profile)
+                    select_profile(prof)
                 return handler
-
-            click_proxy = create_proxy(make_handler(item["id"]))
-            proxies[f"click_{item['id']}"] = click_proxy
+            
+            click_proxy = create_proxy(make_handler(profile))
+            # Create a unique key for each proxy to prevent memory leaks
+            proxy_key = f"click_{profile['id']}"
+            proxies[proxy_key] = click_proxy
             profile_item.addEventListener("click", click_proxy)
-
+            
+            # Add to grid
             product_grid.appendChild(profile_item)
-
+        
+        console.log("Profile grid updated successfully")
+        return profiles
+    
     except Exception as e:
-        log(f"Error rendering profiles: {e}")
+        console.error(f"Error in fetch_and_display_profile_grid: {e}")
+        # Show error message in grid
+        product_grid = document.getElementById("productGrid")
+        if product_grid:
+            product_grid.innerHTML = ""
+            error_div = document.createElement("div")
+            error_div.className = "no-profiles"
+            error_div.textContent = "Error loading profiles"
+            product_grid.appendChild(error_div)
+        return []
 
 def load_saved_profile():
-    """โหลดโปรไฟล์ที่บันทึกไว้"""
+    """Load saved profile from localStorage"""
     try:
         saved_id = localStorage.getItem("selectedProfileId")
-        if saved_id:
-            profile = next((p for p in PROFILES if p["id"] == saved_id), None)
-            if profile:
-                document.getElementById("profileImage").src = profile["image"]
-                document.getElementById("profileName").textContent = profile["name"]
-                document.getElementById("profileTitle").textContent = profile["title"]
+        saved_name = localStorage.getItem("selectedProfileName")
+        saved_image = localStorage.getItem("selectedProfileImage")
+
+        if saved_id and saved_name:
+            document.getElementById("profileImage").src = saved_image or "/static/image_test/placeholder.jpg"
+            document.getElementById("profileName").textContent = saved_name
     except Exception as e:
         log(f"Error loading profile: {e}")
 
 def go_to_my_items(event=None):
-    """Redirect to /MyItem"""
+    """Redirect to My Items page"""
     window.location.href = "/MyItem"
 
 def initialize():
-    """เริ่มต้นการทำงาน"""
-    # สร้าง Proxies หลัก
-    proxies["show_popup"] = create_proxy(show_profile_popup)
-    proxies["close_popup"] = create_proxy(close_profile_popup)
+    """Initialize the profile component"""
+    # Create main proxies
+    proxies["go_to_my_items"] = create_proxy(go_to_my_items)
     
-    # ตั้งค่า Event Listeners
-    document.getElementById("profileIconTrigger").addEventListener("click", proxies["show_popup"])
-    document.getElementById("closeProfileBtn").addEventListener("click", proxies["close_popup"])
+    # Set up event listeners
+    add_item_btn = document.getElementById("addItemBtn")
     
-    # โหลดโปรไฟล์ที่บันทึกไว้
+    if add_item_btn:
+        add_item_btn.addEventListener("click", proxies["go_to_my_items"])
+    else:
+        console.error("Add item button not found")
+    
+    # Load saved profile and initial items
     load_saved_profile()
+    Promise.resolve(to_js(fetch_and_display_profile_grid())).catch(
+        lambda e: console.error(f"Error initializing profile grid: {e}")
+    )
 
-# เริ่มต้นการทำงานเมื่อหน้าเว็บโหลดเสร็จ
+# Initialize when page loads
 initialize()
