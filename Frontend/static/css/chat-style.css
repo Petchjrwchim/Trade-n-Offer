@@ -1,0 +1,992 @@
+/* 
+ * Trade'n Offer Chat System - Full Page Bright Theme
+ * Updated to match the homepage brightness and take full width
+ */
+
+/* ==================== BASIC LAYOUT ADJUSTMENTS ==================== */
+body, html {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #e6e6e6; /* Light gray background similar to homepage */
+    color: #333333;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Lighter background for the whole page */
+.content {
+    margin-left: 155px; /* Match sidebar width from homepage */
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: #e6e6e6; /* Light gray background */
+}
+
+/* Chat Container - Take full width */
+.chat-container {
+    display: flex;
+    width: 100%; /* Full width */
+    height: 100%;
+    background: transparent; /* No background to blend with page */
+    border: none;
+    margin: 0;
+}
+
+/* ==================== CHAT LIST COLUMN ==================== */
+.chat-list-column {
+    width: 320px; /* Wider chat list */
+    border-right: 1px solid #dddddd; /* Light border */
+    display: flex;
+    flex-direction: column;
+    background: #ffffff; /* White background like homepage cards */
+    border-radius: 8px 0 0 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 15px 0 15px 15px; /* Add margin to match homepage */
+}
+
+.chat-header {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 8px 0 0 0;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #5a58af; /* Original accent color */
+}
+
+.chat-header .user-id {
+    margin-left: auto;
+    font-size: 12px;
+    color: #666666;
+    background: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* ==================== SEARCH BAR ==================== */
+.search-container {
+    padding: 8px 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 30px 10px 16px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    color: #333333;
+    font-size: 14px;
+}
+
+.search-input::placeholder {
+    color: #999999;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999999;
+}
+
+/* ==================== CHAT LIST ==================== */
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.chat-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-list::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 4px;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.chat-item:hover {
+    background: #f5f5f5;
+}
+
+.chat-item.active {
+    background: #f0f0f0;
+    border-left: 3px solid #5a58af;
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chat-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333333;
+}
+
+.chat-preview {
+    font-size: 13px;
+    color: #666666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 8px;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #999999;
+    margin-bottom: 4px;
+}
+
+.unread-badge {
+    background: #5a58af;
+    color: #ffffff;
+    font-size: 11px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(90, 88, 175, 0.2);
+}
+
+/* ==================== OFFER TYPE STYLING ==================== */
+.chat-item .offer-type-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chat-item .offer-type-badge.trade {
+    background-color: #5a58af;
+    color: #ffffff;
+}
+
+.chat-item .offer-type-badge.purchase {
+    background-color: #ffdeac;
+    color: #333333;
+}
+
+/* ==================== CHAT AREA ==================== */
+.chat-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff; /* White background */
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 15px 15px 15px 0; /* Add margin to match homepage */
+}
+
+.chat-header-area {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #ffffff;
+    border-radius: 0 8px 0 0;
+}
+
+.chat-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.chat-title h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333333;
+}
+
+.chat-subtitle {
+    font-size: 13px;
+    color: #666666;
+    margin-left: 8px;
+}
+
+/* ==================== CHAT ACTIONS ==================== */
+.chat-actions {
+    display: flex;
+}
+
+.chat-actions button {
+    background: transparent;
+    border: 1px solid #5a58af;
+    color: #5a58af;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.chat-actions button:hover:not(:disabled) {
+    background: rgba(90, 88, 175, 0.1);
+    transform: translateY(-1px);
+}
+
+.chat-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.chat-actions button i {
+    margin-right: 6px;
+}
+
+/* Trade status styling */
+.trade-status-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+#tradeStatusSelect {
+    padding: 6px 10px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    color: #333333;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 5px;
+    transition: all 0.2s ease;
+}
+
+#tradeStatusSelect:hover:not(:disabled) {
+    border-color: #5a58af;
+}
+
+#tradeStatusSelect:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Status options styling */
+#tradeStatusSelect option[value="active"] {
+    color: #5a58af;
+}
+
+#tradeStatusSelect option[value="completed"] {
+    color: #4CAF50;
+}
+
+#tradeStatusSelect option[value="cancelled"] {
+    color: #F44336;
+}
+
+#updateStatusBtn {
+    border: 1px solid #5a58af;
+    background-color: transparent;
+    color: #5a58af;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#updateStatusBtn:hover:not(:disabled) {
+    background-color: rgba(90, 88, 175, 0.1);
+    transform: translateY(-1px);
+}
+
+#updateStatusBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==================== CHAT MESSAGES AREA ==================== */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f9f9f9 !important; /* Light gray message area */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 4px;
+}
+
+/* ==================== MESSAGE CONTAINER FIXES ==================== */
+div[class*="message"],
+div[class*="message"] > div,
+.message-container,
+.message-wrapper,
+div.chat-messages > div {
+    background-color: transparent !important;
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Target any generic containers */
+.message > div, 
+.message-container > div,
+.chat-messages > div > div:not(.message-bubble):not(.message-date):not(.message-timestamp) {
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* ==================== MESSAGE DATE SEPARATOR ==================== */
+.message-date-container {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.message-date {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.05);
+    color: #666666;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 10px;
+}
+
+/* Status colors */
+.message-date.system-message.active-status {
+    background-color: #5a58af;
+    color: #ffffff;
+}
+
+.message-date.system-message.completed-status {
+    background-color: #4CAF50;
+    color: #ffffff;
+}
+
+.message-date.system-message.cancelled-status {
+    background-color: #F44336;
+    color: #ffffff;
+}
+
+.message-date.system-message.pending-status {
+    background-color: #FFC107;
+    color: #333333;
+}
+
+.message-date.system-message.rejected-status {
+    background-color: #F44336;
+    color: #ffffff;
+}
+
+/* Purchase-specific status */
+.message-date.system-message.purchase-status {
+    background-color: #ffdeac;
+    color: #333333;
+}
+
+/* ==================== MESSAGE STYLING ==================== */
+/* Message */
+.message {
+    max-width: 70%;
+    padding: 0;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Outgoing (sent) messages aligned to right */
+.message.outgoing {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+/* Incoming (received) messages aligned to left */
+.message.incoming {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+/* Message bubble */
+.message-bubble {
+    padding: 10px 12px;
+    border-radius: 18px;
+    font-size: 14px;
+    word-wrap: break-word;
+    display: inline-block !important;
+    max-width: 100% !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Message bubble for incoming messages */
+.incoming .message-bubble {
+    background-color: #f0f0f0 !important;
+    color: #333333 !important;
+    border-bottom-left-radius: 4px !important;
+}
+
+/* Message bubble for outgoing messages */
+.outgoing .message-bubble {
+    background-color: #5a58af !important;
+    color: #ffffff !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+/* Message timestamp */
+.message-timestamp {
+    font-size: 11px;
+    color: #999999 !important;
+    margin-top: 2px !important;
+    margin-bottom: 5px;
+}
+
+/* Message timestamp alignment */
+.outgoing .message-timestamp {
+    align-self: flex-end;
+}
+
+.incoming .message-timestamp {
+    align-self: flex-start;
+}
+
+/* ==================== IMAGE IN MESSAGE ==================== */
+.message-image {
+    max-width: 240px;
+    max-height: 240px;
+    border-radius: 12px;
+    margin: 5px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.message-image:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+/* ==================== IMAGE UPLOAD STYLING ==================== */
+.image-upload-input {
+    display: none;
+}
+
+.image-upload-label {
+    padding: 10px;
+    color: #999999;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s ease;
+}
+
+.image-upload-label:hover {
+    color: #5a58af;
+    transform: scale(1.1);
+}
+
+/* ==================== IMAGE PREVIEW ==================== */
+.image-preview-container {
+    display: none;
+    position: relative;
+    padding: 10px;
+    background: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+}
+
+.image-preview-container.visible {
+    display: block;
+}
+
+.image-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    max-height: 100px;
+    max-width: 200px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.remove-image-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+/* ==================== INPUT AREA ==================== */
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    border-radius: 0 0 8px 0;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 16px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    color: #333333;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.chat-input-area input:focus {
+    outline: none;
+    border-color: #5a58af;
+    box-shadow: 0 0 0 2px rgba(90, 88, 175, 0.1);
+}
+
+.chat-input-area input::placeholder {
+    color: #999999;
+}
+
+.chat-input-area button {
+    background: transparent;
+    border: none;
+    color: #5a58af;
+    font-size: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+}
+
+.chat-input-area button:hover {
+    transform: translateY(-2px);
+    color: #6a68bf;
+}
+
+/* ==================== EMPTY STATES ==================== */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #999999;
+    text-align: center;
+    height: 100%;
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #e0e0e0;
+}
+
+.empty-state p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+/* Empty state variants */
+.empty-state.trade {
+    color: #5a58af;
+}
+
+.empty-state.purchase {
+    color: #ffdeac;
+}
+
+.loading-messages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #999999;
+}
+
+.loading-messages i {
+    margin-right: 8px;
+}
+
+/* ==================== SENDING ANIMATION ==================== */
+.message.sending .message-bubble {
+    position: relative;
+    overflow: hidden;
+}
+
+.message.sending .message-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ==================== STATUS NOTIFICATION ==================== */
+.status-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #5a58af;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 2000;
+}
+
+.status-notification.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==================== MODAL STYLING ==================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    border: 1px solid #e0e0e0;
+}
+
+.close-modal {
+    color: #999999;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+    color: #333333;
+    transform: scale(1.1);
+}
+
+.trade-items-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 25px 0;
+}
+
+.trade-item {
+    width: 45%;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.trade-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.item-image {
+    width: 100%;
+    height: 150px;
+    margin: 10px 0;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.item-image:hover img {
+    transform: scale(1.05);
+}
+
+.trade-arrow {
+    font-size: 24px;
+    color: #5a58af;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.trade-status {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.trade-status i {
+    color: #5a58af;
+}
+
+.trade-id {
+    font-size: 12px;
+    color: #999999;
+    margin-top: 5px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+    color: #333333;
+    border: 1px solid #e0e0e0;
+}
+
+.cancel-btn:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .chat-list-column {
+        width: 100%;
+        height: 40%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        border-radius: 8px 8px 0 0;
+        margin: 15px 15px 0 15px;
+    }
+    
+    .chat-column {
+        height: 60%;
+        border-radius: 0 0 8px 8px;
+        margin: 0 15px 15px 15px;
+    }
+    
+    .chat-header-area {
+        border-radius: 0;
+    }
+    
+    .chat-list-column .chat-header h2 {
+        font-size: 14px;
+    }
+    
+    .chat-title h3 {
+        font-size: 14px;
+    }
+    
+    .chat-subtitle {
+        font-size: 12px;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+    
+    .trade-items-container {
+        flex-direction: column;
+    }
+    
+    .trade-item {
+        width: 90%;
+        margin-bottom: 15px;
+    }
+    
+    .trade-arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+    }
+    
+    .message-image {
+        max-width: 180px;
+        max-height: 180px;
+    }
+    
+    .chat-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .trade-status-container {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ================ IMAGE VIEWER MODAL ================ */
+.image-viewer-content {
+    padding: 10px;
+    max-width: 90%;
+    max-height: 90%;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+}
+
+.image-container {
+    overflow: auto;
+    text-align: center;
+    max-height: 80vh;
+}
+
+#fullSizeImage {
+    max-width: 100%;
+    height: auto;
+    max-height: 80vh;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}

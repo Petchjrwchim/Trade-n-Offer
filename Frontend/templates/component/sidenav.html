@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Sidebar with Notifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/enhanced-sidenav.css') }}">
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+</head>
+<body>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <h1 class="logo">&nbsp;&nbsp;&nbsp;&nbsp;Trade'n<span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Offer</span></h1>
+        </div>
+        
+        <br>
+        
+        <div class="nav-links">
+            <a href="/" class="nav-link active">
+                <div class="icon-container">
+                    <i class="fas fa-home"></i>
+                </div>
+                <span class="link-text">    &nbsp;&nbsp;Home</span>
+            </a>
+            <a href="/profile#liked-tab" class="nav-link">
+                <div class="icon-container">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <span class="link-text">   &nbsp;&nbsp;Wishlist</span>
+            </a>
+            <a href="/chat" class="nav-link">
+                <div class="icon-container">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <span class="link-text">&nbsp;&nbsp;Messages</span>
+            </a>
+            <a href="/MyItem" class="nav-link">
+                <div class="icon-container">
+                    <i class="fas fa-box"></i>
+                </div>
+                <span class="link-text">    &nbsp;&nbsp;My Items</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <a href="/profile" class="nav-link">
+                <div class="icon-container">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+                <span class="link-text">    &nbsp;&nbsp;Profile</span>
+            </a>
+            <a href="/logout" class="nav-link">
+                <div class="icon-container">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <span class="link-text">    &nbsp;&nbsp;Logout</span>
+            </a>
+        </div>
+    </div>
+    
+    
+    <button class="notification-toggle" id="notificationToggle">
+        <i class="fas fa-bell"></i>
+        <span class="notification-count">7</span>
+    </button>
+    
+    
+    <div class="notification-card" id="notification-card">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="clear-all">Clear All</button>
+        </div>
+        <div class="messages" id="messages-container">
+            
+        </div>
+    </div>
+
+    <script type="py">
+        from pyodide.ffi import create_proxy
+        from js import document, window, console
+        
+        # Simulated notification data
+        notifications = [
+            {"title": "New Offer", "time": "1m ago", "content": "You received a new trade offer for your camera", "gradient": "linear-gradient(135deg, #ff8950, #ff56dd)"},
+            {"title": "Trade Complete", "time": "5m ago", "content": "Your trade with John Smith was successful", "gradient": "linear-gradient(135deg, #50c1ff, #5050ff)"},
+            {"title": "New Message", "time": "10m ago", "content": "You have a new message from Maria Garcia", "gradient": "linear-gradient(135deg, #ff5677, #ff9956)"},
+            {"title": "Wishlist Alert", "time": "15m ago", "content": "An item in your wishlist is now available", "gradient": "linear-gradient(135deg, #56ffbc, #4a8eff)"},
+            {"title": "Price Drop", "time": "20m ago", "content": "An item you're watching has dropped in price", "gradient": "linear-gradient(135deg, #a056ff, #5e56ff)"},
+            {"title": "System", "time": "25m ago", "content": "Your profile has been updated successfully", "gradient": "linear-gradient(135deg, #ff56dd, #567fff)"},
+            {"title": "New Item", "time": "30m ago", "content": "A new item matching your interests is available", "gradient": "linear-gradient(135deg, #ffbb56, #ff6956)"}
+        ]
+        
+        # Toggle notification panel
+        def toggle_notification(event):
+            notification_card = document.getElementById("notification-card")
+            notification_card.classList.toggle("active")
+            if notification_card.classList.contains("active"):
+                update_notifications()
+        
+        # Update notifications
+        def update_notifications():
+            messages_container = document.getElementById("messages-container")
+            messages_container.innerHTML = ""
+            
+            for i, notification in enumerate(notifications):
+                message_html = f"""
+                    <div class="message">
+                        <div class="message-icon" style="background: {notification['gradient']}"></div>
+                        <div class="message-info">
+                            <div class="message-header">
+                                <div class="message-title">{notification['title']}</div>
+                                <div class="message-time">{notification['time']}</div>
+                            </div>
+                            <div class="message-content">{notification['content']}</div>
+                        </div>
+                    </div>
+                """
+                messages_container.innerHTML += message_html
+            
+            # Add animation delays
+            messages = messages_container.querySelectorAll(".message")
+            for i, message in enumerate(messages):
+                message.style.animationDelay = f"calc({len(notifications) - i} * var(--delay))"
+        
+        # Set up event listeners
+        def initialize():
+            toggle_btn = document.getElementById("notificationToggle")
+            if toggle_btn:
+                toggle_btn.addEventListener("click", create_proxy(toggle_notification))
+                
+            # Update active link based on current path
+            current_path = window.location.pathname
+            nav_links = document.querySelectorAll(".nav-link")
+            
+            for link in nav_links:
+                href = link.getAttribute("href").split("#")[0]
+                if href == current_path:
+                    link.classList.add("active")
+                else:
+                    link.classList.remove("active")
+        
+        # Initialize when page loads
+        window.addEventListener("load", create_proxy(initialize))
+    </script>
+</body>
+</html>

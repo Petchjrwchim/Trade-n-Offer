@@ -1,0 +1,259 @@
+
+
+.instagram-feed {
+    max-width: 470px; 
+    margin: 0 auto;
+    padding: 20px 0;
+    
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    scroll-behavior: smooth;
+    
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+
+.instagram-feed::-webkit-scrollbar {
+    width: 6px;
+}
+
+.instagram-feed::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.instagram-feed::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.instagram-feed::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.instagram-post {
+    border: 1px solid #dbdbdb;
+    border-radius: 12px; 
+    background-color: white;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 470px; 
+    max-width: 100%; 
+}
+
+
+.post-image {
+    width: 470px; 
+    height: 470px; 
+    position: relative;
+    overflow: hidden; 
+    max-width: 100%; 
+    cursor: pointer; 
+    user-select: none; 
+}
+
+.post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
+
+
+.post-image .heart-animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: #ffffff;
+    font-size: 100px;
+    opacity: 0;
+    z-index: 10;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+    pointer-events: none;
+}
+
+.post-image .heart-animation.animate {
+    animation: heart-burst 0.8s ease-out forwards;
+}
+
+@keyframes heart-burst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    15% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    45% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    75% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+}
+
+
+.post-actions-container {
+    display: flex;
+    padding: 10px 16px 0 16px;
+    align-items: center;
+}
+
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+}
+
+
+.bookmark {
+    margin-left: auto;
+}
+
+
+.action-buttons i.fa-heart {
+    font-size: 28px; 
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+    color: #000;
+    margin-right: 15px;
+}
+
+
+.action-buttons i.fas.fa-heart {
+    color: #ed4956 !important;
+}
+
+
+.action-buttons i.fa-heart:active {
+    transform: scale(1.2);
+}
+
+
+.bookmark i.fa-bookmark {
+    font-size: 28px; 
+    cursor: pointer;
+    transition: color 0.2s ease;
+    color: #000;
+}
+
+
+.bookmark i.fas.fa-bookmark {
+    color: #ffcc00 !important;
+}
+
+
+.post-content {
+    padding: 0 16px 16px 16px;
+}
+
+
+.item-price {
+    font-weight: 600;
+    font-size: 16px;
+    color: #0095f6;
+    margin: 10px 0;
+}
+
+
+.user-caption {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+.item_name {
+    font-weight: 600;
+    color: #262626;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.item-description {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #262626;
+    word-wrap: break-word;
+}
+
+
+.location-info {
+    font-size: 13px;
+    color: #8e8e8e;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+
+.post-time {
+    color: #8e8e8e;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+
+@media (max-width: 470px) {
+    .instagram-feed {
+        padding: 10px;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .instagram-post {
+        width: 100%;
+        margin-bottom: 15px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    .post-image {
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%; 
+    }
+    
+    .post-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    
+    .post-image .heart-animation {
+        font-size: 80px;
+    }
+}
+
+
+#scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: none;
+    padding: 10px 15px;
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade'n Offer</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/trade_offer-style.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/instagram-style.css') }}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+</head>
+<body>
+    <div class="particles"></div> 
+    {% include 'component/sidenav.html' %}
+
+    <div class="content">
+        {% include 'component/search_bar.html' %}
+        
+        {% include 'component/instagram_feed.html' %}
+        
+        
+        {% include 'component/main_page_profile.html' %}
+    </div>
+    
+    
+    <py-script src="{{ url_for('static', path='/py-script/feed.py') }}"></py-script>
+    
+</body>
+</html>

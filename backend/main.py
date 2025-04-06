@@ -4,19 +4,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
-
-from typing import List
+from app.getUserID import check_session_cookie
 #authentication function
 from api.routes.authentication import router as auth_router
-from api.routes.item_manage import router as item_router
-from api.routes.chat_server import router as chat_router
+from api.routes.item_manage import router as item_manage_router
+from api.routes.chat_server import router as chat_router  # Import the chat router
+from api.routes.offers import router as offers_management
+from api.routes.wishlist import router as wishlist_management
+from api.routes.matches import router as matches_router
+from api.routes.user_profiles import router as user_profiles_router
+from api.routes.user_profile_page import router as user_profile_page_router
+from api.routes.purchase_offer import router as purchase_offers_router
+
 
 app = FastAPI()
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,9 +32,17 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="../Frontend/static"), name="static")
 templates = Jinja2Templates(directory="../Frontend/templates")
 
+# Include all routers
 app.include_router(auth_router)
-app.include_router(item_router)
-app.include_router(chat_router)
+app.include_router(item_manage_router)
+app.include_router(chat_router)  # Include the chat router
+app.include_router(offers_management)
+app.include_router(wishlist_management)
+app.include_router(matches_router)
+app.include_router(user_profiles_router)
+app.include_router(user_profile_page_router)
+app.include_router(purchase_offers_router)
+
 
 
 @app.get("/")
@@ -36,13 +50,13 @@ async def index(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
         return RedirectResponse(url="/login")
-    return templates.TemplateResponse("main_page.html", 
+    return templates.TemplateResponse("trade_offer.html", 
                                       {"request": request})
 
 @app.get("/login")
 async def loginPage(request: Request):
-    return templates.TemplateResponse("authentication.html", 
-                                      {"request": request, "message": "Welcome to Trade’n Offer"})
+    return templates.TemplateResponse("login.html", 
+                                      {"request": request, "message": "Welcome to Trade'n Offer"})
 
 @app.get("/logout")
 async def logout():
@@ -52,15 +66,20 @@ async def logout():
 
 @app.get("/chat")
 async def chat_page(request: Request):
-    return templates.TemplateResponse("chat.html", {"request": request})
-
-
-
-def check_session_cookie(request: Request):
+    """Render the chat interface page"""
+    # Check if user is authenticated
     session_token = request.cookies.get("session_token")
     if not session_token:
-        raise HTTPException(status_code=401, detail="Unauthorized - No session token")
-    return session_token
+        return RedirectResponse(url="/login")
+        
+    return templates.TemplateResponse("chat.html", {"request": request})
+
+@app.get("/MyItem")
+async def myItem_page(request: Request):
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse("myItem_page.html", {"request": request})
 
 @app.get("/check-session")
 async def check_session(request: Request):
@@ -68,3 +87,20 @@ async def check_session(request: Request):
     print(f"Session Token from request: {session_token}")  # Print session token
     print("i'm heasdre")
     return {"message": "Session token exists", "session_token": session_token}
+
+@app.get("/trade_offer")
+async def trade_offer_page(request: Request):
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse("trade_offer.html", {
+        "request": request,
+        "image_url": "/static/image_test/camera.jpg"  # Pass the image URL here
+    })
+
+@app.get("/profile")
+async def myItem_page(request: Request):
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse("Profile.html", {"request": request})
