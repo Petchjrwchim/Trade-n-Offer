@@ -59,40 +59,71 @@ async def get_all_posts(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
     
 @router.post("/create-offers")
-def create_offer(sender_id: int, receiver_id: int, sender_item_id: int, receiver_item_id: int, db: Session = Depends(get_db)):
-    # db_offer = TradeOffer(
-    #     sender_id=sender_id,
-    #     receiver_id=receiver_id,
-    #     sender_item_id=sender_item_id,
-    #     receiver_item_id=receiver_item_id,
-    #     status = "pending"
-    # )
-    # db.add(db_offer)
-    # db.commit()
-    # db.refresh(db_offer)
-
-    # return db_offer
-
-    receiver_item = db.query(Item).filter(Item.ID == receiver_item_id).first()
+def create_offer(request: Request, offer: dict, db: Session = Depends(get_db)):
+    try:
+        # ตรวจสอบว่าผู้ใช้เข้าสู่ระบบแล้ว
+        user_id = check_session_cookie(request)
+        
+        # ดึงข้อมูลจาก body และแปลงเป็น integer
+        receiver_id = int(offer.get("receiver_id"))
+        sender_item_id = int(offer.get("sender_item_id"))
+        receiver_item_id = int(offer.get("receiver_item_id"))
+        
+        # ตรวจสอบว่าข้อมูลมีครบถ้วน
+        if not all([receiver_id, sender_item_id, receiver_item_id]):
+            raise HTTPException(status_code=400, detail="Missing required fields")
+        
+        # ตรวจสอบว่าผู้ใช้เป็นเจ้าของ item ที่ส่ง
+        sender_item = db.query(Item).filter(Item.ID == sender_item_id).first()
+        if not sender_item:
+            raise HTTPException(status_code=404, detail="Sender item not found")
+            
+        
+        # ตรวจสอบว่า receiver เป็นเจ้าของ item ที่ต้องการ
+        receiver_item = db.query(Item).filter(Item.ID == receiver_item_id).first()
+        if not receiver_item:
+            raise HTTPException(status_code=404, detail="Receiver item not found")
+            
+        if receiver_item.userID != receiver_id:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Receiver doesn't own the requested item. Receiver ID: {receiver_id}, Item owner: {receiver_item.userID}"
+            )
+        
+        # ตรวจสอบว่ามี offer ที่ active อยู่สำหรับสินค้าเหล่านี้หรือไม่
+        existing_offer = db.query(TradeOffer).filter(TradeOffer.sender_item_id == sender_item_id , TradeOffer.receiver_item_id == receiver_item_id).first()
+        if existing_offer:
+            raise HTTPException(
+                status_code=400, 
+                detail="One or both items are ready involveasdasdasd525555d in an active trade offer"
+            )
+        
+        # สร้าง offer ใหม่
+        new_offer = TradeOffer(
+            sender_id=user_id,
+            receiver_id=receiver_id,
+            sender_item_id=sender_item_id,
+            receiver_item_id=receiver_item_id,
+            status="pending"
+        )
+        
+        db.add(new_offer)
+        db.commit()
+        db.refresh(new_offer)
+        
+        return {
+            "message": "Trade offer created successfully", 
+            "offer_id": new_offer.ID
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid ID format: {str(e)}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error creating trade offer: {str(e)}")
     
-    if not receiver_item:
-        raise HTTPException(status_code=404, detail="Receiver's item not found")
-    
-    if receiver_item.is_purchasable:
-        raise HTTPException(status_code=400, detail="This item is purchasable, not available for trade.")
-
-    db_offer = TradeOffer(
-        sender_id=sender_id,
-        receiver_id=receiver_id,
-        sender_item_id=sender_item_id,
-        receiver_item_id=receiver_item_id,
-        status="pending"
-    )
-    db.add(db_offer)
-    db.commit()
-    db.refresh(db_offer)
-
-    return db_offer
 
 @router.get("/get-trade-offers")
 async def get_trade_offers(request: Request, db: Session = Depends(get_db)):
@@ -217,3 +248,79 @@ def purchase_item(item_id: int, buyer_id: int, db: Session = Depends(get_db)):
     db.commit()
     
     return {"message": "Item purchased successfully", "new_owner": buyer_id}
+
+@router.get("/get-item/{item_id}")
+async def get_item_details(
+    item_id: int, 
+    request: Request, 
+    db: Session = Depends(get_db)
+):
+    try:
+        # ดึงข้อมูลจาก SQL database
+        item = db.query(Item).filter(Item.ID == item_id).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        # ดึงข้อมูลจาก ZODB
+        root = get_root()
+        zodb_data = root.get("trade_items", {}).get(item.zodb_id)
+        
+        if not zodb_data:
+            raise HTTPException(
+                status_code=404, 
+                detail="Item details not found in ZODB"
+            )
+        
+        # ดึงข้อมูลผู้ใช้ (owner)
+        owner = db.query(User).filter(User.ID == item.userID).first()
+        
+        # สร้าง response data - ตรงกับโครงสร้างโมเดลและตารางจริง
+        item_data = {
+            "ID": item.ID,
+            "userID": item.userID,
+            "owner_username": owner.UserName if owner else "Unknown",
+            "zodb_id": item.zodb_id,
+            "is_purchasable": item.is_purchasable,  # ตรงกับโมเดล is_purchasable (ไม่ใช่ is_purchaseble)
+            "is_available": item.is_available,
+            "is_tradeable": item.is_tradeable,
+            "name": getattr(zodb_data, 'name', None),
+            "description": getattr(zodb_data, 'description', None),
+            "price": getattr(zodb_data, 'price', None),
+            "image": getattr(zodb_data, 'image', None),
+            "category": getattr(zodb_data, 'category', None)
+        }
+        
+        return item_data
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error fetching item details: {str(e)}"
+        )
+
+@router.get("/check-item-availability/{item_id}")
+async def check_item_availability(item_id: int, request: Request, db: Session = Depends(get_db)):
+    try:
+        user_id = check_session_cookie(request)
+        
+        # ตรวจสอบว่าสินค้านี้มี offer ที่ active อยู่หรือไม่
+        existing_offer = db.query(TradeOffer).filter(
+            (TradeOffer.sender_item_id == item_id) | (TradeOffer.receiver_item_id == item_id),
+            TradeOffer.status == "pending"
+        ).first()
+        
+        if existing_offer:
+            return {
+                "available": False,
+                "message": "This item is currently involved in an active trade offer"
+            }
+        
+        return {
+            "available": True,
+            "message": "This item is available for trading"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error checking item availability: {str(e)}")

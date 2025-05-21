@@ -13,6 +13,7 @@ from api.routes.offers import router as offers_management
 from api.routes.wishlist import router as wishlist_management
 from api.routes.user_profiles import router as user_profiles_router
 from api.routes.user_profile_page import router as user_profile_page_router
+from api.routes.purchase_offer import router as purchase_offers_router
 
 app = FastAPI()
 
@@ -36,6 +37,7 @@ app.include_router(offers_management)
 app.include_router(wishlist_management)
 app.include_router(user_profiles_router)
 app.include_router(user_profile_page_router)
+app.include_router(purchase_offers_router)
 
 
 @app.get("/")

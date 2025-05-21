@@ -1,20 +1,24 @@
-/* Instagram-style feed styling for Trading App - Fixed Image Size */
+/* Instagram-style feed styling with updated color scheme */
 .instagram-feed {
-    max-width: 470px; /* Match Instagram's standard width */
-    margin: 70px auto 0 auto; /* Space for search bar */
+    max-width: 470px;
+    margin: 70px auto 0 auto;
     padding: 20px 0;
-    /* Make the feed scrollable */
     max-height: 85vh;
     overflow-y: auto;
     overflow-x: hidden;
-    /* Add smooth scrolling */
     scroll-behavior: smooth;
-    /* Custom scrollbar styling */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    scrollbar-width: none; /* ซ่อน scrollbar สำหรับ Firefox */
+    -ms-overflow-style: none; /* ซ่อน scrollbar สำหรับ IE และ Edge */
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
+    background-color: rgba(223, 223, 223, 0.1);
+    border-radius: 15px;
+}
+
+/* ซ่อน scrollbar สำหรับ Chrome, Safari และ Opera */
+.instagram-feed::-webkit-scrollbar {
+    display: none;
 }
 
 /* Custom scrollbar for WebKit browsers */
@@ -27,19 +31,19 @@
 }
 
 .instagram-feed::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(90, 88, 175, 0.3);
     border-radius: 10px;
 }
 
 .instagram-feed::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(90, 88, 175, 0.5);
 }
 
 /* Regular Post Styling */
 .instagram-post {
-    border: 1px solid #dbdbdb;
+    border: 1px solid #dfdfdf;
     border-radius: 12px;
-    background-color: white;
+    background: linear-gradient(135deg, #ffffff, #f8f8f8);
     margin-bottom: 20px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -50,18 +54,18 @@
 
 .instagram-post:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(90, 88, 175, 0.2);
 }
 
-/* Offer Post Styling - Same as regular post but with gold border */
+/* Offer Post Styling */
 .instagram-post.offer-post {
-    border: 3px solid #FFD700; /* Gold border */
-    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+    border: 3px solid #FFD700;
+    box-shadow: 0 2px 8px rgba(90, 88, 175, 0.3);
 }
 
 .instagram-post.offer-post:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 6px 15px rgba(90, 88, 175, 0.4);
 }
 
 /* Offer badge */
@@ -69,8 +73,8 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: #FFD700;
-    color: #000;
+    background: linear-gradient(135deg, #5a58af, #4a488f);
+    color: #fff;
     padding: 3px 8px;
     border-radius: 12px;
     font-size: 12px;
@@ -81,27 +85,54 @@
 
 /* Post image container - fixed size */
 .post-image {
-    width: 470px; /* Fixed width */
-    height: 470px; /* Fixed height for square */
+    width: 470px;
+    height: 470px;
     position: relative;
-    overflow: hidden; /* Hide overflow if image is larger */
-    max-width: 100%; /* For responsiveness */
+    overflow: hidden;
+    max-width: 100%;
+    background-color: #dfdfdf;
 }
 
 .post-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensure image covers the container, cropping if needed */
+    object-fit: cover;
 }
 
-/* Action buttons area - more compact and balanced */
+/* Post header styling */
+.post-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #ffffff, #f8f8f8);
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.profile-picture {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 2px solid #5a58af;
+    background-color: #dfdfdf;
+}
+
+.post-username {
+    font-weight: 600;
+    font-size: 14px;
+    color: #5a58af;
+}
+
+/* Action buttons area */
 .post-actions-container {
     display: flex;
     padding: 10px 16px 0 16px;
     align-items: center;
+    justify-content: flex-start;
 }
 
-/* Heart and bookmark icons aligned on same row */
+/* Heart and bookmark icons */
 .action-buttons {
     display: flex;
     align-items: center;
@@ -114,61 +145,74 @@
 
 /* Heart icon styling */
 .action-buttons i.fa-heart {
-    font-size: 28px; /* Larger icon */
+    font-size: 28px;
     cursor: pointer;
     transition: color 0.2s ease;
-    color: #000;
+    color: #5a58af;
 }
 
 /* Red color when liked */
 .action-buttons i.fas.fa-heart {
-    color: #ed4956 !important;
+    color: #ff586e !important;
 }
 
 /* Bookmark icon styling */
 .bookmark i.fa-bookmark {
-    font-size: 28px; /* Larger icon */
+    font-size: 28px;
     cursor: pointer;
     transition: color 0.2s ease;
-    color: #000;
+    color: #5a58af;
 }
 
-/* Yellow color when saved */
+/* Custom color when saved */
 .bookmark i.fas.fa-bookmark {
-    color: #ffcc00 !important;
+    color: #ffdeac !important;
+}
+
+/* Trade Button Styling */
+.trade-button {
+    margin-left: 15px;
+}
+
+.trade-button i.fa-handshake {
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+    color: #5a58af;
+}
+
+.trade-button i.fa-handshake:hover {
+    color: #ffdeac;
+}
+
+.trade-button i.fa-handshake:active {
+    transform: scale(1.2);
 }
 
 /* Content section styling */
 .post-content {
     padding: 0 16px 16px 16px;
+    background: linear-gradient(135deg, #ffffff, #f8f8f8);
 }
 
 /* Price styling */
 .item-price {
     font-weight: 600;
     font-size: 16px;
-    color: #0095f6;
+    color: #5a58af;
     margin: 10px 0;
 }
 
-/* Username and caption layout */
+/* Item Name and caption layout */
 .user-caption {
     display: flex;
     flex-direction: column;
     margin-bottom: 8px;
 }
 
-.username {
+.username, .itemName {
     font-weight: 600;
-    color: #262626;
-    font-size: 14px;
-    display: block;
-    margin-bottom: 3px;
-}
-
-.itemName {
-    font-weight: 600;
-    color: #262626;
+    color: #333;
     font-size: 14px;
     display: block;
     margin-bottom: 3px;
@@ -177,21 +221,21 @@
 .caption {
     font-size: 14px;
     line-height: 1.4;
-    color: #262626;
+    color: #444;
     word-wrap: break-word;
 }
 
 /* Location styling */
 .location-info {
     font-size: 13px;
-    color: #8e8e8e;
+    color: #777;
     margin-top: 10px;
     margin-bottom: 6px;
 }
 
 /* Time styling */
 .post-time {
-    color: #8e8e8e;
+    color: #777;
     font-size: 10px;
     text-transform: uppercase;
 }
@@ -203,50 +247,22 @@
     align-items: center;
     justify-content: center;
     padding: 30px;
-    color: #8e8e8e;
+    color: #5a58af;
 }
 
 .loading-indicator i {
     font-size: 30px;
     margin-bottom: 10px;
+    color: #5a58af;
 }
 
-/* Responsive adjustments - maintain aspect ratio on smaller screens */
-@media (max-width: 470px) {
-    .instagram-feed {
-        padding: 10px;
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    .instagram-post {
-        width: 100%;
-        margin-bottom: 15px;
-        border-radius: 8px;
-    }
-    
-    .post-image {
-        width: 100%;
-        height: 0;
-        padding-bottom: 100%; /* Maintain square aspect ratio */
-    }
-    
-    .post-image img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-}
-
-/* Offer actions - when we have trade offer functionality */
+/* Offer actions section */
 .offer-actions {
     display: flex;
     justify-content: space-between;
     padding: 10px 16px;
-    border-top: 1px solid #efefef;
-    background-color: rgba(255, 215, 0, 0.05);
+    border-top: 1px solid #dfdfdf;
+    background-color: rgba(90, 88, 175, 0.05);
 }
 
 .offer-button {
@@ -259,12 +275,12 @@
 }
 
 .accept-button {
-    background-color: #4caf50;
+    background-color: #5a58af;
     color: white;
 }
 
 .accept-button:hover {
-    background-color: #3d8b40;
+    background-color: #4a488f;
 }
 
 .reject-button {
@@ -285,11 +301,11 @@
 
 .offer-counter {
     position: fixed;
-    top: 0px; /* Increased from 70px to create space below search bar */
+    top: 0px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(255, 215, 0, 0.9);
-    color: #000;
+    background: linear-gradient(135deg, #ffdeac, #ffd28e);
+    color: #5a58af;
     padding: 8px 20px;
     border-radius: 20px;
     font-size: 14px;
@@ -301,26 +317,53 @@
     width: auto;
     max-width: 80%;
     white-space: nowrap;
-    pointer-events: none; /* Allows clicks to pass through to elements below */
-}
-.post-header {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    background-color: white;
-    border-bottom: 1px solid #efefef;
+    pointer-events: none;
 }
 
-.profile-picture {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
+/* Trade notification animations */
+.trade-notification {
+    animation: slideIn 0.5s forwards;
 }
 
-.post-username {
-    font-weight: 600;
-    font-size: 14px;
-    color: #262626;
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.trade-notification.fadeOut {
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 470px) {
+    .instagram-feed {
+        padding: 10px;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .instagram-post {
+        width: 100%;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+    
+    .post-image {
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%;
+    }
+    
+    .post-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
 }

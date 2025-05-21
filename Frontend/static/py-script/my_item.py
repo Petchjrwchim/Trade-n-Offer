@@ -6,16 +6,39 @@ import asyncio
 selected_product = None
 
 def open_add_popup(event=None):
+    # รีเซ็ตฟอร์มทุกครั้งที่เปิด popup
+    reset_add_product_form()
+    document.querySelector("#addProductPopup").style.display = "block"
+
+def reset_add_product_form():
+    # รีเซ็ตข้อมูลในฟอร์ม
     document.querySelector("#addProductName").value = ""
     document.querySelector("#addProductDescription").value = ""
     document.querySelector("#addProductPrice").value = ""
     document.querySelector("#addProductImage").value = ""
-    document.querySelector("#addProductImagePreview").style.display = "none"
-    document.querySelector("#addProductImagePreview").src = ""
-    document.querySelector("#addProductPopup").style.display = "block"
+    
+    # รีเซ็ตรูปภาพและตัวเลือกการแสดงผล
+    preview = document.querySelector("#addProductImagePreview")
+    placeholder = document.querySelector(".image-placeholder")
+    
+    if preview:
+        preview.style.display = "none"
+        preview.src = ""
+    
+    if placeholder:
+        placeholder.style.display = "flex"
+    
+    # รีเซ็ต checkbox
+    trade_checkbox = document.querySelector("#addProductTrade")
+    sell_checkbox = document.querySelector("#addProductSell")
+    if trade_checkbox:
+        trade_checkbox.checked = False
+    if sell_checkbox:
+        sell_checkbox.checked = False
 
 def close_add_popup(event=None):
     document.querySelector("#addProductPopup").style.display = "none"
+    # เมื่อปิด popup ไม่จำเป็นต้องรีเซ็ตข้อมูล เพราะเราจะรีเซ็ตตอนเปิดใหม่อยู่แล้ว
 
 async def save_new_product(event=None):
     try:
@@ -64,7 +87,7 @@ async def save_new_product(event=None):
 
 async def fetch_userItem():
     try:
-        console.log("Fethcing user items")
+        console.log("Fetching user items")
 
         response = await fetch(
             "/my-items",
@@ -89,8 +112,6 @@ async def fetch_userItem():
     except Exception as e:
         console.error(f"Error fetching posts: {e}")
         return []
-    
-# Promise.resolve(to_js(fetch_userItem())).catch(lambda e: console.error(f"Error: {e}"))
 
 def update_product_grid():
     run_async(update_product_grid_with_search)
@@ -99,7 +120,7 @@ def run_async(async_func):
     Promise.resolve(to_js(async_func())).catch(lambda e: console.error(f"Error: {e}"))
 
 async def update_product_grid_with_search():
-    search_query = document.querySelector('#searchInput').value.strip().lower()
+    search_query = document.querySelector('#searchInput').value.strip().lower() if document.querySelector('#searchInput') else ""
     userItems = await fetch_userItem()
 
     productGrid = document.querySelector("#productGrid")
@@ -108,9 +129,10 @@ async def update_product_grid_with_search():
         return
     else:
         productGrid.innerHTML = ""
-        for item in userItems:
-            add_product_element(item, False)
-        console.log("Product grid update")
+        if userItems:
+            for item in userItems:
+                add_product_element(item, False)
+            console.log("Product grid updated")
 
 def add_product_element(item, is_new):
     productGrid = document.querySelector("#productGrid")
@@ -137,7 +159,7 @@ def add_product_element(item, is_new):
 
     price = document.createElement("div")
     price.classList.add("product-price")
-    price.textContent = f"${item['price']}"
+    price.textContent = f"฿ {item['price']}"
 
     buttonContainer = document.createElement("div")
     buttonContainer.classList.add("product-buttons")
@@ -145,7 +167,7 @@ def add_product_element(item, is_new):
     editBtn = document.createElement("div")
     editBtn.classList.add("edit-btn")
     editBtn.textContent = "Edit"
-    editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(item["id"])))
+    editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(item)))
 
     removeBtn = document.createElement("div")
     removeBtn.classList.add("remove-btn")
@@ -162,23 +184,19 @@ def add_product_element(item, is_new):
     productDiv.appendChild(buttonContainer)
     productGrid.appendChild(productDiv)
 
-
-console.log("Initializing product grid...")
-update_product_grid()
-
-
 async def remove_product(product_id):
     try:
         console.log(f"Attempting to remove product with ID: {product_id}")
         
         headers = [["Content-Type", "application/json"]]
         response = await fetch(f"/remove-item/{product_id}",
-                               method="delete",
+                               method="DELETE",
                                headers=headers,
                                credentials="include")
 
         if response.status == 200:
             console.log("Product removed successfully")
+            window.location.reload()
         else:
             data = await response.json()
             console.error(f"Failed to remove product: {data.get('detail', 'Unknown error')}")
@@ -188,11 +206,11 @@ async def remove_product(product_id):
 def remove_btn(item_id):
     console.log(f"Remove button clicked for item ID: {item_id}") 
     Promise.resolve(to_js(remove_product(item_id))).catch(lambda e: console.error(f"Error: {e}"))
-    window.location.reload()
 
-def open_edit_popup(product_id):
+def open_edit_popup(item):
     global selected_product
-    selected_product = next((p for p in product_data if p["id"] == product_id), None)
+    selected_product = item
+    
     if selected_product:
         document.querySelector("#editProductImage").src = selected_product["image"]
         document.querySelector("#editProductName").value = selected_product["name"]
@@ -200,140 +218,104 @@ def open_edit_popup(product_id):
         document.querySelector("#editProductPrice").value = selected_product["price"]
         document.querySelector("#editProductPopup").style.display = "block"
     else:
-        console.error(f"Product with ID {product_id} not found")
+        console.error(f"Product data not found")
 
 def close_edit_popup(event=None):
     document.querySelector("#editProductPopup").style.display = "none"
 
-def save_product_changes(event=None):
+async def save_product_changes(event=None):
     if selected_product:
-        selected_product["name"] = document.querySelector("#editProductName").value
-        selected_product["description"] = document.querySelector("#editProductDescription").value
-        selected_product["price"] = document.querySelector("#editProductPrice").value
-        update_product_grid_with_search()
-        close_edit_popup()
+        try:
+            item_id = selected_product["id"]
+            name = document.querySelector("#editProductName").value
+            description = document.querySelector("#editProductDescription").value
+            price = document.querySelector("#editProductPrice").value
+            
+            updated_product = {
+                "item_name": name,
+                "item_description": description,
+                "item_price": price,
+                # Keep the original image
+                "item_image": selected_product["image"]
+            }
+            
+            headers = [["Content-Type", "application/json"]]
+            response = await fetch(f"/edit-item/{item_id}", 
+                                  method="PUT", 
+                                  body=json.dumps(updated_product), 
+                                  headers=headers, 
+                                  credentials="include")
+            
+            if response.status == 200:
+                console.log("Product updated successfully")
+                close_edit_popup()
+                window.location.reload()
+            else:
+                data = await response.json()
+                console.error(f"Failed to update product: {data.get('detail', 'Unknown error')}")
+                
+        except Exception as e:
+            console.error(f"Error updating product: {e}")
     else:
         console.error("No product selected for editing")
 
+# สคริปต์ตรวจสอบและแก้ไขปัญหาเมื่อกดปุ่ม Select from computer
+def setup_image_selection():
+    try:
+        # เพิ่ม event listener สำหรับการเปลี่ยนแปลงไฟล์ภาพ
+        file_input = document.querySelector("#addProductImage")
+        if file_input:
+            file_input.addEventListener("change", create_proxy(handle_image_selection))
+            console.log("Image selection handler set up")
+    except Exception as e:
+        console.error(f"Error setting up image selection: {e}")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def update_product_grid():
-#     update_product_grid_with_search()
-    
-# def update_product_grid_with_search():
-#     search_query = document.querySelector("#searchInput").value.strip().lower()
-#     # filter_option = document.querySelector("#filterSelect").value
-
-#     filtered_data = [product for product in product_data if 
-#                     (search_query in product["name"].lower() or 
-#                         search_query in product["price"].lower())]
-
-#     if filter_option == "name_asc":
-#         filtered_data.sort(key=lambda x: x["name"].lower())
-#     elif filter_option == "name_desc":
-#         filtered_data.sort(key=lambda x: x["name"].lower(), reverse=True)
-#     elif filter_option == "price_asc":
-#         filtered_data.sort(key=lambda x: float(x["price"]))
-#     elif filter_option == "price_desc":
-#         filtered_data.sort(key=lambda x: float(x["price"]), reverse=True)
-
-#     productGrid = document.querySelector("#productGrid")
-#     if not productGrid:
-#         console.error("Product grid element (#productGrid) not found!")
-#         return
-#     productGrid.innerHTML = ""
-#     for product in filtered_data:
-#         add_product_element(product, False)
-    # console.log("Product grid updated with search and filter")
-
-# def add_product_element(product, is_new):
-#     productGrid = document.querySelector("#productGrid")
-#     productDiv = document.createElement("div")
-#     productDiv.classList.add("product-item")
-#     if is_new:
-#         productDiv.classList.add("new-product")
-
-#     img = document.createElement("img")
-#     img.src = product["image"]
-#     img.alt = product["name"]
-#     img.classList.add("product-image")
-
-#     name = document.createElement("div")
-#     name.classList.add("product-name")
-#     name.textContent = product["name"]
-
-#     description = document.createElement("div")
-#     description.classList.add("product-description")
-#     description.textContent = product["description"]
-
-#     price = document.createElement("div")
-#     price.classList.add("product-price")
-#     price.textContent = f"${product['price']}"
-
-#     buttonContainer = document.createElement("div")
-#     buttonContainer.classList.add("product-buttons")
-
-#     editBtn = document.createElement("div")
-#     editBtn.classList.add("edit-btn")
-#     editBtn.textContent = "Edit"
-#     editBtn.addEventListener("click", create_proxy(lambda e: open_edit_popup(product["id"])))
-
-#     removeBtn = document.createElement("div")
-#     removeBtn.classList.add("remove-btn")
-#     removeBtn.textContent = "Remove"
-
-#     buttonContainer.appendChild(editBtn)
-#     buttonContainer.appendChild(removeBtn)
-
-#     productDiv.appendChild(img)
-#     productDiv.appendChild(name)
-#     productDiv.appendChild(description)
-#     productDiv.appendChild(price)
-#     productDiv.appendChild(buttonContainer)
-#     productGrid.appendChild(productDiv)
-
-# console.log("Initializing product grid...")
-# update_product_grid()
-
-# window.addEventListener("load", create_proxy(lambda e: update_product_grid()))
-
-# def handle_image_preview(event):
-#     files = event.target.files  # Get the FileList object
-#     if files.length > 0:  # Use .length to check if there are files
-#         file = files.item(0)  # Use .item() to access the first file
-#         if file:
-#             preview = document.querySelector("#addProductImagePreview")
-#             reader = FileReader.new()
+def handle_image_selection(event):
+    try:
+        files = event.target.files
+        if files and files.length > 0:
+            file = files.item(0)
+            preview = document.querySelector("#addProductImagePreview")
+            placeholder = document.querySelector(".image-placeholder")
             
-#             def on_load(e):
-#                 preview.src = e.target.result
-#                 preview.style.display = "block"
+            if preview and placeholder:
+                reader = window.FileReader.new()
+                
+                def on_load(e):
+                    preview.src = e.target.result
+                    preview.style.display = "block"
+                    placeholder.style.display = "none"  # ซ่อนปุ่มเมื่อมีรูปภาพ
+                
+                reader.onload = create_proxy(on_load)
+                reader.readAsDataURL(file)
+        else:
+            # กรณีไม่มีไฟล์ถูกเลือก
+            preview = document.querySelector("#addProductImagePreview")
+            placeholder = document.querySelector(".image-placeholder")
             
-#             reader.onload = create_proxy(on_load)
-#             reader.readAsDataURL(file)
-#     else:
-#         preview = document.querySelector("#addProductImagePreview")
-#         preview.style.display = "none"
-#         preview.src = ""
+            if preview:
+                preview.style.display = "none"
+                preview.src = ""
+            
+            if placeholder:
+                placeholder.style.display = "flex"  # แสดงปุ่ม
+    except Exception as e:
+        console.error(f"Error handling image selection: {e}")
 
-# document.querySelector("#addProductImage").addEventListener("change", create_proxy(handle_image_preview))
+# สคริปต์สำหรับการเลือกไฟล์
+def select_file():
+    document.querySelector("#addProductImage").click()
 
-# document.querySelector("#searchInput").addEventListener("input", create_proxy(lambda e: update_product_grid_with_search()))
-# document.querySelector("#filterSelect").addEventListener("change", create_proxy(lambda e: update_product_grid_with_search()))
+# Initialize everything
+console.log("Initializing product grid and event handlers...")
+update_product_grid()
+setup_image_selection()
+
+# Add event listeners for edit/save buttons if they exist in the document
+save_edit_btn = document.querySelector("#saveEditBtn")
+if save_edit_btn:
+    save_edit_btn.addEventListener("click", create_proxy(lambda e: run_async(save_product_changes)))
+
+close_edit_btn = document.querySelector("#closeEditBtn")
+if close_edit_btn:
+    close_edit_btn.addEventListener("click", create_proxy(close_edit_popup))

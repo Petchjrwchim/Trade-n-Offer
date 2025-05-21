@@ -2,7 +2,7 @@ from pyscript import when
 import pyodide.http
 import json
 from pyodide.ffi import create_proxy, to_js
-from js import document, console, fetch, window, Promise
+from js import document, console, fetch, window, Promise, localStorage, setTimeout
 import asyncio
 
 async def fetch_posts():
@@ -94,6 +94,10 @@ def navigate_to_user_profile(user_id, username):
         window.location.href = f"/user-profile/{user_id}"
     except Exception as e:
         console.error(f"Error navigating to user profile: {e}")
+
+
+
+
 # ฟังก์ชันเดิมสำหรับสร้าง post element
 def create_post_element(post):
     try:
@@ -152,18 +156,42 @@ def create_post_element(post):
         action_buttons.appendChild(heart_icon)
         
         Promise.resolve(check_wishlist_status(post['zodb_id'], heart_icon))
- 
-        bookmark = document.createElement('div')
-        bookmark.className = 'bookmark'
+        # Offer button container (replacing bookmark)
+        offer_container = document.createElement('div')
+        offer_container.className = 'bookmark'
+        
+        # Offer icon (using handshake icon)
+        offer_icon = document.createElement('i')
+        offer_icon.className = 'fas fa-handshake'
+        offer_icon.title = 'Create trade offer'
+        offer_icon.style.color = '#000'
+        
+        # Store the post data for the offer
+        offer_icon.setAttribute('data-post-id', str(post['ID']))
+        offer_icon.setAttribute('data-user-id', str(post['userID']))
+        offer_icon.setAttribute('data-item-name', post['name'])
+        
+        # Add click event to create a trade offer directly
+        offer_icon.onclick = create_proxy(lambda event: run_async(lambda: create_direct_trade_offer(event)))
+        offer_container.appendChild(offer_icon)
 
-        bookmark_icon = document.createElement('i')
-        bookmark_icon.className = 'far fa-bookmark'
-        bookmark_icon.title = 'Save for later'
-        bookmark_icon.onclick = create_proxy(lambda event: toggle_bookmark(event))
-        bookmark.appendChild(bookmark_icon)
-
+        # Purchase offer icon (shopping cart)
+        purchase_icon = document.createElement('i')
+        purchase_icon.className = 'fas fa-shopping-cart'
+        purchase_icon.title = 'Create purchase offer'
+        purchase_icon.style.color = '#000'
+        
+        # Store the post data for the purchase offer
+        purchase_icon.setAttribute('data-post-id', str(post['ID']))
+        purchase_icon.setAttribute('data-user-id', str(post['userID']))
+        purchase_icon.setAttribute('data-item-name', post['name'])
+        
+        # Add click event to create a purchase offer directly
+        purchase_icon.onclick = create_proxy(lambda event: run_async(lambda: create_direct_purchase_offer(event)))
+        
+        offer_container.appendChild(purchase_icon)
         actions_container.appendChild(action_buttons)
-        actions_container.appendChild(bookmark)
+        actions_container.appendChild(offer_container)
 
         content_div = document.createElement('div')
         content_div.className = 'post-content'
@@ -182,7 +210,6 @@ def create_post_element(post):
         # username_span = document.createElement('span')
         # username_span.className = 'username'
         # username_span.textContent = post['username'] + " "
-        
         item_name = document.createElement('span')
         item_name.className = 'itemName'
         item_name.textContent = post['name']
@@ -207,6 +234,462 @@ def create_post_element(post):
     except Exception as e:
         console.error(f"Error creating post element: {e}")
         return document.createElement('div')
+    
+async def fetch_my_items():
+    try:
+        console.log("Fetching user's items...")
+
+        response = await fetch(
+            "/my-items",
+            to_js({
+                "method": "GET",
+                "headers": {"Content-Type": "application/json"},
+                "credentials": "include"
+            })
+        )
+
+        if response.status == 200:
+            items = await response.json()
+            console.log("Fetched my items:", items)
+            return items
+        else:
+            console.error(f"Failed to fetch my items. Status: {response.status}")
+            return []
+
+    except Exception as e:
+        console.error(f"Error fetching my items: {e}")
+        return []
+    
+def create_active_profile_indicator():
+    """Create a floating indicator showing the active profile"""
+    try:
+        # Get profile info from localStorage
+        profile_id = localStorage.getItem("selectedProfileId")
+        profile_name = localStorage.getItem("selectedProfileName")
+        profile_image = localStorage.getItem("selectedProfileImage") or "/static/image_test/placeholder.jpg"
+        
+        # If no profile is selected, show a message to select one
+        if not profile_id or not profile_name:
+            indicator_text = "No profile selected"
+            profile_image = "/static/image_test/placeholder.jpg"
+        else:
+            indicator_text = "Trading as: " + profile_name
+        
+        # Create indicator element
+        indicator = document.createElement('div')
+        indicator.id = 'activeProfileIndicator'
+        indicator.className = 'active-profile-indicator'
+        
+        # Create profile image
+        img = document.createElement('img')
+        img.src = profile_image
+        img.alt = "Active Profile"
+        
+        # Create text
+        text = document.createElement('span')
+        text.textContent = indicator_text
+        
+        # Assemble indicator
+        indicator.appendChild(img)
+        indicator.appendChild(text)
+        
+        # Add to document
+        document.body.appendChild(indicator)
+        
+        # Set up LocalStorage event listener to update indicator when profile changes
+        def handle_storage_change(event):
+            if event.key == "selectedProfileId" or event.key == "selectedProfileName" or event.key == "selectedProfileImage":
+                # Remove old indicator
+                old_indicator = document.getElementById('activeProfileIndicator')
+                if old_indicator:
+                    document.body.removeChild(old_indicator)
+                # Create updated indicator
+                create_active_profile_indicator()
+        
+        # Add event listener for storage changes
+        window.addEventListener('storage', create_proxy(handle_storage_change))
+        
+        console.log("Active profile indicator created")
+    except Exception as e:
+        console.error(f"Error creating active profile indicator: {e}")
+
+def update_active_profile_indicator():
+    """Update the active profile indicator with current profile info"""
+    try:
+        indicator = document.getElementById('activeProfileIndicator')
+        if not indicator:
+            create_active_profile_indicator()
+            return
+            
+        # Get updated profile info
+        profile_id = localStorage.getItem("selectedProfileId")
+        profile_name = localStorage.getItem("selectedProfileName")
+        profile_image = localStorage.getItem("selectedProfileImage") or "/static/image_test/placeholder.jpg"
+        
+        # If no profile is selected, show a message to select one
+        if not profile_id or not profile_name:
+            indicator_text = "No profile selected"
+            profile_image = "/static/image_test/placeholder.jpg"
+        else:
+            indicator_text = "Trading as: " + profile_name
+        
+        # Update indicator
+        img = indicator.querySelector('img')
+        if img:
+            img.src = profile_image
+            
+        text = indicator.querySelector('span')
+        if text:
+            text.textContent = indicator_text
+            
+        console.log("Active profile indicator updated")
+    except Exception as e:
+        console.error(f"Error updating active profile indicator: {e}")
+    
+async def create_direct_trade_offer(event):
+    try:
+        # Get the post data from the clicked icon attributes
+        icon = event.target
+        receiver_item_id = icon.getAttribute('data-post-id')
+        receiver_id = icon.getAttribute('data-user-id')
+        item_name = icon.getAttribute('data-item-name')
+        
+        if not receiver_item_id or not receiver_id:
+            console.error("Missing required data for creating trade offer")
+            window.alert("Unable to create trade offer: Missing data")
+            return
+        
+        console.log(f"Creating trade offer for item: {item_name} (ID: {receiver_item_id})")
+        
+        # Show loading state
+        icon.className = 'fas fa-spinner fa-pulse'
+        
+        # Get current profile information from localStorage
+        current_profile_id = localStorage.getItem("selectedProfileId")
+        
+        # Set the sender_item_id to the current profile's item ID
+        sender_item_id = current_profile_id
+        
+        # Fetch the item details to get the userID (owner) of the item
+        response = await fetch(
+            f"/get-item/{sender_item_id}",
+            to_js({
+                "method": "GET",
+                "headers": {"Content-Type": "application/json"},
+                "credentials": "include"
+            })
+        )
+        
+        # Convert JsProxy to Python object
+        sender_item = await response.json()
+        sender_item = sender_item.to_py()  # Convert JsProxy to Python dict
+        
+        # Get the sender_id directly from the item's userID field
+        sender_id = sender_item['userID']
+        
+        if not current_profile_id:
+            window.alert("Please select a profile before making a trade offer.")
+            icon.className = 'fas fa-handshake'
+            return
+            
+        # Fetch user's own items to select one for trading
+        my_items = await fetch_my_items()
+        
+        if not my_items or len(my_items) == 0:
+            window.alert("You don't have any items to trade. Please add items first.")
+            icon.className = 'fas fa-handshake'
+            return
+            
+        trade_offer_data = {
+            "sender_id": sender_id,  # Using the userID from the item
+            "receiver_id": receiver_id,
+            "sender_item_id": sender_item_id,
+            "receiver_item_id": receiver_item_id
+        }
+        
+        console.log("Sending trade offer data:", json.dumps(trade_offer_data))
+        Promise.resolve(to_js(call_backend(trade_offer_data))).catch(lambda e: console.error(f"Error: {e}"))
+        console.log("kuy")
+    except Exception as e:
+        console.error(f"Error in create_direct_trade_offer: {e}")
+        window.alert("An unexpected error occurred while creating the trade offer.")
+    finally:
+        # Reset icon state
+        icon.className = 'fas fa-handshake'
+    
+# Store proxies at module level so they don't get destroyed
+proxies = {}
+
+async def call_backend(offer):
+    # Show loading notification
+    show_notification("Processing your trade offer...", "info")
+    
+    headers = [["Content-Type", "application/json"]]
+    response = await fetch("/create-offers",
+                            method="POST",
+                            body=json.dumps(offer),
+                            headers=headers,
+                            credentials="include")
+    
+    data = await response.json()
+    console.log("Response:", data)
+    console.log("kusy")
+    # Show success or error notification based on response
+    if response.ok:
+        show_notification("Trade offer created successfully!", "success")
+    else:
+        show_notification("Failed to create trade offer", "error")
+    
+    return data
+
+
+def show_notification(message, type="info"):
+    # Remove any existing notification
+    existing_notification = document.getElementById("trade-notification")
+    if existing_notification:
+        existing_notification.remove()
+    
+    # Create notification element
+    notification = document.createElement("div")
+    notification.id = "trade-notification"
+    notification.className = f"notification {type}"
+    
+    # Set icon based on notification type
+    icon = ""
+    if type == "success":
+        icon = '<i class="fas fa-check-circle"></i>'
+    elif type == "error":
+        icon = '<i class="fas fa-exclamation-circle"></i>'
+    else:  # info
+        icon = '<i class="fas fa-info-circle"></i>'
+    
+    # Create notification content
+    notification.innerHTML = f"""
+        <div class="notification-content">
+            <div class="notification-icon">{icon}</div>
+            <div class="notification-message">{message}</div>
+            <div class="notification-close">×</div>
+        </div>
+    """
+    
+    # Add custom styling for the notification
+    notification.style.position = "fixed"
+    notification.style.top = "20px"
+    notification.style.right = "20px"
+    notification.style.zIndex = "9999"
+    notification.style.width = "300px"
+    notification.style.padding = "15px"
+    notification.style.borderRadius = "8px"
+    notification.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)"
+    notification.style.animation = "slideIn 0.3s forwards"
+    
+    # Set background color based on notification type
+    if type == "success":
+        notification.style.backgroundColor = "#4CAF50"
+    elif type == "error":
+        notification.style.backgroundColor = "#F44336"
+    else:
+        notification.style.backgroundColor = "#2196F3"
+    
+    # Style notification content
+    content = notification.querySelector(".notification-content")
+    content.style.display = "flex"
+    content.style.alignItems = "center"
+    content.style.color = "white"
+    
+    # Style icon
+    icon_element = notification.querySelector(".notification-icon")
+    icon_element.style.marginRight = "12px"
+    icon_element.style.fontSize = "24px"
+    
+    # Style message
+    message_element = notification.querySelector(".notification-message")
+    message_element.style.flexGrow = "1"
+    
+    # Style close button
+    close_button = notification.querySelector(".notification-close")
+    close_button.style.cursor = "pointer"
+    close_button.style.fontSize = "20px"
+    close_button.style.marginLeft = "12px"
+    close_button.style.opacity = "0.7"
+    close_button.style.transition = "opacity 0.2s"
+    
+    # Create proxies with unique identifiers
+    notification_id = f"notification_{id(notification)}"
+    
+    # Create hover event handlers with persistent proxies
+    def on_close_hover(event):
+        close_button.style.opacity = "1"
+    
+    def on_close_out(event):
+        close_button.style.opacity = "0.7"
+    
+    def close_notification(event):
+        notification.style.animation = "slideOut 0.3s forwards"
+        
+        # Add the slide out animation
+        add_slide_out_style()
+        
+        # Create a persistent proxy for the removal function
+        def remove_notification():
+            notification.remove()
+            # Clean up proxies for this notification
+            for key in list(proxies.keys()):
+                if key.startswith(notification_id):
+                    del proxies[key]
+        
+        proxies[f"{notification_id}_remove"] = create_proxy(remove_notification)
+        setTimeout(proxies[f"{notification_id}_remove"], 300)
+    
+    # Store proxies with unique keys
+    proxies[f"{notification_id}_hover"] = create_proxy(on_close_hover)
+    proxies[f"{notification_id}_out"] = create_proxy(on_close_out)
+    proxies[f"{notification_id}_close"] = create_proxy(close_notification)
+    
+    # Add event listeners
+    close_button.addEventListener("mouseover", proxies[f"{notification_id}_hover"])
+    close_button.addEventListener("mouseout", proxies[f"{notification_id}_out"])
+    close_button.addEventListener("click", proxies[f"{notification_id}_close"])
+    
+    # Add the notification to the document
+    document.body.appendChild(notification)
+    
+    # Add keyframe animation for slide in effect
+    add_slide_in_style()
+    
+    # Auto-remove notification after 5 seconds for success and info
+    if type != "error":
+        # Create auto-close function with persistent proxy
+        def auto_close():
+            if document.getElementById("trade-notification") == notification:
+                notification.style.animation = "slideOut 0.3s forwards"
+                add_slide_out_style()
+                
+                # Create another proxy for the delayed removal
+                def delayed_remove():
+                    if document.body.contains(notification):
+                        notification.remove()
+                    # Clean up proxies for this notification
+                    for key in list(proxies.keys()):
+                        if key.startswith(notification_id):
+                            del proxies[key]
+                
+                proxies[f"{notification_id}_delayed_remove"] = create_proxy(delayed_remove)
+                setTimeout(proxies[f"{notification_id}_delayed_remove"], 300)
+        
+        proxies[f"{notification_id}_auto_close"] = create_proxy(auto_close)
+        setTimeout(proxies[f"{notification_id}_auto_close"], 5000)
+
+def add_slide_in_style():
+    # Check if style already exists
+    if not document.getElementById("notification-slide-in-style"):
+        style = document.createElement("style")
+        style.id = "notification-slide-in-style"
+        style.textContent = """
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        """
+        document.head.appendChild(style)
+
+def add_slide_out_style():
+    # Check if style already exists
+    if not document.getElementById("notification-slide-out-style"):
+        style = document.createElement("style")
+        style.id = "notification-slide-out-style"
+        style.textContent = """
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        """
+        document.head.appendChild(style)
+
+def auto_close_notification(notification):
+    notification.style.animation = "slideOut 0.3s forwards"
+    
+    # Add the slide out animation
+    add_slide_out_style()
+    
+    # Remove notification after animation completes
+    setTimeout(lambda: notification.remove(), 300) 
+
+async def create_direct_purchase_offer(event):
+    try:
+        # Get the post data from the clicked icon attributes
+        icon = event.target
+        item_id = icon.getAttribute('data-post-id')
+        item_owner_id = icon.getAttribute('data-user-id')
+        item_name = icon.getAttribute('data-item-name')
+        
+        if not item_id or not item_owner_id:
+            console.error("Missing required data for creating purchase offer")
+            window.alert("Unable to create purchase offer: Missing data")
+            return
+        
+        console.log(f"Creating purchase offer forasdasd item: {item_name} (ID: {item_id})")
+        
+        # Show loading state
+        icon.className = 'fas fa-spinner fa-pulse'
+        
+        # Check item purchase status first
+        headers = [["Content-Type", "application/json"]]
+        status_response = await fetch(
+            f"/purchase-offers/check-item/{item_id}",
+            method="GET",
+            headers=headers,
+            credentials="include"
+        )
+        
+        status_data = await status_response.json()
+        
+        # Check if item is available for purchase
+        if not status_data.available:
+            window.alert(f"Item {item_name} is not available for purchase")
+            icon.className = 'fas fa-shopping-cart'
+            return
+        
+        # Prepare purchase offer data
+        purchase_offer_data = {
+            "item_id": int(item_id)
+        }
+        
+        # Send purchase offer request
+        headers = [["Content-Type", "application/json"]]
+        response = await fetch("/purchase-offers/create",
+                               method="POST",
+                               body=json.dumps(purchase_offer_data),
+                               headers=headers,
+                               credentials="include")
+        
+        # Parse response
+        data = await response.json()
+        
+        # Show notification based on response
+        if response.ok:
+            show_notification(f"Purchase offer created for {item_name}", "success")
+        else:
+            show_notification(data.get('detail', 'Failed to create purchase offer'), "error")
+        
+    except Exception as e:
+        console.error(f"Error in create_direct_purchase_offer: {e}")
+        window.alert("An unexpected error occurred while creating the purchase offer.")
+    finally:
+        # Reset icon state
+        icon.className = 'fas fa-shopping-cart'
 
 # ฟังก์ชันใหม่สำหรับสร้าง trade offer element
 def create_offer_element(offer, offer_index, total_offers):
@@ -272,16 +755,9 @@ def create_offer_element(offer, offer_index, total_offers):
         heart_icon.title = 'Like this offer'
         action_buttons.appendChild(heart_icon)
         
-        bookmark = document.createElement('div')
-        bookmark.className = 'bookmark'
-        
-        bookmark_icon = document.createElement('i')
-        bookmark_icon.className = 'far fa-bookmark'
-        bookmark_icon.title = 'Save this offer'
-        bookmark.appendChild(bookmark_icon)
         
         actions_container.appendChild(action_buttons)
-        actions_container.appendChild(bookmark)
+        
         
         # ส่วนเนื้อหาของ offer
         content_div = document.createElement('div')
@@ -381,18 +857,7 @@ async def remove_from_wishlist(item_id):
     except Exception as e:
         console.error(f"Error removing item from wishlist: {e}")
     
-def toggle_bookmark(event):
-    try:
-        icon = event.target
-        
-        if 'far' in icon.className:
-            icon.className = 'fas fa-bookmark'
-            icon.style.color = '#ffcc00'
-        else:
-            icon.className = 'far fa-bookmark'
-            icon.style.color = '#000'
-    except Exception as e:
-        console.error(f"Error toggling bookmark: {e}")
+
 
 def handle_offer_response(offer_id, response):
     try:
@@ -521,35 +986,17 @@ def load_next_offer(current_index, total_offers):
                 
             # อัพเดตตัวนับจำนวน offer
             offers_left = len(window.remainingOffers)
-            update_offer_counter(offers_left + 1)  # +1 เพราะกำลังแสดงอีก 1 รายการ
+            
             console.log(f"Updated counter toasdasdad {offers_left + 1} offers")
         else:
             console.log("No more offers remaining")
             # ไม่มี offer เพิ่มเติม อัพเดตตัวนับเป็น 0
-            update_offer_counter(0)
+            
     except Exception as e:
         console.error(f"Error loading next offer: {e}")
-        # พยายามอัพเดตตัวนับให้เป็น 0 เพื่อความปลอดภัย
-        try:
-            update_offer_counter(0)
-        except:
-            pass
 
-def update_offer_counter(count):
-    try:
-        counter = document.querySelector('.offer-counter')
-        if counter:
-            if count > 0:
-                counter.textContent = f"{count} offer{'s' if count > 1 else ''} available"
-                counter.style.backgroundColor = 'rgba(255, 215, 0, 0.9)'
-                counter.style.color = '#000'
-            else:
-                # แสดง "0 offer available" แทน "No more offers available"
-                counter.textContent = "0 offer available"
-                counter.style.backgroundColor = 'rgba(128, 128, 128, 0.2)'
-                counter.style.color = '#555'
-    except Exception as e:
-        console.error(f"Error updating offer counter: {e}")
+
+
 
 async def load_posts_with_offers():
     try:
@@ -593,16 +1040,16 @@ async def load_posts_with_offers():
                 window.remainingOffers = offers[1:] if len(offers) > 1 else []
                 
                 # เพิ่มตัวนับ offer ไปที่ container
-                container.appendChild(offer_counter)
+                
                 
                 # เพิ่ม offer แรก
                 container.appendChild(first_offer_element)
             else:
                 # แสดง "0 offer" เมื่อไม่มี offer
-                offer_counter.textContent = "0 offer available"
+                offer_counter.textContent = "0asdasd offer available"
                 offer_counter.style.backgroundColor = 'rgba(128, 128, 128, 0.2)'
                 offer_counter.style.color = '#555'
-                container.appendChild(offer_counter)
+                
             
             # เพิ่ม posts
             if posts:

@@ -1,12 +1,35 @@
-body {
+/* Enhanced Sidebar CSS */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --sidebar-width: 350px;
+    --sidebar-collapsed-width: 80px;
+    --primary-bg: #FFD700;
+    --sidebar-bg: #202096;
+    --sidebar-hover: #2a2a3c;
+    --accent-color: #FFD700;
+    --accent-hover: #FFE44D;
+    --text-primary: #5a58af;
+    --text-secondary: #cccccc;
+    --transition-speed: 0.3s;
+}
+
+* {
     margin: 0;
-    font-family: 'Roboto', Arial, sans-serif;
-    display: flex;
-    background: linear-gradient(45deg, #000000, #1a1a1a, #000033, #000000);
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #5a58af;
     background-size: 200% 200%;
     animation: gradientBG 15s ease infinite;
-    color: #FFFFFF;
+    color: var(--text-primary);
+    display: flex;
     overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
 }
 
 @keyframes gradientBG {
@@ -15,280 +38,438 @@ body {
     100% { background-position: 0% 50%; }
 }
 
+/* Sidebar Styling */
 .sidebar {
-    width: 200px;
+    width: var(--sidebar-width);
     height: 100vh;
-    background: #2D2D2D;
-    color: #FFFFFF;
-    padding: 20px 0;
+    background: linear-gradient(45deg, #232526, #414345);;
     position: fixed;
-    left: 0; /* Always visible */
+    left: 0;
     top: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Important: This makes space between nav-links and profile-link */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-}
-
-.sidebar a {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: #FFFFFF;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background 0.3s, color 0.3s;
-}
-
-.sidebar a:hover, .sidebar a.active {
-    background: #444444;
-    color: #FFD700;
-}
-
-.sidebar .icon {
-    min-width: 16px; /* Reduced for tighter fit */
-    text-align: center;
-    font-size: 14px; /* Reduced for tighter fit */
-}
-
-.sidebar .text {
-    margin-left: 10px; /* Reduced space */
-    white-space: nowrap;
-}
-
-.nav-links {
-    flex-grow: 1; /* This will take all available space, pushing profile-link to bottom */
-}
-
-.profile-link {
-    margin-top: auto; /* Push to bottom */
-    border-top: 1px solid #444444;
-    padding-top: 15px;
-}
-
-/* Notification button now in top-right instead of toggle */
-.notification-toggle {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    font-size: 24px;
-    color: #FFFFFF;
-    background: #2D2D2D;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1001;
-}
-
-.notification-toggle:hover {
-    background: #444444;
-    color: #FFD700;
-}
-
-/* Notification Styles with Scrolling */
-.notification-card {
-    position: fixed;
-    top: 0;
-    right: -300px; /* Start hidden on the right */
-    width: 320px; /* Slightly wider to match image */
-    height: auto; /* Adjust height dynamically based on content */
-    max-height: 80vh; /* Limit height to avoid overflow */
-    background: #2D2D2D;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3), 2px 0 5px rgba(0, 0, 0, 0.2); /* Subtle shadow with right edge highlight */
-    border-radius: 8px 0 0 8px; /* Rounded left corners only */
-    padding: 1rem;
-    z-index: 1002;
-    transition: right 0.3s ease;
-    overflow-y: auto;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+    transition: width var(--transition-speed) ease;
     overflow-x: hidden;
-    --delay: 150ms;
+    overflow-y: auto;
 }
 
-.notification-card.active {
-    right: 0; /* Slide in from the right */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
 }
 
-.notification-card::-webkit-scrollbar {
-    width: 8px;
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.notification-card::-webkit-scrollbar-track {
-    background: #2D2D2D;
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
 }
 
-.notification-card::-webkit-scrollbar-thumb {
-    background: #FFD700;
+.logo-container {
+    padding: 24px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: var(--transition-speed);
+}
+
+.logo span {
+    color: var(--accent-color);
+}
+
+/* Exchange Icon */
+.exchange-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition-speed);
+}
+
+.exchange-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #6351dd;
     border-radius: 10px;
-    transition: background 0.3s;
-}
-
-.notification-card::-webkit-scrollbar-thumb:hover {
-    background: #E6C200;
-}
-
-.messages {
-    width: 100%;
-    padding-right: 5px;
-}
-
-.message {
-    width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    padding: 0.875rem 1rem;
     display: flex;
-    gap: 0.875rem;
-    background: #3A3A3A; /* Slightly lighter than sidebar for contrast */
-    margin-bottom: 0.75rem;
-    transform: scale(0);
-    height: 0;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    animation: show-message 200ms forwards;
-    transform-origin: top center;
-    visibility: hidden;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    color: #FFFFFF;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
-.message:hover {
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px) scale(1.05);
+.exchange-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.message-icon {
-    background: linear-gradient(135deg, rgb(255, 137, 176), rgb(126, 93, 255));
-    width: 2rem; /* Slightly smaller */
-    height: 2rem;
-    min-width: 2rem;
-    min-height: 2rem;
-    border-radius: 0.75rem; /* Slightly smaller */
+.exchange-icon svg {
+    width: 50px;
+    height: 50px;
+    fill: white;
 }
 
-.message:nth-child(1) {
-    animation-delay: calc(4 * var(--delay));
-}
-
-.message:nth-child(2) {
-    animation-delay: calc(3 * var(--delay));
-}
-
-.message:nth-child(3) {
-    animation-delay: calc(2 * var(--delay));
-}
-
-.message:nth-child(4) {
-    animation-delay: var(--delay);
-}
-
-.message:nth-child(2) .message-icon {
-    background: linear-gradient(180deg, rgb(242, 124, 40), rgb(255, 69, 243));
-}
-
-.message:nth-child(3) .message-icon {
-    background: linear-gradient(90deg, rgb(242, 212, 40), rgb(255, 56, 56));
-}
-
-.message:nth-child(4) .message-icon {
-    background: linear-gradient(45deg, rgb(70, 197, 255), rgb(64, 64, 255));
-}
-
-.message:nth-child(5) .message-icon {
-    background: linear-gradient(45deg, rgb(247, 158, 85), rgb(231, 38, 249));
-}
-
-.message-info {
-    display: flex;
-    flex-direction: column;
+/* Navigation Links */
+.nav-links {
+    padding: 15px 0;
     flex-grow: 1;
 }
 
-.message-header {
+.nav-link {
     display: flex;
-    flex-direction: row;
-    align-items: flex-end;
+    align-items: center;
+    padding: 15px 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    margin: 5px 10px;
+    border-radius: 10px;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-primary);
+    background: var(--sidebar-hover);
+    transform: translateX(5px);
+}
+
+.nav-link.active {
+    border-left: 4px solid var(--accent-color);
+}
+
+.icon-container {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    margin-right: 15px;
+    position: relative;
+    background: rgba(255, 215, 0, 0.1);
+    transition: var(--transition-speed);
+}
+
+.nav-link:hover .icon-container,
+.nav-link.active .icon-container {
+    background: var(--accent-color);
+    color: #1e1e2d;
+}
+
+.nav-link i {
+    font-size: 20px;
+    transition: var(--transition-speed);
+}
+
+.link-text {
+    font-size: 50px;
+    font-weight: 500;
+    transition: var(--transition-speed);
+    color: #5a58af;
+}
+
+/* Notification Badge */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #FF4D4D;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 15px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Notification Toggle */
+.notification-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--sidebar-bg);
+    color: var(--text-primary);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    transition: all var(--transition-speed) ease;
+}
+
+.notification-toggle:hover {
+    background: var(--sidebar-hover);
+    transform: scale(1.05);
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #FF4D4D;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Notification Panel */
+.notification-card {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 350px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 998;
+    transition: right var(--transition-speed) ease;
+    display: flex;
+    flex-direction: column;
+    --delay: 100ms;
+}
+
+.notification-card.active {
+    right: 0;
+}
+
+.notification-header {
+    display: flex;
     justify-content: space-between;
-    line-height: 1;
-    user-select: none;
-    -webkit-user-select: none;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.message-title {
-    font-size: 0.875rem; /* Slightly smaller */
+.notification-header h3 {
+    color: var(--accent-color);
     font-weight: 600;
-    color: #FFD700;
 }
 
-.message-time {
-    font-size: 0.75rem; /* Slightly smaller */
-    color: #CCCCCC;
+.clear-all {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    transition: color var(--transition-speed);
 }
 
-.message-time::before {
-    content: "•";
-    margin: 0 0.25rem;
-    font-size: 0.75rem;
-    color: #CCCCCC;
+.clear-all:hover {
+    color: var(--accent-color);
 }
 
-.message-content {
-    margin-top: 0.375rem; /* Slightly smaller */
-    line-height: 1;
-    text-overflow: ellipsis;
-    white-space: wrap;
-    font-weight: 400; /* Slightly bolder */
-    font-size: 0.875rem; /* Slightly smaller */
-    color: #FFFFFF;
+/* Messages Container */
+.messages {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.messages::-webkit-scrollbar {
+    width: 5px;
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+/* Message Item */
+.message {
+    width: 100%;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 15px;
+    transform: scale(0);
+    animation: show-message 0.3s forwards;
+    transform-origin: top center;
+    visibility: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.message:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes show-message {
     0% {
         transform: scale(0);
-        margin-bottom: 0;
         visibility: visible;
     }
     100% {
         transform: scale(1);
-        height: 100%;
-        margin-bottom: 0.75rem;
         visibility: visible;
     }
 }
 
-/* Adjust content area to accommodate always-visible sidebar */
-.content {
-    margin-left: 200px; /* Match sidebar width */
-    width: calc(100% - 200px);
+.message-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
 }
 
-@media (max-width: 768px) {
+.message-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.message-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.message-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.message-content {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+/* Main Content Area */
+.content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    transition: margin-left var(--transition-speed), width var(--transition-speed);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
     .sidebar {
-        width: 60px; /* Narrower on mobile */
+        width: var(--sidebar-collapsed-width);
     }
     
-    .sidebar .text {
-        display: none; /* Hide text on mobile */
+    .link-text {
+        display: none;
+    }
+    
+    .logo {
+        font-size: 0;
+    }
+    
+    .logo::before {
+        content: "T'O";
+        font-size: 24px;
+    }
+    
+    .exchange-icon-container {
+        justify-content: center;
+        padding: 15px 0;
+    }
+    
+    .exchange-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .exchange-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .nav-link {
+        justify-content: center;
+        padding: 15px 0;
+        margin: 5px auto;
+        width: 60px;
+    }
+    
+    .icon-container {
+        margin-right: 0;
     }
     
     .content {
-        margin-left: 60px; /* Match narrower sidebar */
-        width: calc(100% - 60px);
+        margin-left: var(--sidebar-collapsed-width);
+        width: calc(100% - var(--sidebar-collapsed-width));
     }
     
-    .notification-card.active {
-        right: 0;
-        top: 100%; /* Below sidebar on mobile */
+    .nav-link.active {
+        border-left: none;
+        border-bottom: 3px solid var(--accent-color);
+        transform: translateY(-3px);
+    }
+    
+    .nav-link:hover {
+        transform: translateY(-3px);
+    }
+}
+
+@media (max-width: 768px) {
+    .notification-card {
         width: 100%;
-        max-width: 320px;
-        border-radius: 0 0 8px 8px; /* Rounded bottom corners on mobile */
+        right: -100%;
+    }
+    
+    .notification-toggle {
+        top: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
     }
 }

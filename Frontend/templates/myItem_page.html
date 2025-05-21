@@ -9,6 +9,420 @@
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
     <py-script src="/static/py-script/my_item.py"></py-script>
 </head>
+<style>
+    .ig-create-post-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        overflow: auto;
+        padding: 20px 0;
+        
+        /* เพิ่มคุณสมบัติเหล่านี้เพื่อให้แน่ใจว่าการจัดวางจะสมบูรณ์แบบ */
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    
+    .close-popup-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 36px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0 10px;
+        z-index: 1001;
+        transition: color 0.3s ease;
+    }
+    
+    .close-popup-btn:hover {
+        color: #ff4949;
+    }
+    
+    .ig-post-container {
+        width: 90%;
+        max-width: 1000px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        max-height: 90vh;
+        
+        /* เพิ่ม margin แนวตั้งอัตโนมัติเพื่อให้อยู่กึ่งกลาง */
+        margin: auto;
+        
+        /* สำหรับเบราว์เซอร์เก่าๆ ที่ไม่สนับสนุน flexbox */
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .image-upload-section {
+        width: 50%;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .image-preview {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .post-details-section {
+        width: 50%;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .user-profile {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #dbdbdb;
+        padding-bottom: 15px;
+    }
+    
+    .user-profile img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+    }
+    
+    .user-profile span {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .post-caption .input-group {
+        margin-bottom: 20px;
+    }
+    
+    .post-caption label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #262626;
+    }
+    
+    .post-caption input, 
+    .post-caption textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #dbdbdb;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .post-caption textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .price-input-wrapper {
+        position: relative;
+    }
+    
+    .currency-symbol {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8e8e8e;
+    }
+    
+    .price-input-wrapper input {
+        padding-left: 25px;
+    }
+    
+    .trade-sell-options {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .trade-sell-options .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+    }
+    
+    .trade-sell-options input[type="checkbox"] {
+        margin-right: 10px;
+    }
+    
+    .post-submit-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #0095f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
+    
+    .post-submit-btn:hover {
+        background-color: #0074cc;
+    }
+    
+    @media (max-width: 768px) {
+        .ig-post-container {
+            flex-direction: column;
+            width: 95%;
+            max-height: none;
+        }
+    
+        .image-upload-section,
+        .post-details-section {
+            width: 100%;
+            max-height: 50vh;
+        }
+    
+        .image-upload-section {
+            height: 300px;
+        }
+    }
+
+    /* Add this to your existing CSS */
+    .trade-sell-options {
+        margin: 15px 0;
+        display: flex;
+        gap: 20px;
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+        margin: 0;
+        width: 18px;
+        height: 18px;
+        accent-color: #0095f6;
+    }
+
+    .checkbox-wrapper label {
+        font-size: 14px;
+        color: #262626;
+    }
+    .modern-upload-btn {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    
+    /* Visual Style */
+    background: linear-gradient(135deg, #0095f6 0%, #0064e0 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    
+    /* Typography */
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    
+    /* Effects */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 149, 246, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-upload-btn:hover {
+    background: linear-gradient(135deg, #0085e0 0%, #0054c0 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 149, 246, 0.35);
+}
+
+.modern-upload-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 149, 246, 0.25);
+}
+
+.modern-upload-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.modern-upload-btn:hover::after {
+    left: 100%;
+}
+
+.btn-icon {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.modern-upload-btn:hover .btn-icon {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-upload-btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+    
+    .btn-icon {
+        font-size: 16px;
+    }
+}
+.modern-share-btn {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    
+    /* Visual Style */
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    
+    /* Typography */
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    
+    /* Effects */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    overflow: hidden;
+}
+
+.modern-share-btn:hover {
+    background: linear-gradient(135deg, #20C05B 0%, #0E7B6F 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.modern-share-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+
+.modern-share-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.modern-share-btn:hover::before {
+    left: 100%;
+}
+
+.btn-icon {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.modern-share-btn:hover .btn-icon {
+    transform: rotate(15deg);
+}
+
+.btn-loader {
+    display: none;
+    font-size: 16px;
+}
+
+/* Loading state */
+.modern-share-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.modern-share-btn.loading .btn-text,
+.modern-share-btn.loading .btn-icon {
+    visibility: hidden;
+}
+
+.modern-share-btn.loading .btn-loader {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Ripple effect */
+.modern-share-btn .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-share-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .btn-icon {
+        font-size: 16px;
+    }
+}
+    </style>
 <body>
     <!-- Side Navigation -->
     {% include 'component/sidenav.html' %}
@@ -38,62 +452,200 @@
         </button>
     </div>
 
-    <!-- Edit Product Popup -->
-    <div id="editProductPopup" class="popup">
-        <div class="popup-content">
-            <span class="close-btn" py-click="close_edit_popup">×</span>
-            <h2>Edit Product</h2>
-            <img id="editProductImage" class="edit-product-image" src="" alt="Product Image">
-            <div class="input-container">
-                <input type="text" id="editProductName" placeholder="Enter product name">
-                <textarea id="editProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
-                <input type="number" id="editProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
+    <!-- Edit Product Popup - Instagram-inspired Design -->
+    <div id="editProductPopup" class="ig-create-post-popup">
+        <button class="close-popup-btn" py-click="close_edit_popup">&times;</button>
+        <div class="ig-post-container">
+            <div class="image-upload-section">
+                <div class="image-upload-wrapper">
+                    <img id="editProductImage" class="image-preview" style="display:block;">
+                </div>
             </div>
-            <button type="button" class="save-btn" py-click="save_product_changes">Save</button>
+            
+            <div class="post-details-section">
+                <div class="user-profile">
+                    <img src="/static/image_test/profile_default.jpg" alt="Profile">
+                    <span>Trade'n Offer User</span>
+                </div>
+                
+                <div class="post-caption">
+                    <div class="input-group">
+                        <label for="editProductName">Product Name</label>
+                        <input 
+                            type="text" 
+                            id="editProductName" 
+                            placeholder="Enter product name" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="editProductDescription">Product Description</label>
+                        <textarea 
+                            id="editProductDescription" 
+                            placeholder="Describe your product in detail..."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="editProductPrice">Price</label>
+                        <div class="price-input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input 
+                                type="number" 
+                                id="editProductPrice" 
+                                placeholder="0.00" 
+                                step="0.01" 
+                                min="0"
+                                required
+                            >
+                        </div>
+                    </div>
+                
+                </div>
+                
+                <button class="post-submit-btn" py-click="save_product_changes">
+                    Save Changes
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Add New Product Popup -->
-    <div id="addProductPopup" class="popup">
-        <div class="popup-content">
-            <span class="close-btn" py-click="close_add_popup">×</span>
-            <h2>Add New Product</h2>
-            <div class="input-container">
-                <input type="text" id="addProductName" placeholder="Enter product name">
-                <textarea id="addProductDescription" placeholder="Enter product description" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444444; border-radius: 8px; background-color: #FFFFFF; color: #000000; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
-                <input type="number" id="addProductPrice" placeholder="Enter price (e.g., 99.99)" step="0.01">
-                <input type="file" id="addProductImage" accept="image/*">
-                
-                <div class="option-container" style="margin: 10px 0;">
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="addProductTrade" name="trade">
-                        <label for="addProductTrade">Trade</label>
+    <!-- Add New Product Popup - Instagram-inspired Design -->
+    <div id="addProductPopup" class="ig-create-post-popup">
+        <button class="close-popup-btn" py-click="close_add_popup">&times;</button>
+        <div class="ig-post-container">
+            <div class="image-upload-section">
+                <input 
+                    type="file" 
+                    id="addProductImage" 
+                    accept="image/*" 
+                    style="display:none;" 
+                    onchange="handleImagePreview(event)"
+                >
+                <div class="image-upload-wrapper">
+                    <div class="image-placeholder">
+                        <button class="modern-upload-btn" onclick="document.getElementById('addProductImage').click()">
+                            <i class="fas fa-folder-open btn-icon"></i>
+                            <span class="btn-text">Select from computer</span>
+                        </button>
                     </div>
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="addProductSell" name="sell">
-                        <label for="addProductSell">Sell</label>
-                    </div>
+                    <img 
+                        id="addProductImagePreview" 
+                        class="image-preview" 
+                        alt="Product Preview"
+                    >
                 </div>
             </div>
-            <img id="addProductImagePreview" class="edit-product-image" src="" alt="Preview Image" style="display: none;">
-            <button type="button" class="save-btn" py-click="save_new_product">Add</button>
+            
+            <div class="post-details-section">
+                <div class="user-profile">
+                    <img src="/static/image_test/profile_default.jpg" alt="Profile">
+                    <span>Trade'n Offer User</span>
+                </div>
+                
+                <div class="post-caption">
+                    <div class="input-group">
+                        <label for="addProductName">Product Name</label>
+                        <input 
+                            type="text" 
+                            id="addProductName" 
+                            placeholder="Enter product name" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="addProductDescription">Product Description</label>
+                        <textarea 
+                            id="addProductDescription" 
+                            placeholder="Describe your product in detail..."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="addProductPrice">Price</label>
+                        <div class="price-input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input 
+                                type="number" 
+                                id="addProductPrice" 
+                                placeholder="0.00" 
+                                step="0.01" 
+                                min="0"
+                                required
+                            >
+                        </div>
+                    </div>
+                    <!-- In the addProductPopup section, add this before the submit button -->
+                    <div class="trade-sell-options">
+                        <div class="checkbox-wrapper">
+                            <input 
+                                type="checkbox" 
+                                id="addProductTrade" 
+                                name="trade"
+                            >
+                            <label for="addProductTrade">Open for Trade</label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input 
+                                type="checkbox" 
+                                id="addProductSell" 
+                                name="sell"
+                            >
+                            <label for="addProductSell">Available for Purchase</label>
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+                
+                <button class="modern-share-btn" py-click="save_new_product">
+                    <i class="fas fa-share-square btn-icon"></i>
+                    <span class="btn-text">Share</span>
+                    <span class="btn-loader">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                    </span>
+                </button>
+            </div>
         </div>
-    </div>  
+    </div>   
     <script>
         // JavaScript for image preview
         document.querySelector("#addProductImage").addEventListener("change", function(event) {
             const file = event.target.files[0];
             const preview = document.querySelector("#addProductImagePreview");
+            const placeholder = document.querySelector(".image-placeholder");
+            
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    // สร้าง Image object เพื่อตรวจสอบขนาด
+                    const img = new Image();
+                    img.onload = function() {
+                        const aspectRatio = img.width / img.height;
+                        
+                        // ปรับค่า object-fit ตามอัตราส่วนของรูปภาพ
+                        if (aspectRatio > 1) { // รูปภาพแนวนอน
+                            preview.style.objectFit = "contain";
+                        } else { // รูปภาพแนวตั้ง
+                            preview.style.objectFit = "contain";
+                        }
+                        
+                        // แสดงรูปภาพและซ่อนปุ่มอัปโหลด
+                        preview.style.display = "block";
+                        placeholder.style.display = "none";
+                    };
+                    img.src = e.target.result;
                     preview.src = e.target.result;
-                    preview.style.display = "block";
                 };
                 reader.readAsDataURL(file);
             } else {
                 preview.style.display = "none";
                 preview.src = "";
+                placeholder.style.display = "flex";
             }
         });
 

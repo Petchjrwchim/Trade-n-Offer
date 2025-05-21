@@ -178,12 +178,12 @@ async def fetch_user_wishlist():
         else:
             console.error(f"Failed to fetch wishlist. Status: {response.status}")
             # Return sample data if API call fails
-            return sample_liked_data
+            return 
 
     except Exception as e:
         console.error(f"Error fetching wishlist: {e}")
         # Return sample data if there's an exception
-        return sample_liked_data
+        return 
 
 async def check_wishlist_status(item_id, heart_icon):
     try:

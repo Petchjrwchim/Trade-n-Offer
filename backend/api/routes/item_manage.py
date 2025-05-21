@@ -50,7 +50,7 @@ async def add_item(request: Request, item: dict, db: Session = Depends(get_db)):
     if "trade_items" not in root:
         root["trade_items"] = {}
 
-    new_item_id = max(int(k) for k in root["trade_items"].keys()) + 1
+    new_item_id = max((int(k) for k in root["trade_items"].keys()), default=0) + 1
 
     try:
         trade_items = root["trade_items"].copy()

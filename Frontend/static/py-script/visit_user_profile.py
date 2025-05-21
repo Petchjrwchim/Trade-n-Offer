@@ -241,123 +241,86 @@ async def load_user_profile():
         console.error(f"Error in load_user_profile: {e}")
 
 def render_user_items(items):
-        try:
-            productsGrid = document.getElementById("productsGrid")
+    try:
+        productsGrid = document.getElementById("productsGrid")
+        
+        # ลบส่วน Debug Summary
+        # debug_summary = document.createElement('div') ... 
+        # productsGrid.appendChild(debug_summary)
+        
+        if not items or len(items) == 0:
+            no_items = document.createElement('div')
+            no_items.style.color = 'white'
+            no_items.style.textAlign = 'center'
+            no_items.style.padding = '20px'
+            no_items.textContent = 'This user has no items to display'
+            productsGrid.appendChild(no_items)
+            return
+        
+        for item in items:
+            if hasattr(item, 'to_py'):
+                item = item.to_py()
             
-            # Debug: สร้าง Element แสดงข้อมูลสรุป
-            debug_summary = document.createElement('div')
-            debug_summary.style.backgroundColor = '#4b7bec'
-            debug_summary.style.color = 'white'
-            debug_summary.style.padding = '10px'
-            debug_summary.style.margin = '10px'
-            debug_summary.style.borderRadius = '5px'
-            debug_summary.innerHTML = f'''
-                <h3>Items Summary (Debug)</h3>
-                <p>Total items: {len(items) if items else 0}</p>
-                <p>Data type: {type(items).__name__}</p>
-            '''
+            # ลบส่วน Debug Card
+            # debug_card = document.createElement('div') ...
+            # productsGrid.appendChild(debug_card)
             
-            productsGrid.appendChild(debug_summary)
+            # สร้างการ์ดตามรูปแบบปกติ
+            item_div = document.createElement("div")
+            item_div.className = "product-card"
+            item_div.style.cursor = "pointer"
             
-            if not items or len(items) == 0:
-                no_items = document.createElement('div')
-                no_items.style.color = 'white'
-                no_items.style.textAlign = 'center'
-                no_items.style.padding = '20px'
-                no_items.textContent = 'This user has no items to display'
-                productsGrid.appendChild(no_items)
-                return
+            # รูปภาพสินค้า
+            img = document.createElement("img")
+            img.src = item.get("image", "/static/image_test/default_product.png")  # เตรียมรูปภาพ default
+            img.alt = item.get("name", "Item")
+            img.className = "product-image"
+            img.style.width = "100%"
+            img.style.height = "300px"
+            img.style.objectFit = "cover"
             
-            for index, item in enumerate(items):
-                # Convert item if it's a JS object
-                if hasattr(item, 'to_py'):
-                    item = item.to_py()
-                
-                # Create debug card first
-                debug_card = document.createElement('div')
-                debug_card.style.backgroundColor = '#26de81'
-                debug_card.style.color = 'white'
-                debug_card.style.padding = '10px'
-                debug_card.style.margin = '10px 0'
-                debug_card.style.borderRadius = '5px'
-                
-                # Show all properties in item
-                property_list = ""
-                for key, value in item.items():
-                    property_list += f"<li><strong>{key}:</strong> {value}</li>"
-                
-                debug_card.innerHTML = f'''
-                    <h4>Item #{index+1} Debug</h4>
-                    <ul style="list-style-type: none; padding-left: 10px;">
-                        {property_list}
-                    </ul>
-                '''
-                
-                productsGrid.appendChild(debug_card)
-                
-                # Create item card (normal display)
-                item_div = document.createElement("div")
-                item_div.className = "product-card"
-                item_div.style.cursor = "pointer"
-                
-                # Item image
-                img = document.createElement("img")
-                img.src = item.get("image", "")
-                img.alt = item.get("name", "Item")
-                img.className = "product-image"
-                
-                # Item name
-                name = document.createElement("div")
-                name.className = "product-name"
-                name.textContent = item.get("name", "Item")
-                
-                # Item description
-                description = document.createElement("div")
-                description.className = "product-description"
-                description.textContent = item.get("description", "")
-                
-                # Item price
-                price = document.createElement("div")
-                price.className = "product-price"
-                price.textContent = item.get("price", "$0")
-                
-                # Add elements to card
-                item_div.appendChild(img)
-                item_div.appendChild(name)
-                item_div.appendChild(description)
-                item_div.appendChild(price)
-                
-                # Add click event to show item details
-                def create_click_handler(selected_item):
-                    def handler(event):
-                        create_post_popup(selected_item)
-                    return handler
-                
-                click_proxy = create_proxy(create_click_handler(item))
-                item_div.addEventListener('click', click_proxy)
-                
-                # Add card to grid
-                productsGrid.appendChild(item_div)
+            # ชื่อสินค้าและราคา
+            text_div = document.createElement("div")
+            text_div.style.padding = "10px"
             
-            console.log(f"Rendered {len(items)} user items")
-        except Exception as e:
-            console.error(f"Error rendering user items: {e}")
+            name = document.createElement("div")
+            name.className = "product-name"
+            name.textContent = item.get("name", "Item Name")
+            name.style.color = "white"
+            name.style.marginBottom = "5px"
             
-            # Create debug message for render exception
-            debug_div = document.createElement('div')
-            debug_div.style.backgroundColor = '#ff6b6b'
-            debug_div.style.color = 'white'
-            debug_div.style.padding = '10px'
-            debug_div.style.margin = '10px'
-            debug_div.style.borderRadius = '5px'
-            debug_div.innerHTML = f'''
-                <h3>Render Error</h3>
-                <p>Error: {str(e)}</p>
-            '''
+            price = document.createElement("div")
+            price.className = "product-price"
+            price.textContent = item.get("price", "฿0")
+            price.style.color = "#FFD700"  # สีทอง
             
-            productsGrid = document.getElementById("productsGrid")
-            productsGrid.innerHTML = ''
-            productsGrid.appendChild(debug_div)
+            text_div.appendChild(name)
+            text_div.appendChild(price)
+            
+            item_div.appendChild(img)
+            item_div.appendChild(text_div)
+            
+            # เพิ่มเหตุการณ์คลิก
+            def create_click_handler(selected_item):
+                def handler(event):
+                    create_post_popup(selected_item)
+                return handler
+            
+            click_proxy = create_proxy(create_click_handler(item))
+            item_div.addEventListener('click', click_proxy)
+            
+            productsGrid.appendChild(item_div)
+        
+        console.log(f"Rendered {len(items)} user items")
+    except Exception as e:
+        console.error(f"Error rendering user items: {e}")
+        # แสดงข้อความผิดพลาดแบบผู้ใช้
+        error_div = document.createElement('div')
+        error_div.textContent = "Error loading items. Please try again later."
+        error_div.style.color = "white"
+        error_div.style.textAlign = "center"
+        error_div.style.padding = "20px"
+        productsGrid.appendChild(error_div)
 
 async def initialize():
     try:

@@ -1,17 +1,9 @@
-/* Existing CSS remains the same, with additions for search and filter */
+/* My Items page styling with updated color scheme */
 body {
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
-    background: linear-gradient(45deg, #000000, #1a1a1a, #000033, #000000);
-    background-size: 200% 200%;
-    animation: gradientBG 15s ease infinite;
-    color: #FFFFFF;
-}
-
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    background: #dfdfdf;
+    color: #333333;
 }
 
 .content {
@@ -23,7 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: transparent; /* Changed to transparent */
+    background-color: transparent;
 }
 
 .button {
@@ -36,8 +28,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #FFD700;
-    background-color: #2c2c2c;
+    border: 2px solid #5a58af;
+    background-color: #ffdeac;
     border-radius: 25px;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -47,13 +39,13 @@ body {
 }
 
 .button:hover {
-    background-color: #FFD700;
-    border-color: #FFD700;
+    background-color: #5a58af;
+    border-color: #ffdeac;
     transform: scale(1.05);
 }
 
 .button__text {
-    color: #FFFFFF;
+    color: #5a58af;
     font-size: 16px;
     transition: color 0.3s ease;
 }
@@ -71,16 +63,20 @@ body {
 
 .button .svg {
     width: 20px;
-    stroke: #FFFFFF;
+    stroke: #5a58af;
 }
 
 .button:hover .button__text {
-    color: transparent;
+    color: #ffdeac;
 }
 
 .button:hover .button__icon {
     width: 160px;
     transform: translateX(0);
+}
+
+.button:hover .svg {
+    stroke: #ffdeac;
 }
 
 .search-filter-container {
@@ -93,34 +89,34 @@ body {
 .search-input {
     width: 300px;
     padding: 10px;
-    border: 1px solid #444444;
+    border: 1px solid #5a58af;
     border-radius: 8px;
-    background-color: #2D2D2D;
-    color: #FFFFFF;
+    background-color: #ffffff;
+    color: #333333;
     font-size: 16px;
     transition: border-color 0.3s ease;
 }
 
 .search-input:focus {
-    border-color: #FFD700;
+    border-color: #ffdeac;
     outline: none;
-    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 5px rgba(255, 222, 172, 0.5);
 }
 
 .filter-select {
     padding: 10px;
-    border: 1px solid #444444;
+    border: 1px solid #5a58af;
     border-radius: 8px;
-    background-color: #2D2D2D;
-    color: #FFFFFF;
+    background-color: #ffffff;
+    color: #333333;
     font-size: 16px;
     transition: border-color 0.3s ease;
 }
 
 .filter-select:focus {
-    border-color: #FFD700;
+    border-color: #ffdeac;
     outline: none;
-    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 5px rgba(255, 222, 172, 0.5);
 }
 
 .product-grid {
@@ -145,10 +141,10 @@ body {
 
 .product-item {
     max-width: 280px;
-    height: 520px; /* Reduced height since category is removed */
-    background-color: #2D2D2D;
+    height: 520px;
+    background: linear-gradient(135deg, #5a58af, #4a488f);
     border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -161,7 +157,7 @@ body {
 
 .product-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 25px rgba(90, 88, 175, 0.4);
 }
 
 .product-image {
@@ -170,8 +166,9 @@ body {
     border-radius: 10px;
     object-fit: cover;
     cursor: pointer;
-    border: 2px solid #444444;
+    border: 2px solid #ffdeac;
     transition: opacity 0.3s ease;
+    background-color: #dfdfdf;
 }
 
 .product-image:hover {
@@ -182,13 +179,13 @@ body {
     font-size: 20px;
     font-weight: 600;
     margin: 10px 0;
-    color: #FFFFFF;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .product-description {
     font-size: 14px;
-    color: #CCCCCC;
+    color: #f0f0f0;
     margin: 5px 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -200,7 +197,7 @@ body {
 .product-price {
     font-size: 18px;
     font-weight: 500;
-    color: #FFD700;
+    color: #ffdeac;
     margin: 5px 0;
 }
 
@@ -227,23 +224,24 @@ body {
 }
 
 .edit-btn {
-    background-color: #DAA520;
-    color: #333333;
+    background-color: #ffdeac;
+    color: #5a58af;
 }
 
 .remove-btn {
-    background-color: #a2a09b;
-    color: white;
+    background-color: #dfdfdf;
+    color: #555555;
 }
 
 .edit-btn:hover {
-    background-color: #DAA520;
+    background-color: #ffd28e;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .remove-btn:hover {
-    background-color: red;
+    background-color: #ff6b6b;
+    color: white;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -261,26 +259,26 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
 }
 
 .popup-content {
-    background-color: #2D2D2D;
+    background: linear-gradient(135deg, #5a58af, #4a488f);
     margin: 5% auto;
     padding: 25px;
     border-radius: 20px;
     width: 400px;
     max-width: 100%;
-    max-height: 80vh; /* Limit height for scrolling */
+    max-height: 80vh;
     text-align: center;
-    color: #FFFFFF;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease-out;
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    position: relative; /* ช่วยรักษาตำแหน่งในกริด */ 
-    top: -70px; /* ขยับขึ้น 50px (ปรับตามความเหมาะสม) */
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    top: -70px;
 }
 
 .popup-content::-webkit-scrollbar {
@@ -288,17 +286,17 @@ body {
 }
 
 .popup-content::-webkit-scrollbar-track {
-    background: #2D2D2D;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
 }
 
 .popup-content::-webkit-scrollbar-thumb {
-    background: #FFD700;
+    background: #ffdeac;
     border-radius: 10px;
 }
 
 .popup-content::-webkit-scrollbar-thumb:hover {
-    background: #FFD700;
+    background: #ffd28e;
 }
 
 @keyframes slideIn {
@@ -318,12 +316,12 @@ body {
     right: 15px;
     font-size: 24px;
     cursor: pointer;
-    color: #FFFFFF;
+    color: #ffffff;
     transition: color 0.3s ease;
 }
 
 .close-btn:hover {
-    color: #f44336;
+    color: #ffdeac;
 }
 
 .edit-product-image, #addProductImagePreview {
@@ -332,8 +330,9 @@ body {
     border-radius: 15px;
     object-fit: cover;
     margin: 15px auto;
-    border: 2px solid #444444;
+    border: 2px solid #ffdeac;
     transition: transform 0.3s ease;
+    background-color: #dfdfdf;
 }
 
 .edit-product-image:hover, #addProductImagePreview:hover {
@@ -341,44 +340,45 @@ body {
 }
 
 .input-container {
-    width: 80%; /* Fixed width for the input container to create equal margins */
-    margin: 0 auto; /* Center the container horizontally within .popup-content */
-    max-width: 320px; /* Ensure it doesn’t exceed a reasonable width on small screens */
+    width: 80%;
+    margin: 0 auto;
+    max-width: 320px;
 }
 
 input[type="text"], input[type="file"], input[type="number"], textarea {
-    width: 100%; /* Full width within the .input-container */
+    width: 100%;
     padding: 12px;
     margin: 10px 0;
-    border: 1px solid #444444;
+    border: 1px solid #dfdfdf;
     border-radius: 8px;
-    background-color: #FFFFFF;
-    color: #000000;
+    background-color: #ffffff;
+    color: #333333;
     font-size: 16px;
     transition: border-color 0.3s ease;
 }
 
 input[type="text"]:focus, input[type="file"]:focus, input[type="number"]:focus, textarea:focus {
-    border-color: #4CAF50;
+    border-color: #ffdeac;
     outline: none;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    box-shadow: 0 0 5px rgba(255, 222, 172, 0.5);
 }
 
 .save-btn {
     padding: 12px 25px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #ffdeac;
+    color: #5a58af;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: 600;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease-in-out;
     margin-top: 15px;
 }
 
 .save-btn:hover {
-    background-color: #45a049;
+    background-color: #ffd28e;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -386,6 +386,33 @@ input[type="text"]:focus, input[type="file"]:focus, input[type="number"]:focus, 
 .save-btn:active {
     transform: translateY(0);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Checkbox styling */
+.option-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 15px 0;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #ffdeac;
+}
+
+.checkbox-wrapper label {
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {
@@ -409,7 +436,7 @@ input[type="text"]:focus, input[type="file"]:focus, input[type="number"]:focus, 
 
     .product-item {
         max-width: 220px;
-        height: 420px; /* Reduced height for mobile, reflecting removed category */
+        height: 420px;
     }
 
     .search-filter-container {
@@ -425,13 +452,13 @@ input[type="text"]:focus, input[type="file"]:focus, input[type="number"]:focus, 
     .popup-content {
         width: 80%;
         margin: 20% auto;
-        max-height: 70vh; /* Adjusted for mobile */
-        top: -30px; /* ขยับขึ้นน้อยกว่าในมือถือ */
+        max-height: 70vh;
+        top: -30px;
     }
 
     .input-container {
-        width: 90%; /* Slightly wider on mobile for better usability */
-        max-width: 280px; /* Adjusted for smaller screens */
+        width: 90%;
+        max-width: 280px;
     }
 
     .edit-product-image, #addProductImagePreview {

@@ -8,7 +8,7 @@
 body {
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
-    background-color: #000000 !important; /* เพิ่ม !important เพื่อความสำคัญสูงสุด */
+    background-color: #dfdfdf; /* เพิ่ม !important เพื่อความสำคัญสูงสุด */
     color: #941313;
     display: flex;
     height: 100vh;
@@ -31,7 +31,7 @@ body {
 .sidebar {
     width: 200px;
     height: 100vh;
-    background: #2D2D2D;
+    background: #5a58af;
     color: white;
     padding-top: 20px;
     position: fixed;
