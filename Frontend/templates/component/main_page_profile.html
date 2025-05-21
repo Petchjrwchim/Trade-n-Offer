@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/main_page_profile.css') }}">
+</head>
+<body>
+    <!-- Updated Profile Component with Vertical Layout -->
+    <div class="profile-card">
+        <!-- Main Current Profile Display -->
+        <div class="profile-content" id="profileIconTrigger">
+            <div class="profile-image">
+                <img id="profileImage" src="/static/image_test/profile_hover.jpg" alt="Current Profile Image">
+            </div>
+            <div class="profile-details">
+                <span id="profileName" class="profile-name">Current Profile</span>
+            </div>
+        </div>
+        
+        <!-- Always visible profiles selection panel -->
+        <div id="profilePanel" class="profile-panel">
+            <div class="panel-header">
+                <h3>Available Profiles</h3>
+            </div>
+            
+            <div id="productGrid" class="product-grid">
+                <!-- Profiles will be inserted here by PyScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script type="py" src="{{ url_for('static', path='/py-script/main_page_profile-script.py') }}"></script>
+</body>
+</html>

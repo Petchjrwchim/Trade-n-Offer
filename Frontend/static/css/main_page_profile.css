@@ -1,0 +1,330 @@
+/* Updated Styling for Always-Visible Profile Component - Vertical Layout */
+.profile-card {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 380px;
+}
+
+/* Current active profile styling */
+.profile-content {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(135deg, #ffdeac, #ffd28e);
+    border-radius: 20px;
+    border: 3px solid #5a58af;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-content:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.profile-image {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+    border: 3px solid #5a58af;
+    background-color: #dfdfdf;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.profile-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: #5a58af;
+    margin-bottom: 6px;
+}
+
+.profile-title {
+    font-size: 16px;
+    color: #666666;
+}
+
+/* Profile selection panel - always visible */
+.profile-panel {
+    width: 100%;
+    background: linear-gradient(135deg, #5a58af, #4a488f);
+    border-radius: 20px;
+    max-height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+}
+
+.panel-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.panel-header h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #ffdeac;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+/* Add Item Container */
+.add-item-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 0 0 20px 0;
+}
+
+.button {
+    position: relative;
+    width: 200px;
+    height: 55px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffdeac;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    background-color: #ffdeac;
+    border-color: #ffdeac;
+    transform: scale(1.05);
+}
+
+.button__text {
+    color: #FFFFFF;
+    font-size: 18px;
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.button__icon {
+    position: absolute;
+    transform: translateX(130px);
+    height: 100%;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.button .svg {
+    width: 24px;
+    stroke: #FFFFFF;
+}
+
+.button:hover .button__text {
+    color: #5a58af;
+    z-index: 1;
+}
+
+.button:hover .button__icon {
+    width: 200px;
+    transform: translateX(0);
+}
+
+.button:hover .svg {
+    stroke: #5a58af;
+}
+
+/* Product Grid Styles - Vertical Layout */
+.product-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    padding: 10px 0;
+}
+
+/* No profiles message */
+.no-profiles {
+    text-align: center;
+    padding: 30px;
+    color: #ffdeac;
+    font-size: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    margin: 15px 0;
+    width: 100%;
+}
+
+/* Vertical profile item with larger image */
+.product-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    height: 90px; /* Taller to accommodate larger image */
+    overflow: hidden;
+}
+
+.product-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Highlight selected profile */
+.product-item.active {
+    background-color: rgba(255, 222, 172, 0.2);
+    border-left: 4px solid #ffdeac;
+    box-shadow: 0 0 15px rgba(255, 222, 172, 0.3);
+}
+
+/* Larger profile image */
+.product-item .product-image {
+    width: 70px; /* Larger image */
+    height: 70px; /* Larger image */
+    border-radius: 10px;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #ffdeac;
+    flex-shrink: 0;
+    background-color: #dfdfdf;
+}
+
+.product-item .product-name {
+    font-size: 18px; /* Slightly larger font */
+    font-weight: 500;
+    color: #FFFFFF;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 90px); /* Adjusted for larger image */
+}
+
+/* Custom scrollbar for the panel */
+.profile-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.profile-panel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.profile-panel::-webkit-scrollbar-thumb {
+    background: #ffdeac;
+    border-radius: 10px;
+}
+
+.profile-panel::-webkit-scrollbar-thumb:hover {
+    background: #ffd28e;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 900px) {
+    .profile-card {
+        width: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-card {
+        width: 280px;
+        right: 20px;
+        top: 20px;
+    }
+    
+    .profile-content {
+        height: 80px;
+    }
+    
+    .profile-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .profile-name {
+        font-size: 18px;
+    }
+    
+    .profile-title {
+        font-size: 14px;
+    }
+    
+    .profile-panel {
+        padding: 20px;
+    }
+    
+    .product-item {
+        height: 80px;
+    }
+    
+    .product-item .product-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .button {
+        width: 180px;
+        height: 50px;
+    }
+    
+    .button__icon {
+        transform: translateX(120px);
+    }
+    
+    .button:hover .button__icon {
+        width: 180px;
+    }
+}
+
+/* For very small screens */
+@media (max-width: 400px) {
+    .profile-card {
+        width: 250px;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .product-item .product-name {
+        font-size: 16px;
+    }
+    
+    .product-item .product-image {
+        width: 50px;
+        height: 50px;
+    }
+}
